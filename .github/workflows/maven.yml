@@ -30,6 +30,8 @@ jobs:
     - name: Build with Maven
       working-directory: ./cyberlarp-api
       run: mvn clean install
+      env:
+         DB_URL: ${{ secrets.DB_URL }}
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
