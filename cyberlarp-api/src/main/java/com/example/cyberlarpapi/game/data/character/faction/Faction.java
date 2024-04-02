@@ -1,4 +1,4 @@
-package com.example.cyberlarpapi.data.faction;
+package com.example.cyberlarpapi.game.data.character.faction;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

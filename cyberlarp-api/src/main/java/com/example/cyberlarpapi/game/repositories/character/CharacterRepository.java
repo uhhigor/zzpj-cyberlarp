@@ -1,6 +1,6 @@
-package com.example.cyberlarpapi.repositories;
+package com.example.cyberlarpapi.game.repositories.character;
 
-import com.example.cyberlarpapi.data.character.Character;
+import com.example.cyberlarpapi.game.data.character.Character;
 import org.springframework.data.repository.CrudRepository;
 
 public interface CharacterRepository extends CrudRepository<Character, Integer>{

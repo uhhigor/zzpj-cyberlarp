@@ -1,8 +1,8 @@
-package com.example.cyberlarpapi.data.character;
+package com.example.cyberlarpapi.game.data.character;
 
-import com.example.cyberlarpapi.data.characterClass.CharacterClass;
-import com.example.cyberlarpapi.data.faction.Faction;
-import com.example.cyberlarpapi.data.style.Style;
+import com.example.cyberlarpapi.game.data.character.characterClass.CharacterClass;
+import com.example.cyberlarpapi.game.data.character.faction.Faction;
+import com.example.cyberlarpapi.game.data.character.style.Style;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -63,6 +63,10 @@ public class Character {
         this.knowledge = knowledge;
         this.max_hp = max_hp;
         this.armor = armor;
+    }
+
+    public Character() {
+
     }
 
     public Integer getId() {

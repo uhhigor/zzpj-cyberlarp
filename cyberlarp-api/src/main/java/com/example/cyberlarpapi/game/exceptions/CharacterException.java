@@ -1,4 +1,4 @@
-package com.example.cyberlarpapi.exceptions;
+package com.example.cyberlarpapi.game.exceptions;
 
 public class CharacterException extends Exception{
     public CharacterException(String message, Throwable cause) {

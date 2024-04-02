@@ -1,4 +1,4 @@
-package com.example.cyberlarpapi.data.character;
+package com.example.cyberlarpapi.game.data.character;
 
 public class CharacterDTO {
     private String name;

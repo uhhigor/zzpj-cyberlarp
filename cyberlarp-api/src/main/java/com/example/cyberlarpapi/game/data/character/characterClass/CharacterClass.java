@@ -1,10 +1,10 @@
-package com.example.cyberlarpapi.data.style;
+package com.example.cyberlarpapi.game.data.character.characterClass;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 @Entity
-public class Style {
+public class CharacterClass {
 
     @Id
     private Integer id;

@@ -1,15 +1,15 @@
-package com.example.cyberlarpapi.services;
+package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.data.character.CharacterDTO;
-import com.example.cyberlarpapi.data.character.Character;
-import com.example.cyberlarpapi.data.characterClass.CharacterClass;
-import com.example.cyberlarpapi.data.faction.Faction;
-import com.example.cyberlarpapi.repositories.CharacterRepository;
-import com.example.cyberlarpapi.repositories.ClassRepository;
-import com.example.cyberlarpapi.repositories.FactionRepository;
-import com.example.cyberlarpapi.repositories.StyleRepository;
-import com.example.cyberlarpapi.data.style.Style;
-import com.example.cyberlarpapi.exceptions.CharacterException;
+import com.example.cyberlarpapi.game.data.character.CharacterDTO;
+import com.example.cyberlarpapi.game.data.character.Character;
+import com.example.cyberlarpapi.game.data.character.characterClass.CharacterClass;
+import com.example.cyberlarpapi.game.data.character.faction.Faction;
+import com.example.cyberlarpapi.game.data.character.style.Style;
+import com.example.cyberlarpapi.game.exceptions.CharacterException;
+import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
+import com.example.cyberlarpapi.game.repositories.character.ClassRepository;
+import com.example.cyberlarpapi.game.repositories.character.FactionRepository;
+import com.example.cyberlarpapi.game.repositories.character.StyleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
