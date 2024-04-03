@@ -1,8 +1,11 @@
 package com.example.cyberlarpapi.game.data.character;
 
+import com.example.cyberlarpapi.User;
+import com.example.cyberlarpapi.game.data.Game;
 import com.example.cyberlarpapi.game.data.character.characterClass.CharacterClass;
 import com.example.cyberlarpapi.game.data.character.faction.Faction;
 import com.example.cyberlarpapi.game.data.character.style.Style;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -11,6 +14,13 @@ public class Character {
 
     @Id
     private Integer id;
+
+    @OneToOne
+    @JsonBackReference
+    private Game game;
+
+    @OneToOne
+    private User user;
 
     private String name;
 
@@ -49,7 +59,9 @@ public class Character {
 
     int armor;
 
-    public Character(String name, String description, CharacterClass characterClass, Faction faction, Style style, int balance, int strength, int agility, int presence, int toughness, int knowledge, int max_hp, int armor) {
+    public Character(Game game, User user, String name, String description, CharacterClass characterClass, Faction faction, Style style, int balance, int strength, int agility, int presence, int toughness, int knowledge, int max_hp, int armor) {
+        this.game = game;
+        this.user = user;
         this.name = name;
         this.description = description;
         this.characterClass = characterClass;

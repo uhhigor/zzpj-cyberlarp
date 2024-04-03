@@ -1,6 +1,9 @@
 package com.example.cyberlarpapi.game.data.character;
 
 public class CharacterDTO {
+
+    private Integer gameId;
+    private Integer userId;
     private String name;
 
     private String description;
@@ -83,5 +86,13 @@ public class CharacterDTO {
 
     public int getArmor() {
         return armor;
+    }
+
+    public Integer getGameId() {
+        return gameId;
+    }
+
+    public Integer getUserId() {
+        return userId;
     }
 }
