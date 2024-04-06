@@ -5,6 +5,9 @@
 </div>
 <div sec:authorize="isAuthenticated()">
     <p>You are logged in!</p>
+    <form name="logoutForm" th:action="@{/logout}" method="post">
+        <button type="submit" value="Log out">Logout</button>
+    </form>
 </div>
 </body>
 </html>
