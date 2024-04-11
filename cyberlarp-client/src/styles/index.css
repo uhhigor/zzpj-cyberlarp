@@ -1,0 +1,15 @@
+@font-face {
+  font-family: 'MainFont';
+  src: url('../resources/GlitchGoblin-2O87v.ttf') format('truetype');
+}
+
+body {
+  font-size: 60px;
+  text-align: center;
+  background-image: url('../resources/10677527(1).jpg');
+  background-position: center;
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden !important;
+  font-family: "MainFont", sans-serif !important;
+}
