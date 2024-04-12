@@ -1,0 +1,11 @@
+.black-panel {
+    background-color: #252323;
+    opacity: 70%;
+    width: 80%!important;
+    height: 100% !important;
+    position: fixed;
+    top: 0;
+    left: 20%;
+    color: white;
+    border-radius: 7px;
+}
