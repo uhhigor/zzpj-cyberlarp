@@ -2,14 +2,25 @@ package com.example.cyberlarpapi.game.services;
 
 import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.UserRepository;
+import com.example.cyberlarpapi.game.data.Game;
 import com.example.cyberlarpapi.game.data.room.Room;
+import com.example.cyberlarpapi.game.exceptions.GameServiceException;
+import com.example.cyberlarpapi.game.repositories.GameRepository;
 import com.example.cyberlarpapi.game.repositories.room.RoomRepository;
+import org.springframework.data.util.StreamUtils;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class GameService {
     private final RoomRepository roomRepository;
 
-    public GameService(RoomRepository roomRepository) {
+    private final GameRepository gameRepository;
+
+    public GameService(RoomRepository roomRepository, GameRepository gameRepository) {
         this.roomRepository = roomRepository;
+        this.gameRepository = gameRepository;
     }
 
     public Room createRoom(User user) {
@@ -60,5 +71,29 @@ public class GameService {
     public boolean startGame() {
         return false;
     }
+
+    // ================== Igor ===================
+
+    public List<Game> getAll() {
+        return StreamUtils.createStreamFromIterator(gameRepository.findAll().iterator()).toList();
+    }
+
+    public Game getById(int id) throws GameServiceException {
+        return gameRepository.findById(id).orElseThrow(() -> new GameServiceException("Game not found"));
+    }
+
+    public void deleteById(int id) {
+        gameRepository.deleteById(id);
+    }
+
+    public Game create(Game game) {
+        return gameRepository.save(game);
+    }
+
+    public Game update(Game game) {
+        return gameRepository.save(game);
+    }
+
+
 
 }

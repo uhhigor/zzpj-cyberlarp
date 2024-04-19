@@ -1,7 +1,8 @@
 package com.example.cyberlarpapi.game.data;
 
-import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.data.character.Character;
+import com.example.cyberlarpapi.game.data.character.faction.Faction;
+import com.example.cyberlarpapi.game.data.character.style.Style;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -13,12 +14,13 @@ public class Game {
     @GeneratedValue
     private Integer id;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "game")
     @JsonManagedReference
-    private List<Character> characters;
+    private List<Character> availableCharacters;
 
-    @OneToMany
-    private List<User> players;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "game")
+    private List<Player> players;
+
 
     public void setId(Integer id) {
         this.id = id;
@@ -26,5 +28,37 @@ public class Game {
 
     public Integer getId() {
         return id;
+    }
+
+    public List<Character> getAvailableCharacters() {
+        return availableCharacters;
+    }
+
+    public void setAvailableCharacters(List<Character> availableCharacters) {
+        this.availableCharacters = availableCharacters;
+    }
+
+    public void addAvailableCharacter(Character character) {
+        this.availableCharacters.add(character);
+    }
+
+    public void removeAvailableCharacter(Character character) {
+        this.availableCharacters.remove(character);
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(List<Player> players) {
+        this.players = players;
+    }
+
+    public void addPlayer(Player player) {
+        this.players.add(player);
+    }
+
+    public void removePlayer(Player player) {
+        this.players.remove(player);
     }
 }

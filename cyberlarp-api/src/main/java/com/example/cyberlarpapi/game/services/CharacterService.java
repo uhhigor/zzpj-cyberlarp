@@ -1,58 +1,65 @@
 package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.data.Game;
-import com.example.cyberlarpapi.game.data.character.CharacterDTO;
 import com.example.cyberlarpapi.game.data.character.Character;
+import com.example.cyberlarpapi.game.data.character.CharacterDTO;
 import com.example.cyberlarpapi.game.data.character.characterClass.CharacterClass;
 import com.example.cyberlarpapi.game.data.character.faction.Faction;
 import com.example.cyberlarpapi.game.data.character.style.Style;
-import com.example.cyberlarpapi.game.exceptions.CharacterException;
+import com.example.cyberlarpapi.game.exceptions.*;
 import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
-import com.example.cyberlarpapi.game.repositories.character.ClassRepository;
-import com.example.cyberlarpapi.game.repositories.character.FactionRepository;
-import com.example.cyberlarpapi.game.repositories.character.StyleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.example.cyberlarpapi.game.repositories.GameRepository;
-import com.example.cyberlarpapi.UserRepository;
 
 @Service
 public class CharacterService {
 
-    private final GameRepository gameRepository;
+    private final GameService gameService;
 
-    private final UserRepository userRepository;
+    private final CharacterClassService characterClassService;
     private final CharacterRepository characterRepository;
-    private final ClassRepository classRepository;
-    private final FactionRepository factionRepository;
-    private final StyleRepository styleRepository;
 
-    @Autowired
-    public CharacterService(GameRepository gameRepository, UserRepository userRepository, CharacterRepository characterRepository, ClassRepository classRepository, FactionRepository factionRepository, StyleRepository styleRepository) {
-        this.gameRepository = gameRepository;
-        this.userRepository = userRepository;
+    private final FactionService factionService;
+
+    private final StyleService styleService;
+
+    public CharacterService(GameService gameService, CharacterClassService characterClassService, CharacterRepository characterRepository, FactionService factionService, StyleService styleService) {
+        this.gameService = gameService;
+        this.characterClassService = characterClassService;
         this.characterRepository = characterRepository;
-        this.classRepository = classRepository;
-        this.factionRepository = factionRepository;
-        this.styleRepository = styleRepository;
+        this.factionService = factionService;
+        this.styleService = styleService;
     }
 
-    public Character createCharacter(CharacterDTO characterDTO) throws CharacterException {
-        Game game = gameRepository.findById(characterDTO.getGameId()).orElseThrow(() -> new CharacterException("Game not found"));
-        User user = userRepository.findById(characterDTO.getUserId()).orElseThrow(() -> new CharacterException("User not found"));
-        CharacterClass characterClass = classRepository.findById(characterDTO.getCharacterClassId()).orElseThrow(() -> new CharacterException("Class not found"));
-        Faction faction = factionRepository.findById(characterDTO.getFactionId()).orElseThrow(() -> new CharacterException("Faction not found"));
-        Style style = styleRepository.findById(characterDTO.getStyleId()).orElseThrow(() -> new CharacterException("Style not found"));
 
-        Character character = new Character(game, user, characterDTO.getName(), characterDTO.getDescription(), characterClass, faction, style,
-                        characterDTO.getBalance(), characterDTO.getStrength(), characterDTO.getAgility(),
-                        characterDTO.getPresence(), characterDTO.getToughness(), characterDTO.getKnowledge(),
-                        characterDTO.getMax_hp(), characterDTO.getArmor());
+    public Character createCharacter(CharacterDTO characterDTO) throws CharacterServiceException {
+        try {
+            Game game = gameService.getById(characterDTO.getGameId());
+            CharacterClass characterClass = characterClassService.getById(characterDTO.getCharacterClassId());
+            Faction faction = factionService.getById(characterDTO.getFactionId());
+            Style style = styleService.getById(characterDTO.getStyleId());
 
-        characterRepository.save(character);
-        return character;
+        Character character = Character.builder()
+                .game(game)
+                .name(characterDTO.getName())
+                .description(characterDTO.getDescription())
+                .characterClass(characterClass)
+                .faction(faction)
+                .style(style)
+                .balance(characterDTO.getBalance())
+                .strength(characterDTO.getStrength())
+                .agility(characterDTO.getAgility())
+                .presence(characterDTO.getPresence())
+                .toughness(characterDTO.getToughness())
+                .knowledge(characterDTO.getKnowledge())
+                .max_hp(characterDTO.getMax_hp())
+                .armor(characterDTO.getArmor())
+                .build();
+
+        return characterRepository.save(character);
+
+        } catch (GameServiceException | FactionServiceException | StyleServiceException | CharacterException e) {
+            throw new CharacterServiceException("Error while creating character", e);
+        }
     }
 
 }

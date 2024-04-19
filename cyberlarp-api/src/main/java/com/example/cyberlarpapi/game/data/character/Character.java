@@ -1,12 +1,16 @@
 package com.example.cyberlarpapi.game.data.character;
 
-import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.data.Game;
+import com.example.cyberlarpapi.game.data.Player;
 import com.example.cyberlarpapi.game.data.character.characterClass.CharacterClass;
 import com.example.cyberlarpapi.game.data.character.faction.Faction;
 import com.example.cyberlarpapi.game.data.character.style.Style;
+import com.example.cyberlarpapi.game.exceptions.CharacterException;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import org.apache.commons.lang3.RandomStringUtils;
 
 @Entity
@@ -15,67 +19,49 @@ public class Character {
     @Id
     private Integer id;
 
-    @OneToOne
+    @ManyToOne
     @JsonBackReference
     private Game game;
 
     @OneToOne
-    private User user;
+    private Player player;
 
     private String name;
 
     private String description;
 
-    @OneToOne
+    @ManyToOne
     private CharacterClass characterClass;
 
-    @OneToOne
+    @ManyToOne
     private Faction faction;
 
-    @OneToOne
+    @ManyToOne
     private Style style;
 
     // BANK ACCOUNT
 
-    int balance;
+    private int balance;
     String account_number = "#" + RandomStringUtils.randomNumeric(6);
 
     // ATTRIBUTES
 
-    int strength;
+    private int strength;
 
-    int agility;
+    private int agility;
 
-    int presence;
+    private int presence;
 
-    int toughness;
+    private int toughness;
 
-    int knowledge;
+    private int knowledge;
 
     // STATS
-    int max_hp;
+    private int max_hp;
 
-    int current_hp = max_hp;
+    private int current_hp;
 
-    int armor;
-
-    public Character(Game game, User user, String name, String description, CharacterClass characterClass, Faction faction, Style style, int balance, int strength, int agility, int presence, int toughness, int knowledge, int max_hp, int armor) {
-        this.game = game;
-        this.user = user;
-        this.name = name;
-        this.description = description;
-        this.characterClass = characterClass;
-        this.faction = faction;
-        this.style = style;
-        this.balance = balance;
-        this.strength = strength;
-        this.agility = agility;
-        this.presence = presence;
-        this.toughness = toughness;
-        this.knowledge = knowledge;
-        this.max_hp = max_hp;
-        this.armor = armor;
-    }
+    private int armor;
 
     public Character() {
 
@@ -87,6 +73,22 @@ public class Character {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public String getName() {
@@ -103,6 +105,30 @@ public class Character {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public CharacterClass getCharacterClass() {
+        return characterClass;
+    }
+
+    public void setCharacterClass(CharacterClass characterClass) {
+        this.characterClass = characterClass;
+    }
+
+    public Faction getFaction() {
+        return faction;
+    }
+
+    public void setFaction(Faction faction) {
+        this.faction = faction;
+    }
+
+    public Style getStyle() {
+        return style;
+    }
+
+    public void setStyle(Style style) {
+        this.style = style;
     }
 
     public int getBalance() {
@@ -161,20 +187,20 @@ public class Character {
         this.knowledge = knowledge;
     }
 
-    public int getCurrent_hp() {
-        return current_hp;
-    }
-
-    public void setCurrent_hp(int current_hp) {
-        this.current_hp = current_hp;
-    }
-
     public int getMax_hp() {
         return max_hp;
     }
 
     public void setMax_hp(int max_hp) {
         this.max_hp = max_hp;
+    }
+
+    public int getCurrent_hp() {
+        return current_hp;
+    }
+
+    public void setCurrent_hp(int current_hp) {
+        this.current_hp = current_hp;
     }
 
     public int getArmor() {
@@ -184,4 +210,121 @@ public class Character {
     public void setArmor(int armor) {
         this.armor = armor;
     }
+
+    public static CharacterBuilder builder() {
+        return new CharacterBuilder();
+    }
+
+    public static class CharacterBuilder {
+        private final Character character;
+
+        public CharacterBuilder() {
+            character = new Character();
+        }
+
+        public CharacterBuilder game(Game game) {
+            character.game = game;
+            return this;
+        }
+
+        public CharacterBuilder player(Player player) {
+            character.player = player;
+            return this;
+        }
+
+        public CharacterBuilder name(String name) {
+            character.name = name;
+            return this;
+        }
+
+        public CharacterBuilder description(String description) {
+            character.description = description;
+            return this;
+        }
+
+        public CharacterBuilder characterClass(CharacterClass characterClass) {
+            character.characterClass = characterClass;
+            return this;
+        }
+
+        public CharacterBuilder faction(Faction faction) {
+            character.faction = faction;
+            return this;
+        }
+
+        public CharacterBuilder style(Style style) {
+            character.style = style;
+            return this;
+        }
+
+        public CharacterBuilder balance(int balance) {
+            character.balance = balance;
+            return this;
+        }
+
+        public CharacterBuilder strength(int strength) {
+            character.strength = strength;
+            return this;
+        }
+
+        public CharacterBuilder agility(int agility) {
+            character.agility = agility;
+            return this;
+        }
+
+        public CharacterBuilder presence(int presence) {
+            character.presence = presence;
+            return this;
+        }
+
+        public CharacterBuilder toughness(int toughness) {
+            character.toughness = toughness;
+            return this;
+        }
+
+        public CharacterBuilder knowledge(int knowledge) {
+            character.knowledge = knowledge;
+            return this;
+        }
+
+        public CharacterBuilder max_hp(int max_hp) {
+            character.max_hp = max_hp;
+            character.current_hp = max_hp;
+            return this;
+        }
+
+        public CharacterBuilder armor(int armor) {
+            character.armor = armor;
+            return this;
+        }
+
+        public Character build() throws CharacterException {
+            if(character.game == null)
+                throw new CharacterException("Game is required");
+
+            if(character.name == null)
+                throw new CharacterException("Name is required");
+
+            if(character.characterClass == null)
+                throw new CharacterException("Class is required");
+
+            if(character.faction == null)
+                throw new CharacterException("Faction is required");
+
+            if(character.style == null)
+                throw new CharacterException("Style is required");
+
+            if(character.agility + character.strength + character.presence + character.toughness + character.knowledge != 20)
+                throw new CharacterException("Attributes must sum up to 20");
+
+            if(character.max_hp == 0)
+                throw new CharacterException("Max HP must be greater than 0");
+
+            if(character.armor >= 5)
+                throw new CharacterException("Armor must be less or equal to 5");
+
+            return character;
+        }
+    }
+
 }
