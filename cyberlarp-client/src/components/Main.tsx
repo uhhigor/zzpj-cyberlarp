@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom";
 
 export const Main = () => {
     const [isButtonHovered, setIsButtonHovered] = useState(false);
-    const {loginWithRedirect, logout, isAuthenticated} = useAuth0();
+    const {loginWithRedirect, isAuthenticated} = useAuth0();
     let navigate = useNavigate();
 
 
