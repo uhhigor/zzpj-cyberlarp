@@ -1,6 +1,6 @@
 package com.example.cyberlarpapi;
 
-import com.example.cyberlarpapi.game.data.Player;
+import com.example.cyberlarpapi.game.model.player.Player;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 

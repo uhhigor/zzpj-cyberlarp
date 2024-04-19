@@ -1,10 +1,9 @@
 package com.example.cyberlarpapi.game.services;
 
 import com.example.cyberlarpapi.User;
-import com.example.cyberlarpapi.UserRepository;
-import com.example.cyberlarpapi.game.data.Game;
-import com.example.cyberlarpapi.game.data.room.Room;
-import com.example.cyberlarpapi.game.exceptions.GameServiceException;
+import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.room.Room;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.repositories.GameRepository;
 import com.example.cyberlarpapi.game.repositories.room.RoomRepository;
 import org.springframework.data.util.StreamUtils;

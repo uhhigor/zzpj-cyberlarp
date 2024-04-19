@@ -1,7 +1,7 @@
 package com.example.cyberlarpapi.game.controllers;
 
-import com.example.cyberlarpapi.game.data.PlayerDTO;
-import com.example.cyberlarpapi.game.exceptions.PlayerServiceException;
+import com.example.cyberlarpapi.game.model.player.PlayerDTO;
+import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerServiceException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

@@ -1,13 +1,17 @@
 package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.game.data.Game;
-import com.example.cyberlarpapi.game.data.Player;
-import com.example.cyberlarpapi.game.data.character.Character;
-import com.example.cyberlarpapi.game.data.character.CharacterDTO;
-import com.example.cyberlarpapi.game.data.character.characterClass.CharacterClass;
-import com.example.cyberlarpapi.game.data.character.faction.Faction;
-import com.example.cyberlarpapi.game.data.character.style.Style;
-import com.example.cyberlarpapi.game.exceptions.*;
+import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.player.Player;
+import com.example.cyberlarpapi.game.model.character.Character;
+import com.example.cyberlarpapi.game.model.character.CharacterDTO;
+import com.example.cyberlarpapi.game.model.character.characterClass.CharacterClass;
+import com.example.cyberlarpapi.game.model.character.faction.Faction;
+import com.example.cyberlarpapi.game.model.character.style.Style;
+import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
+import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterServiceException;
+import com.example.cyberlarpapi.game.exceptions.FactionException.FactionServiceException;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
+import com.example.cyberlarpapi.game.exceptions.StyleException.StyleServiceException;
 import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
 import org.springframework.stereotype.Service;
 

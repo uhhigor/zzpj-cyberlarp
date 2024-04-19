@@ -1,7 +1,7 @@
 package com.example.cyberlarpapi.game.controllers;
 
-import com.example.cyberlarpapi.game.data.character.CharacterDTO;
-import com.example.cyberlarpapi.game.exceptions.CharacterServiceException;
+import com.example.cyberlarpapi.game.model.character.CharacterDTO;
+import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterServiceException;
 import com.example.cyberlarpapi.game.services.CharacterService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

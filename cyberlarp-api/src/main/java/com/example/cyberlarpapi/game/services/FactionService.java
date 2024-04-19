@@ -1,15 +1,10 @@
 package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.game.data.character.faction.Faction;
-import com.example.cyberlarpapi.game.data.character.faction.FactionDTO;
-import com.example.cyberlarpapi.game.data.character.style.Style;
-import com.example.cyberlarpapi.game.data.character.style.StyleDTO;
-import com.example.cyberlarpapi.game.exceptions.FactionException;
-import com.example.cyberlarpapi.game.exceptions.FactionServiceException;
-import com.example.cyberlarpapi.game.exceptions.StyleException;
-import com.example.cyberlarpapi.game.exceptions.StyleServiceException;
+import com.example.cyberlarpapi.game.model.character.faction.Faction;
+import com.example.cyberlarpapi.game.model.character.faction.FactionDTO;
+import com.example.cyberlarpapi.game.exceptions.FactionException.FactionException;
+import com.example.cyberlarpapi.game.exceptions.FactionException.FactionServiceException;
 import com.example.cyberlarpapi.game.repositories.character.FactionRepository;
-import com.example.cyberlarpapi.game.repositories.character.StyleRepository;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Service;
 

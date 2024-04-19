@@ -1,9 +1,9 @@
 package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.game.data.character.characterClass.CharacterClass;
-import com.example.cyberlarpapi.game.data.character.characterClass.CharacterClassDTO;
-import com.example.cyberlarpapi.game.exceptions.CharacterClassException;
-import com.example.cyberlarpapi.game.exceptions.CharacterServiceException;
+import com.example.cyberlarpapi.game.model.character.characterClass.CharacterClass;
+import com.example.cyberlarpapi.game.model.character.characterClass.CharacterClassDTO;
+import com.example.cyberlarpapi.game.exceptions.CharacterClassException.CharacterClassException;
+import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterServiceException;
 import com.example.cyberlarpapi.game.repositories.character.ClassRepository;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Service;

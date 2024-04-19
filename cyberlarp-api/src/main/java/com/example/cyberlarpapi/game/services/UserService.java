@@ -2,9 +2,8 @@ package com.example.cyberlarpapi.game.services;
 
 import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.UserRepository;
-import com.example.cyberlarpapi.game.exceptions.UserException;
-import com.example.cyberlarpapi.game.exceptions.UserServiceException;
-import jakarta.persistence.Entity;
+import com.example.cyberlarpapi.game.exceptions.UserException.UserException;
+import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import org.springframework.stereotype.Service;
 
 @Service
