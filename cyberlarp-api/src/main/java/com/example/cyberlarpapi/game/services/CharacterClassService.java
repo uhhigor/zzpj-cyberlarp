@@ -38,8 +38,8 @@ public class CharacterClassService {
                 .build());
     }
 
-    public CharacterClass update(CharacterClassDTO characterClassDTO) throws CharacterServiceException {
-        CharacterClass characterClass = getById(characterClassDTO.getId());
+    public CharacterClass update(int id, CharacterClassDTO characterClassDTO) throws CharacterServiceException {
+        CharacterClass characterClass = getById(id);
         characterClass.setName(characterClassDTO.getName());
         characterClass.setDescription(characterClassDTO.getDescription());
         return classRepository.save(characterClass);

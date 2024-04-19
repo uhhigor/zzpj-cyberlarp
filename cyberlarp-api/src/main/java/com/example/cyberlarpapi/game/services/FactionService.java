@@ -47,8 +47,8 @@ public class FactionService {
         }
     }
 
-    public Faction update(FactionDTO factionDTO) throws FactionServiceException {
-        Faction faction = getById(factionDTO.getId());
+    public Faction update(int id, FactionDTO factionDTO) throws FactionServiceException {
+        Faction faction = getById(id);
         faction.setName(factionDTO.getName());
         faction.setDescription(factionDTO.getDescription());
         return factionRepository.save(faction);

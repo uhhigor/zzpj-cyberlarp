@@ -53,14 +53,15 @@ public class PlayerService {
             game.addPlayer(player); // Add player to game
             gameService.update(game); // Update game
             userService.update(user); // Update user
+            return player;
         } catch (PlayerException | UserServiceException | GameServiceException e) {
             throw new PlayerServiceException("Error while creating player", e);
         }
     }
 
-    public Player update(PlayerDTO playerDTO) throws PlayerServiceException {
+    public Player update(int id, PlayerDTO playerDTO) throws PlayerServiceException {
         try {
-            Player player = getById(playerDTO.getId());
+            Player player = getById(id);
             player.setGame(gameService.getById(playerDTO.getGameId()));
             player.setUser(userService.getUserById(playerDTO.getUserId()));
             return playerRepository.save(player);

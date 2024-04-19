@@ -42,8 +42,8 @@ public class StyleService {
         }
     }
 
-    public Style update(StyleDTO styleDTO) throws StyleServiceException {
-        Style style = getById(styleDTO.getId());
+    public Style update(int id, StyleDTO styleDTO) throws StyleServiceException {
+        Style style = getById(id);
         style.setName(styleDTO.getName());
         style.setDescription(styleDTO.getDescription());
         return styleRepository.save(style);
