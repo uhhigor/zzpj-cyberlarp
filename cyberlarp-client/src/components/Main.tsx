@@ -1,13 +1,13 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import "../styles/Main.css"
 import {useAuth0} from "@auth0/auth0-react";
 import {useNavigate} from "react-router-dom";
+import axios from "axios";
 
 export const Main = () => {
     const [isButtonHovered, setIsButtonHovered] = useState(false);
-    const {loginWithRedirect, isAuthenticated} = useAuth0();
+    const {loginWithRedirect, isAuthenticated,user} = useAuth0();
     let navigate = useNavigate();
-
 
     React.useEffect(() => {
         if (isAuthenticated) {
@@ -15,12 +15,31 @@ export const Main = () => {
         }
     }, [isAuthenticated, navigate]);
 
+    useEffect(() => {
+        userToDatabase();
+    }, [user]);
+
     const handleButtonHover = () => {
         setIsButtonHovered(true);
     };
 
     const handleButtonLeave = () => {
         setIsButtonHovered(false);
+    };
+
+    const userToDatabase = () => {
+        if (user) {
+            console.log("Sending user to database");
+            console.log(user.email);
+            console.log(typeof user.email);
+            axios.post(`http://localhost:8080/auth/login`, { email: user.email })
+                .then(response => {
+                    console.log(response.data);
+                })
+                .catch(error => {
+                    console.error("An error occurred while sending user to database:", error);
+                });
+        }
     };
 
     return (

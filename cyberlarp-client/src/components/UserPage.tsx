@@ -1,8 +1,10 @@
-import React from "react";
+import React, {useEffect} from "react";
 import "../styles/UserPage.css"
 import 'react-icons'
 import {FaHeart} from "react-icons/fa";
 import {GiAbdominalArmor, GiAngelOutfit, GiAttachedShield, GiRunningNinja, GiStrong} from "react-icons/gi";
+import {useAuth0} from "@auth0/auth0-react";
+import axios from "axios";
 
 
 export const UserPage = () => {
