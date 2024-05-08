@@ -9,11 +9,16 @@ export const Dashboard = () => {
         let path = `/user`;
         navigate(path);
     }
+    const goToChats = () =>{
+        let path = `/chat`;
+        navigate(path);
+    }
 
     return (
         <div className="Dashboard ps-5">
             <Row className="buttons-top">
                 <Col>
+                    <button className="btn chats-btn" onClick={goToChats}>Chats</button>
                     <button className="btn logout-btn">Logout</button>
                     <button className="btn" onClick={goToProfile}>Profile</button>
                 </Col>
