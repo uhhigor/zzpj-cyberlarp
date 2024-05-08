@@ -1,5 +1,6 @@
 .Main {
     font-size: 60px!important;
+    overflow: hidden!important;
 }
 
 .paused {

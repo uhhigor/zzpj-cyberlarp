@@ -1,0 +1,127 @@
+.Dashboard {
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.22);
+        color: #ffe600;
+    text-shadow: -0.5px -0.5px 0 #212020,
+    0.5px -0.5px 0 #212020,
+    -0.5px 0.5px 0 #212020,
+    0.5px 0.5px 0 #212020,
+    0 0 20px #b2a519,
+    0 0 30px #b2a519,
+    0 0 40px #b2a519
+}
+
+.Dashboard .Tables {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.Dashboard .buttons-top{
+    text-align: right;
+    margin-right: 30px;
+}
+
+    .Dashboard  .btn {
+        background-color: #b2a519;
+        color: #212020;
+        border: none;
+        padding: 5px 10px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin: 20px;
+        box-shadow:
+                -0.5px -0.5px 0 #212020,
+                0.5px -0.5px 0 #212020,
+                -0.5px  0.5px 0 #212020,
+                0.5px  0.5px 0 #212020,
+                0 0 5px #b2a519,
+                0 0 10px #b2a519,
+                0 0 20px #b2a519;
+    }
+
+    .Dashboard  .btn:hover {
+        background-color: #829399;
+        color: #ffe600;
+        box-shadow:
+                -0.5px -0.5px 0 #212020,
+                0.5px -0.5px 0 #212020,
+                -0.5px  0.5px 0 #212020,
+                0.5px  0.5px 0 #212020,
+                0 0 5px #829399,
+                0 0 10px #829399,
+                0 0 20px #829399;
+    }
+
+.Dashboard  .logout-btn:hover {
+    background-color: #d51e45;
+    color: #000000;
+    box-shadow:
+            -0.5px -0.5px 0 #212020,
+            0.5px -0.5px 0 #212020,
+            -0.5px  0.5px 0 #212020,
+            0.5px  0.5px 0 #212020,
+            0 0 5px #d51e45,
+            0 0 10px #d51e45,
+            0 0 20px #d51e45;
+}
+
+.Dashboard  .create-btn:hover {
+    background-color: #1c7c54;
+    color: #000000;
+    box-shadow:
+            -0.5px -0.5px 0 #212020,
+            0.5px -0.5px 0 #212020,
+            -0.5px  0.5px 0 #212020,
+            0.5px  0.5px 0 #212020,
+            0 0 5px #1c7c54,
+            0 0 10px #1c7c54,
+            0 0 20px #1c7c54;
+}
+
+.Dashboard  .join-btn:hover {
+    background-color: #533A7B;
+    color: #000000;
+    box-shadow:
+            -0.5px -0.5px 0 #212020,
+            0.5px -0.5px 0 #212020,
+            -0.5px  0.5px 0 #212020,
+            0.5px  0.5px 0 #212020,
+            0 0 5px #533A7B,
+            0 0 10px #533A7B,
+            0 0 20px #533A7B;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.custom-table th,
+.custom-table td {
+    padding: 8px 10px;
+    text-align: left;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #a99c1e;
+    text-shadow: -0.5px -0.5px 0 #212020,
+    0.5px -0.5px 0 #212020,
+    -0.5px 0.5px 0 #212020,
+    0.5px 0.5px 0 #212020;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.custom-table tbody tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.custom-table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+}
