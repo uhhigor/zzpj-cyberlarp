@@ -3,8 +3,8 @@ import './styles/App.css';
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import {Login} from './components/Login';
 import {Main} from "./components/Main";
-import {UserPage} from "./components/UserPage";
 import {Dashboard} from "./components/Dashboard";
+import {UserPage} from "./components/UserPage";
 
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
                 <Route path='/' element={<Main/>}/>
                 <Route path='/login' element={<Login/>}/>
                 <Route path='/dashboard' element={<Dashboard/>}/>
-                {/*<Route path='/userPage' element={<UserPage/>}/>*/}
+                <Route path='/user' element={<UserPage/>}/>
             </Routes>
         </BrowserRouter>
     );

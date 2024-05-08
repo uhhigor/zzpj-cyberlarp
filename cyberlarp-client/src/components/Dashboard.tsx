@@ -1,14 +1,21 @@
 import React from "react";
 import {Col, Row} from "react-bootstrap";
 import "../styles/Dashboard.css";
+import {useNavigate} from "react-router-dom";
 
 export const Dashboard = () => {
+    let navigate = useNavigate();
+    const goToProfile = () =>{
+        let path = `/user`;
+        navigate(path);
+    }
+
     return (
         <div className="Dashboard ps-5">
             <Row className="buttons-top">
                 <Col>
                     <button className="btn logout-btn">Logout</button>
-                    <button className="btn">Profile</button>
+                    <button className="btn" onClick={goToProfile}>Profile</button>
                 </Col>
             </Row>
             <h1 className="pt-3 pb-5">Dashboard</h1>
@@ -16,7 +23,7 @@ export const Dashboard = () => {
                 <Col>
                     <h2>Games</h2>
                     <div>
-                        <table className="custom-table">
+                        <table className="custom-table mt-4">
                             <thead>
                             <tr>
                                 <th scope="col">Title</th>
@@ -48,7 +55,7 @@ export const Dashboard = () => {
                 <Col>
                     <h2>Characters</h2>
                     <div className="table-container">
-                        <table className="custom-table">
+                        <table className="custom-table mt-4">
                             <thead>
                             <tr>
                                 <th>Name</th>

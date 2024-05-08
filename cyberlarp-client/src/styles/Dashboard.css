@@ -36,10 +36,6 @@
         border-radius: 5px;
         margin: 20px;
         box-shadow:
-                -0.5px -0.5px 0 #212020,
-                0.5px -0.5px 0 #212020,
-                -0.5px  0.5px 0 #212020,
-                0.5px  0.5px 0 #212020,
                 0 0 5px #b2a519,
                 0 0 10px #b2a519,
                 0 0 20px #b2a519;
@@ -47,12 +43,8 @@
 
     .Dashboard  .btn:hover {
         background-color: #829399;
-        color: #ffe600;
+        color: #000000;
         box-shadow:
-                -0.5px -0.5px 0 #212020,
-                0.5px -0.5px 0 #212020,
-                -0.5px  0.5px 0 #212020,
-                0.5px  0.5px 0 #212020,
                 0 0 5px #829399,
                 0 0 10px #829399,
                 0 0 20px #829399;
@@ -62,10 +54,6 @@
     background-color: #d51e45;
     color: #000000;
     box-shadow:
-            -0.5px -0.5px 0 #212020,
-            0.5px -0.5px 0 #212020,
-            -0.5px  0.5px 0 #212020,
-            0.5px  0.5px 0 #212020,
             0 0 5px #d51e45,
             0 0 10px #d51e45,
             0 0 20px #d51e45;
@@ -75,10 +63,6 @@
     background-color: #1c7c54;
     color: #000000;
     box-shadow:
-            -0.5px -0.5px 0 #212020,
-            0.5px -0.5px 0 #212020,
-            -0.5px  0.5px 0 #212020,
-            0.5px  0.5px 0 #212020,
             0 0 5px #1c7c54,
             0 0 10px #1c7c54,
             0 0 20px #1c7c54;
@@ -88,10 +72,6 @@
     background-color: #533A7B;
     color: #000000;
     box-shadow:
-            -0.5px -0.5px 0 #212020,
-            0.5px -0.5px 0 #212020,
-            -0.5px  0.5px 0 #212020,
-            0.5px  0.5px 0 #212020,
             0 0 5px #533A7B,
             0 0 10px #533A7B,
             0 0 20px #533A7B;
