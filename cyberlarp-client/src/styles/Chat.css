@@ -1,0 +1,43 @@
+.Chat {
+    background-color: rgba(0, 0, 0, 0.51);
+    height: 100vh;
+    width: 100vw;
+    color: cadetblue;
+    text-shadow: -0.5px -0.5px 0 #212020,
+    0.5px -0.5px 0 #212020,
+    -0.5px 0.5px 0 #212020,
+    0.5px 0.5px 0 #212020,
+    0 0 20px cadetblue,
+    0 0 30px cadetblue,
+    0 0 40px cadetblue
+}
+
+.Chat  .btn {
+    background-color: cadetblue !important;
+    color: #212020;
+    border: none;
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 20px;
+    box-shadow:
+            0 0 5px cadetblue,
+            0 0 10px cadetblue,
+            0 0 20px cadetblue;
+}
+
+.Chat  .btn:hover {
+    background-color: #426e70 !important;
+    color: #212020;
+    box-shadow:
+            0 0 5px  #426e70,
+            0 0 10px  #426e70,
+            0 0 20px  #426e70;
+}
+
+.Chat .goBack-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 10%;
+    transform: translateX(-50%);}
