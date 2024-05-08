@@ -1,6 +1,7 @@
 package com.example.cyberlarpapi.game.services;
 
 import com.example.cyberlarpapi.User;
+import com.example.cyberlarpapi.game.exceptions.RoomException.RoomServiceException;
 import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.room.Room;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
@@ -20,17 +21,6 @@ public class GameService {
     public GameService(RoomRepository roomRepository, GameRepository gameRepository) {
         this.roomRepository = roomRepository;
         this.gameRepository = gameRepository;
-    }
-
-    public Room createRoom(User user) {
-        for (Room room : this.roomRepository.findAll()) {
-            if (room.getOwner().equals(user)) {
-                return null;
-            }
-        }
-        Room room = new Room(user);
-        this.roomRepository.save(room);
-        return room;
     }
 
     public boolean inviteUserToRoom(Integer roomId, User user) {
