@@ -6,7 +6,7 @@ import axios from "axios";
 
 export const Main = () => {
     const [isButtonHovered, setIsButtonHovered] = useState(false);
-    const {loginWithRedirect, isAuthenticated,user} = useAuth0();
+    const {loginWithRedirect, isAuthenticated,user, logout} = useAuth0();
     let navigate = useNavigate();
 
     React.useEffect(() => {
@@ -29,10 +29,7 @@ export const Main = () => {
 
     const userToDatabase = () => {
         if (user) {
-            console.log("Sending user to database");
-            console.log(user.email);
-            console.log(typeof user.email);
-            axios.post(`http://localhost:8080/auth/login`, { email: user.email })
+            axios.post(`http://localhost:8080/auth/save/${user.email}`)
                 .then(response => {
                     console.log(response.data);
                 })
@@ -50,23 +47,14 @@ export const Main = () => {
                         <div className="col text-center">
                             <div className={`welcomeText ${isButtonHovered ? 'paused' : ''}`}>CyberLarp
                             </div>
-                            {!isAuthenticated ? (
-                                    <button
-                                        className="btn btn-lg text-white m-5"
-                                        onMouseEnter={handleButtonHover}
-                                        onMouseLeave={handleButtonLeave}
-                                        onClick={() => loginWithRedirect()}
-                                    >
-                                        Start your story now!
-                                    </button>)
-                                : (
-                                    <div/>
-                                    // <button onClick={() => logout({logoutParams: {returnTo: window.location.origin}})}>
-                                    //     Log Out
-                                    // </button>
-                                )
-                            }
-
+                            <button
+                                className="btn btn-lg text-white m-5"
+                                onMouseEnter={handleButtonHover}
+                                onMouseLeave={handleButtonLeave}
+                                onClick={() => loginWithRedirect()}
+                            >
+                                Start your story now!
+                            </button>
                         </div>
                     </div>
                 </div>
