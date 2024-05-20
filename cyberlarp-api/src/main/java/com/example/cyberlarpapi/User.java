@@ -1,5 +1,7 @@
 package com.example.cyberlarpapi;
 
+
+import jakarta.persistence.*;
 import com.example.cyberlarpapi.game.model.player.Player;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -15,6 +17,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+    private String email;
 
     private String username;
 
@@ -33,4 +36,13 @@ public class User {
     public void removeAllPlayers() {
         this.players.clear();
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
 }
