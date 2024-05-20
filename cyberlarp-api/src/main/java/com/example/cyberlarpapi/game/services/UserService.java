@@ -15,25 +15,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User createUser() throws UserException {
-        //TODO: implement
-        return null;
+    public User save(User user) {
+        return userRepository.save(user);
     }
-
-    public User updateUser() {
-        //TODO: implement
-        return null;
-    }
-
     public User getUserById(int id) throws UserServiceException {
         return userRepository.findById(id).orElseThrow(() -> new UserServiceException("User not found"));
     }
 
     public void deleteUserById(int id) {
         userRepository.deleteById(id);
-    }
-
-    public void update(User user) {
-        userRepository.save(user);
     }
 }

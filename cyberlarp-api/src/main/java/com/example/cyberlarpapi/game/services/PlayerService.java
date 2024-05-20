@@ -1,10 +1,10 @@
 package com.example.cyberlarpapi.game.services;
 
 import com.example.cyberlarpapi.User;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
 import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.player.Player;
-import com.example.cyberlarpapi.game.model.player.PlayerDTO;
-import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerException;
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerServiceException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
@@ -15,53 +15,23 @@ import org.springframework.stereotype.Service;
 public class PlayerService {
     private final PlayerRepository playerRepository;
 
-    private final UserService userService;
-
-    private final GameService gameService;
-
-
-    public PlayerService(PlayerRepository playerRepository, UserService userService, GameService gameService) {
+    public PlayerService(PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
-        this.userService = userService;
-        this.gameService = gameService;
     }
 
-    public Player getById(int id) throws PlayerServiceException {
-        return playerRepository.findById(id).orElseThrow(() -> new PlayerServiceException("Player not found"));
+    public Player getById(int id) throws PlayerNotFoundException {
+        return playerRepository.findById(id).orElseThrow(() -> new PlayerNotFoundException("Player " + id + " not found"));
     }
 
-    public void deleteById(int id) {
+    public void deleteById(int id) throws PlayerNotFoundException {
+        if(!playerRepository.existsById(id)) {
+            throw new PlayerNotFoundException("Player " + id + " not found");
+        }
         playerRepository.deleteById(id);
     }
 
-    public Player create(PlayerDTO playerDTO) throws PlayerServiceException {
-        try {
-            User user = userService.getUserById(playerDTO.getUserId());
-            Game game = gameService.getById(playerDTO.getGameId());
-            Player player = playerRepository.save(Player.builder()
-                    .user(user)
-                    .game(game)
-                    .build()); // Create player
-
-            user.addPlayer(player); // Add player to user
-            game.addPlayer(player); // Add player to game
-            gameService.update(game); // Update game
-            userService.update(user); // Update user
-            return player;
-        } catch (PlayerException | UserServiceException | GameServiceException e) {
-            throw new PlayerServiceException("Error while creating player", e);
-        }
-    }
-
-    public Player update(int id, PlayerDTO playerDTO) throws PlayerServiceException {
-        try {
-            Player player = getById(id);
-            player.setGame(gameService.getById(playerDTO.getGameId()));
-            player.setUser(userService.getUserById(playerDTO.getUserId()));
-            return playerRepository.save(player);
-        } catch (GameServiceException | UserServiceException e) {
-            throw new PlayerServiceException("Error while updating player", e);
-        }
+    public Player save(Player player) {
+        return playerRepository.save(player);
     }
 
     public Player update(Player player) {

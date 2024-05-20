@@ -48,12 +48,6 @@ public class Faction {
         public FactionBuilder() {
             faction = new Faction();
         }
-
-        public FactionBuilder id(Integer id) {
-            faction.setId(id);
-            return this;
-        }
-
         public FactionBuilder name(String name) {
             faction.setName(name);
             return this;

@@ -1,27 +1,21 @@
 package com.example.cyberlarpapi.game.model.character;
 
-import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.player.Player;
-import com.example.cyberlarpapi.game.model.character.characterClass.CharacterClass;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
-import com.example.cyberlarpapi.game.model.character.style.Style;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
 
+@Getter
 @Entity
+@Setter
 public class Character {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-
-    @ManyToOne
-    @JsonBackReference
-    private Game game;
 
     @OneToOne
     private Player player;
@@ -30,13 +24,10 @@ public class Character {
 
     private String description;
 
-    @ManyToOne
     private CharacterClass characterClass;
 
     @ManyToOne
     private Faction faction;
-
-    @ManyToOne
     private Style style;
 
     // BANK ACCOUNT
@@ -57,159 +48,11 @@ public class Character {
     private int knowledge;
 
     // STATS
-    private int max_hp;
+    private int maxHp;
 
-    private int current_hp;
+    private int currentHp;
 
     private int armor;
-
-    public Character() {
-
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Game getGame() {
-        return game;
-    }
-
-    public void setGame(Game game) {
-        this.game = game;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public CharacterClass getCharacterClass() {
-        return characterClass;
-    }
-
-    public void setCharacterClass(CharacterClass characterClass) {
-        this.characterClass = characterClass;
-    }
-
-    public Faction getFaction() {
-        return faction;
-    }
-
-    public void setFaction(Faction faction) {
-        this.faction = faction;
-    }
-
-    public Style getStyle() {
-        return style;
-    }
-
-    public void setStyle(Style style) {
-        this.style = style;
-    }
-
-    public int getBalance() {
-        return balance;
-    }
-
-    public void setBalance(int balance) {
-        this.balance = balance;
-    }
-
-    public String getAccount_number() {
-        return account_number;
-    }
-
-    public void setAccount_number(String account_number) {
-        this.account_number = account_number;
-    }
-
-    public int getStrength() {
-        return strength;
-    }
-
-    public void setStrength(int strength) {
-        this.strength = strength;
-    }
-
-    public int getAgility() {
-        return agility;
-    }
-
-    public void setAgility(int agility) {
-        this.agility = agility;
-    }
-
-    public int getPresence() {
-        return presence;
-    }
-
-    public void setPresence(int presence) {
-        this.presence = presence;
-    }
-
-    public int getToughness() {
-        return toughness;
-    }
-
-    public void setToughness(int toughness) {
-        this.toughness = toughness;
-    }
-
-    public int getKnowledge() {
-        return knowledge;
-    }
-
-    public void setKnowledge(int knowledge) {
-        this.knowledge = knowledge;
-    }
-
-    public int getMax_hp() {
-        return max_hp;
-    }
-
-    public void setMax_hp(int max_hp) {
-        this.max_hp = max_hp;
-    }
-
-    public int getCurrent_hp() {
-        return current_hp;
-    }
-
-    public void setCurrent_hp(int current_hp) {
-        this.current_hp = current_hp;
-    }
-
-    public int getArmor() {
-        return armor;
-    }
-
-    public void setArmor(int armor) {
-        this.armor = armor;
-    }
 
     public static CharacterBuilder builder() {
         return new CharacterBuilder();
@@ -220,11 +63,6 @@ public class Character {
 
         public CharacterBuilder() {
             character = new Character();
-        }
-
-        public CharacterBuilder game(Game game) {
-            character.game = game;
-            return this;
         }
 
         public CharacterBuilder player(Player player) {
@@ -287,9 +125,9 @@ public class Character {
             return this;
         }
 
-        public CharacterBuilder max_hp(int max_hp) {
-            character.max_hp = max_hp;
-            character.current_hp = max_hp;
+        public CharacterBuilder maxHp(int maxHp) {
+            character.maxHp = maxHp;
+            character.currentHp = maxHp;
             return this;
         }
 
@@ -299,25 +137,23 @@ public class Character {
         }
 
         public Character build() throws CharacterException {
-            if(character.game == null)
-                throw new CharacterException("Game is required");
-
             if(character.name == null)
                 throw new CharacterException("Name is required");
 
             if(character.characterClass == null)
                 throw new CharacterException("Class is required");
 
-            if(character.faction == null)
-                throw new CharacterException("Faction is required");
-
             if(character.style == null)
                 throw new CharacterException("Style is required");
 
-            if(character.agility + character.strength + character.presence + character.toughness + character.knowledge != 20)
+            if(character.agility
+                    + character.strength
+                    + character.presence
+                    + character.toughness
+                    + character.knowledge != 20)
                 throw new CharacterException("Attributes must sum up to 20");
 
-            if(character.max_hp == 0)
+            if(character.maxHp == 0)
                 throw new CharacterException("Max HP must be greater than 0");
 
             if(character.armor >= 5)

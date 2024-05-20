@@ -2,7 +2,7 @@ package com.example.cyberlarpapi.game.exceptions.UserException;
 
 import com.example.cyberlarpapi.game.exceptions.GameException.GameException;
 
-public class UserException extends GameException {
+public class UserException extends Exception {
     public UserException(String message) {
         super(message);
     }

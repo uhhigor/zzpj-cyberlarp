@@ -1,5 +1,6 @@
 package com.example.cyberlarpapi.game.services;
 
+import com.example.cyberlarpapi.game.exceptions.FactionException.FactionNotFoundException;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
 import com.example.cyberlarpapi.game.model.character.faction.FactionDTO;
 import com.example.cyberlarpapi.game.exceptions.FactionException.FactionException;
@@ -19,8 +20,8 @@ public class FactionService {
         this.factionRepository = factionRepository;
     }
 
-    public Faction getById(int id) throws FactionServiceException {
-        return factionRepository.findById(id).orElseThrow(() -> new FactionServiceException("Faction not found"));
+    public Faction getById(int id) throws FactionNotFoundException {
+        return factionRepository.findById(id).orElseThrow(() -> new FactionNotFoundException("Faction with id " + id + " not found"));
     }
 
     public List<Faction> getAll() {
@@ -42,7 +43,7 @@ public class FactionService {
         }
     }
 
-    public Faction update(int id, FactionDTO factionDTO) throws FactionServiceException {
+    public Faction update(int id, FactionDTO factionDTO) throws FactionNotFoundException {
         Faction faction = getById(id);
         faction.setName(factionDTO.getName());
         faction.setDescription(factionDTO.getDescription());
