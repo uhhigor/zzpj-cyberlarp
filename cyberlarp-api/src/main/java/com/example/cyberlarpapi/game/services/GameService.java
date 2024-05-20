@@ -1,6 +1,7 @@
 package com.example.cyberlarpapi.game.services;
 
 import com.example.cyberlarpapi.User;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.RoomException.RoomServiceException;
 import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.room.Room;
@@ -67,22 +68,17 @@ public class GameService {
         return StreamUtils.createStreamFromIterator(gameRepository.findAll().iterator()).toList();
     }
 
-    public Game getById(int id) throws GameServiceException {
-        return gameRepository.findById(id).orElseThrow(() -> new GameServiceException("Game not found"));
+    public Game getById(int id) throws GameNotFoundException {
+        return gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException("Game " + id + " not found"));
     }
 
-    public void deleteById(int id) {
+    public void deleteById(int id) throws GameServiceException {
+        if(!gameRepository.existsById(id))
+            throw new GameServiceException("Game " + id + " not found");
         gameRepository.deleteById(id);
     }
 
-    public Game create(Game game) {
+    public Game save(Game game) {
         return gameRepository.save(game);
     }
-
-    public Game update(Game game) {
-        return gameRepository.save(game);
-    }
-
-
-
 }
