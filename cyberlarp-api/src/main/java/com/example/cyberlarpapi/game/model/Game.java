@@ -38,7 +38,13 @@ public class Game {
         players.remove(player);
     }
 
+    public void addAvailableCharacter(Character character) {
+        availableCharacters.add(character);
+    }
 
+    public void removeAvailableCharacter(Character character) {
+        availableCharacters.remove(character);
+    }
 
     public static GameBuilder builder() {
         return new GameBuilder();

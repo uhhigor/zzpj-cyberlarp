@@ -43,6 +43,8 @@ public class GameController {
         }
     }
 
+
+
     @GetMapping("/{id}")
     public ResponseEntity<GameResponse> getById(@PathVariable Integer id) {
         try {

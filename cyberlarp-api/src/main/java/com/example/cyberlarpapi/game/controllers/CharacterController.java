@@ -3,12 +3,18 @@ package com.example.cyberlarpapi.game.controllers;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.FactionException.FactionNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
+import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.character.Style;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
+import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.services.CharacterService;
 import com.example.cyberlarpapi.game.services.FactionService;
+import com.example.cyberlarpapi.game.services.GameService;
+import com.example.cyberlarpapi.game.services.PlayerService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,9 +30,15 @@ public class CharacterController {
 
     private final FactionService factionService;
 
-    public CharacterController(CharacterService characterService, FactionService factionService) {
+    private final GameService gameService;
+
+    private final PlayerService playerService;
+
+    public CharacterController(CharacterService characterService, FactionService factionService, GameService gameService, PlayerService playerService) {
         this.characterService = characterService;
         this.factionService = factionService;
+        this.gameService = gameService;
+        this.playerService = playerService;
     }
 
     @GetMapping("/{id}")
@@ -48,29 +60,49 @@ public class CharacterController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<CharacterResponse> createCharacter(@RequestBody CharacterRequest request) {
+    private Character createAndSaveCharacter(CharacterRequest request) throws FactionNotFoundException, CharacterException {
+        Faction faction = factionService.getById(request.getFactionId());
+        Character character = Character.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .characterClass(CharacterClass.valueOf(request.getCharacterClass()))
+                .faction(faction)
+                .style(Style.valueOf(request.getStyle()))
+                .strength(request.getStrength())
+                .agility(request.getAgility())
+                .presence(request.getPresence())
+                .toughness(request.getToughness())
+                .knowledge(request.getKnowledge())
+                .maxHp(request.getMaxHp())
+                .balance(request.getBalance())
+                .build();
+        return characterService.save(character);
+    }
+
+    @PostMapping("/game/{gameId}")
+    public ResponseEntity<CharacterResponse> addCharacterToGame(@RequestBody CharacterRequest request, @PathVariable Integer gameId) {
         try {
-            Faction faction = factionService.getById(request.getFactionId());
-            Character character = Character.builder()
-                    .name(request.getName())
-                    .description(request.getDescription())
-                    .characterClass(CharacterClass.valueOf(request.getCharacterClass()))
-                    .faction(faction)
-                    .style(Style.valueOf(request.getStyle()))
-                    .strength(request.getStrength())
-                    .agility(request.getAgility())
-                    .presence(request.getPresence())
-                    .toughness(request.getToughness())
-                    .knowledge(request.getKnowledge())
-                    .maxHp(request.getMaxHp())
-                    .balance(request.getBalance())
-                    .build();
+            Game game = gameService.getById(gameId);
+            Character character = createAndSaveCharacter(request);
+            game.addAvailableCharacter(character);
             return ResponseEntity.ok(new CharacterResponse(characterService.save(character)));
-        } catch (FactionNotFoundException e) {
+        } catch (FactionNotFoundException | GameNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (CharacterException e) {
             return ResponseEntity.badRequest().body(new CharacterResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/player/{playerId}")
+    public ResponseEntity<CharacterResponse> addCharacterToPlayer(@RequestBody CharacterRequest request, @PathVariable Integer playerId) {
+        try {
+            Player player = playerService.getById(playerId);
+            Character character = createAndSaveCharacter(request);
+            player.setCharacter(character);
+            playerService.save(player);
+            return ResponseEntity.ok(new CharacterResponse(characterService.save(character)));
+        } catch (PlayerNotFoundException | FactionNotFoundException | CharacterException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -99,7 +131,6 @@ public class CharacterController {
     @Getter
     @NoArgsConstructor
     public static class CharacterRequest {
-        private Integer gameId;
         private String name;
         private String description;
         private String characterClass;
