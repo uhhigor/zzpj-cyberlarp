@@ -1,5 +1,6 @@
 package com.example.cyberlarpapi.game.model;
 
+import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.DefaultGameData;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.player.Player;
@@ -28,7 +29,7 @@ public class Game {
     private List<Player> players;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private Player gameMaster;
+    private User gameMaster;
 
     public void addPlayer(Player player) {
         players.add(player);
@@ -77,7 +78,7 @@ public class Game {
             return this;
         }
 
-        public GameBuilder gameMaster(Player gameMaster) {
+        public GameBuilder gameMaster(User gameMaster) {
             game.setGameMaster(gameMaster);
             return this;
         }

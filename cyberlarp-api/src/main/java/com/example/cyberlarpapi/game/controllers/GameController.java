@@ -1,13 +1,18 @@
 package com.example.cyberlarpapi.game.controllers;
 
+import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.services.GameService;
 import com.example.cyberlarpapi.game.services.PlayerService;
+import com.example.cyberlarpapi.game.services.UserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -22,15 +27,18 @@ public class GameController {
 
     private final PlayerService playerService;
 
-    public GameController(GameService gameService, PlayerService playerService) {
+    private final UserService userService;
+
+    public GameController(GameService gameService, PlayerService playerService, UserService userService) {
         this.gameService = gameService;
         this.playerService = playerService;
+        this.userService = userService;
     }
 
     @PostMapping
     public ResponseEntity<GameResponse> create(@RequestBody GameRequest request) {
         try {
-            Player gameMaster = playerService.getById(request.getGameMasterPlayerId());
+            User gameMaster = userService.getUserById(request.getGameMasterUserId());
             Game game = Game.builder()
                     .name(request.getName())
                     .description(request.getDescription())
@@ -38,8 +46,8 @@ public class GameController {
                     .build();
             game = gameService.save(game);
             return ResponseEntity.ok(new GameResponse("Game created successfully", game));
-        } catch (GameException e) {
-            return ResponseEntity.badRequest().body(new GameResponse(e.getMessage()));
+        } catch (UserServiceException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -59,7 +67,7 @@ public class GameController {
     public static class GameRequest {
         private String name;
         private String description;
-        private Integer gameMasterPlayerId;
+        private Integer gameMasterUserId;
     }
 
     @Getter
@@ -81,6 +89,7 @@ public class GameController {
             this.message = message;
         }
 
+        @Getter
         public static class GameData {
             private Integer id;
             private String name;
@@ -88,6 +97,7 @@ public class GameController {
             private Integer gameMasterId;
             private List<Integer> playerIds;
             private List<Integer> availableCharacterIds;
+
 
             public GameData(Game game) {
                 this.id = game.getId();

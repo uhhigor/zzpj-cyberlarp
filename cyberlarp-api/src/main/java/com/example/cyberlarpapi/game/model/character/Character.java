@@ -3,10 +3,7 @@ package com.example.cyberlarpapi.game.model.character;
 import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -17,6 +14,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 public class Character {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     @OneToOne
