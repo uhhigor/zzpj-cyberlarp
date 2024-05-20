@@ -1,26 +1,32 @@
 package com.example.cyberlarpapi.game.services;
 
 import com.example.cyberlarpapi.User;
-import com.example.cyberlarpapi.UserRepository;
-import com.example.cyberlarpapi.game.data.room.Room;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.RoomException.RoomServiceException;
+import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.character.Character;
+import com.example.cyberlarpapi.game.model.room.Room;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
+import com.example.cyberlarpapi.game.repositories.GameRepository;
 import com.example.cyberlarpapi.game.repositories.room.RoomRepository;
+import org.springframework.data.util.StreamUtils;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
 public class GameService {
     private final RoomRepository roomRepository;
 
-    public GameService(RoomRepository roomRepository) {
-        this.roomRepository = roomRepository;
-    }
+    private final GameRepository gameRepository;
 
-    public Room createRoom(User user) {
-        for (Room room : this.roomRepository.findAll()) {
-            if (room.getOwner().equals(user)) {
-                return null;
-            }
-        }
-        Room room = new Room(user);
-        this.roomRepository.save(room);
-        return room;
+    private final CharacterService characterService;
+
+    public GameService(RoomRepository roomRepository, GameRepository gameRepository, CharacterService characterService) {
+        this.roomRepository = roomRepository;
+        this.gameRepository = gameRepository;
+        this.characterService = characterService;
     }
 
     public boolean inviteUserToRoom(Integer roomId, User user) {
@@ -61,4 +67,24 @@ public class GameService {
         return false;
     }
 
+    // ================== Igor ===================
+
+    public List<Game> getAll() {
+        return StreamUtils.createStreamFromIterator(gameRepository.findAll().iterator()).toList();
+    }
+
+    public Game getById(int id) throws GameNotFoundException {
+        return gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException("Game " + id + " not found"));
+    }
+
+    public void deleteById(int id) throws GameServiceException {
+        if(!gameRepository.existsById(id))
+            throw new GameServiceException("Game " + id + " not found");
+        gameRepository.deleteById(id);
+    }
+
+    public Game save(Game game) {
+
+        return gameRepository.save(game);
+    }
 }

@@ -1,9 +1,9 @@
-package com.example.cyberlarpapi.game.data.room;
+package com.example.cyberlarpapi.game.model.room;
 
 import com.example.cyberlarpapi.User;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,6 +20,8 @@ public class Room {
 
     public Room(User owner) {
         this.owner = owner;
+        users = new ArrayList<>();
+        addUser(owner);
     }
 
     public Room() {
@@ -57,5 +59,9 @@ public class Room {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 }

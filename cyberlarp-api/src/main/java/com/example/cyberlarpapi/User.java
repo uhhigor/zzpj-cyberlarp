@@ -1,20 +1,36 @@
 package com.example.cyberlarpapi;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.example.cyberlarpapi.game.model.player.Player;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-@Entity
+import java.util.List;
+
+@Entity(name = "users")
+@Getter
+@Setter
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    public void setId(Integer id) {
-        this.id = id;
+    private String username;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @JsonBackReference
+    private List<Player> players;
+
+    public void addPlayer(Player player) {
+        this.players.add(player);
     }
 
-    public Integer getId() {
-        return id;
+    public void removePlayer(Player player) {
+        this.players.remove(player);
+    }
+
+    public void removeAllPlayers() {
+        this.players.clear();
     }
 }
