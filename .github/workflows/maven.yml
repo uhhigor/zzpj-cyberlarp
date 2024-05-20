@@ -29,6 +29,6 @@ jobs:
         cache: maven
     - name: Build with Maven
       working-directory: ./cyberlarp-api
-      run: mvn clean install
+      run: mvn test
       env:
          DB_URL: ${{ secrets.DB_URL }}
