@@ -35,6 +35,8 @@ export const UserPage = () => {
                     </div>
                 </div>
             </div>
+            <button className="btn mt-5 ms-5" onClick={goBackToDashBoard}>Back to dashboard</button>
         </div>
+
     );
 }

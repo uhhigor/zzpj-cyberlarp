@@ -11,7 +11,7 @@ export const Main = () => {
 
     React.useEffect(() => {
         if (isAuthenticated) {
-            navigate("/userPage");
+            navigate("/dashboard");
         }
     }, [isAuthenticated, navigate]);
 
