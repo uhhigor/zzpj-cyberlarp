@@ -1,58 +1,51 @@
 package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.User;
-import com.example.cyberlarpapi.game.data.Game;
-import com.example.cyberlarpapi.game.data.character.CharacterDTO;
-import com.example.cyberlarpapi.game.data.character.Character;
-import com.example.cyberlarpapi.game.data.character.characterClass.CharacterClass;
-import com.example.cyberlarpapi.game.data.character.faction.Faction;
-import com.example.cyberlarpapi.game.data.character.style.Style;
-import com.example.cyberlarpapi.game.exceptions.CharacterException;
+import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterServiceException;
+import com.example.cyberlarpapi.game.model.character.Character;
+import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
-import com.example.cyberlarpapi.game.repositories.character.ClassRepository;
-import com.example.cyberlarpapi.game.repositories.character.FactionRepository;
-import com.example.cyberlarpapi.game.repositories.character.StyleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.example.cyberlarpapi.game.repositories.GameRepository;
-import com.example.cyberlarpapi.UserRepository;
 
 @Service
 public class CharacterService {
 
-    private final GameRepository gameRepository;
-
-    private final UserRepository userRepository;
     private final CharacterRepository characterRepository;
-    private final ClassRepository classRepository;
-    private final FactionRepository factionRepository;
-    private final StyleRepository styleRepository;
 
-    @Autowired
-    public CharacterService(GameRepository gameRepository, UserRepository userRepository, CharacterRepository characterRepository, ClassRepository classRepository, FactionRepository factionRepository, StyleRepository styleRepository) {
-        this.gameRepository = gameRepository;
-        this.userRepository = userRepository;
+    private final PlayerService playerService;
+
+    public CharacterService(CharacterRepository characterRepository, PlayerService playerService) {
         this.characterRepository = characterRepository;
-        this.classRepository = classRepository;
-        this.factionRepository = factionRepository;
-        this.styleRepository = styleRepository;
+        this.playerService = playerService;
     }
 
-    public Character createCharacter(CharacterDTO characterDTO) throws CharacterException {
-        Game game = gameRepository.findById(characterDTO.getGameId()).orElseThrow(() -> new CharacterException("Game not found"));
-        User user = userRepository.findById(characterDTO.getUserId()).orElseThrow(() -> new CharacterException("User not found"));
-        CharacterClass characterClass = classRepository.findById(characterDTO.getCharacterClassId()).orElseThrow(() -> new CharacterException("Class not found"));
-        Faction faction = factionRepository.findById(characterDTO.getFactionId()).orElseThrow(() -> new CharacterException("Faction not found"));
-        Style style = styleRepository.findById(characterDTO.getStyleId()).orElseThrow(() -> new CharacterException("Style not found"));
 
-        Character character = new Character(game, user, characterDTO.getName(), characterDTO.getDescription(), characterClass, faction, style,
-                        characterDTO.getBalance(), characterDTO.getStrength(), characterDTO.getAgility(),
-                        characterDTO.getPresence(), characterDTO.getToughness(), characterDTO.getKnowledge(),
-                        characterDTO.getMax_hp(), characterDTO.getArmor());
+    public Character save(Character character) {
+        return characterRepository.save(character);
+    }
 
-        characterRepository.save(character);
-        return character;
+    public Character getById(int id) throws CharacterNotFoundException {
+        return characterRepository.findById(id).orElseThrow(() -> new CharacterNotFoundException("Character with id " + id + " not found"));
+    }
+
+    public void deleteById(int id) throws CharacterNotFoundException {
+        if(!characterRepository.existsById(id)){
+            throw new CharacterNotFoundException("Character with id " + id + " not found");
+        }
+        characterRepository.deleteById(id);
+    }
+
+    public Character setPlayer(Character character, int playerId) throws CharacterServiceException {
+        try {
+
+            Player player = playerService.getById(playerId);
+            character.setPlayer(player); // Set the character to the player
+            player.setCharacter(character); // Set the player to the character
+            playerService.update(player); // Update the player
+            return characterRepository.save(character); // Update the character
+        } catch (Exception e) {
+            throw new CharacterServiceException("Error while setting player", e);
+        }
     }
 
 }
