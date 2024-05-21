@@ -1,11 +1,14 @@
 package com.example.cyberlarpapi.game.controllers;
 
+import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.FactionException.FactionNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
 import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.character.Style;
@@ -21,6 +24,8 @@ import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/characters")
@@ -61,13 +66,32 @@ public class CharacterController {
     }
 
     private Character createAndSaveCharacter(CharacterRequest request) throws FactionNotFoundException, CharacterException {
-        Faction faction = factionService.getById(request.getFactionId());
+        Faction faction = null;
+        if(request.getFactionId() != null) {
+            try {
+                faction = factionService.getById(request.getFactionId());
+            } catch (FactionNotFoundException e) {
+                throw new CharacterException("Invalid faction");
+            }
+        }
+        Style style;
+        try {
+            style = Style.valueOf(request.getStyle());
+        } catch (IllegalArgumentException e) {
+            throw new CharacterException("Invalid style");
+        }
+        CharacterClass characterClass;
+        try {
+            characterClass = CharacterClass.valueOf(request.getCharacterClass());
+        } catch (IllegalArgumentException e) {
+            throw new CharacterException("Invalid character class");
+        }
         Character character = Character.builder()
                 .name(request.getName())
                 .description(request.getDescription())
-                .characterClass(CharacterClass.valueOf(request.getCharacterClass()))
+                .characterClass(characterClass)
                 .faction(faction)
-                .style(Style.valueOf(request.getStyle()))
+                .style(style)
                 .strength(request.getStrength())
                 .agility(request.getAgility())
                 .presence(request.getPresence())
@@ -191,7 +215,7 @@ public class CharacterController {
                 this.name = character.getName();
                 this.description = character.getDescription();
                 this.characterClass = character.getCharacterClass().name();
-                this.factionId = character.getFaction().getId();
+                this.factionId = character.getFaction() == null ? null : character.getFaction().getId();
                 this.style = character.getStyle().name();
                 this.strength = character.getStrength();
                 this.agility = character.getAgility();
@@ -201,8 +225,72 @@ public class CharacterController {
                 this.maxHp = character.getMaxHp();
                 this.currentHp = character.getCurrentHp();
                 this.balance = character.getBalance();
-                this.accountNumber = character.getAccount_number();
+                this.accountNumber = character.getAccountNumber();
             }
         }
     }
+
+    // ====================== Banking ========================== //
+
+    @PostMapping("/transfer")
+    public ResponseEntity<CharacterController.BankingResponse> create(@RequestBody CharacterController.BankingRequest request) {
+        try {
+            Transaction newTransaction = characterService.transferMoney(request.getSenderBankAccount(),
+                                                                        request.getReceiverBankAccount(),
+                                                                        request.getAmount(),
+                                                                        request.getGameId());
+
+            gameService.addTransaction(newTransaction, request.getGameId());
+            return ResponseEntity.ok(new BankingResponse(newTransaction));
+        } catch (BankingServiceException | GameServiceException e) {
+            return ResponseEntity.badRequest().body(new BankingResponse(e.getMessage()));
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class BankingRequest {
+        private String senderBankAccount;
+        private String receiverBankAccount;
+        private int amount;
+        private Integer gameId;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class BankingResponse {
+        private String message;
+        private TransactionData transaction;
+
+        public BankingResponse(String message, Transaction transaction) {
+            this.message = message;
+            this.transaction = new TransactionData(transaction);
+        }
+
+        public BankingResponse(Transaction transaction) {
+            this.transaction = new TransactionData(transaction);
+        }
+
+        public BankingResponse(String message) {
+            this.message = message;
+        }
+
+        @Getter
+        public static class TransactionData {
+            private Integer id;
+            private String senderAccountNumber;
+            private String receiverAccountNumber;
+            private int amount;
+            private LocalDateTime timestamp;
+
+            public TransactionData(Transaction transaction) {
+                this.id = transaction.getId();
+                this.senderAccountNumber = transaction.getSender().getAccountNumber();
+                this.receiverAccountNumber = transaction.getReceiver().getAccountNumber();
+                this.amount = transaction.getAmount();
+                this.timestamp = transaction.getTimestamp();
+            }
+        }
+    }
+
 }

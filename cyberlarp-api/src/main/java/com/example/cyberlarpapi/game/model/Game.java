@@ -31,6 +31,9 @@ public class Game {
     @ManyToOne(cascade = CascadeType.ALL)
     private User gameMaster;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Transaction> transactions;
+
     public void addPlayer(Player player) {
         players.add(player);
     }

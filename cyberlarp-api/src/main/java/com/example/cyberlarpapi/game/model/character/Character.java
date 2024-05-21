@@ -31,9 +31,8 @@ public class Character {
     private Style style;
 
     // BANK ACCOUNT
-
     private int balance;
-    String account_number = "#" + RandomStringUtils.randomNumeric(6);
+    String accountNumber = "#" + RandomStringUtils.randomNumeric(6);
 
     // ATTRIBUTES
 
