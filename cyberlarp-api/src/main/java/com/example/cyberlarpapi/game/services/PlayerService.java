@@ -1,6 +1,7 @@
 package com.example.cyberlarpapi.game.services;
 
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
+import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.repositories.PlayerRepository;
 import org.springframework.stereotype.Service;

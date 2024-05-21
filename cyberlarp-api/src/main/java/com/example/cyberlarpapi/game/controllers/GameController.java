@@ -3,9 +3,11 @@ package com.example.cyberlarpapi.game.controllers;
 import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
+import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.player.Player;
+import com.example.cyberlarpapi.game.services.CharacterService;
 import com.example.cyberlarpapi.game.services.GameService;
 import com.example.cyberlarpapi.game.services.PlayerService;
 import com.example.cyberlarpapi.game.services.UserService;
@@ -27,10 +29,13 @@ public class GameController {
 
     private final UserService userService;
 
-    public GameController(GameService gameService, PlayerService playerService, UserService userService) {
+    private final CharacterService characterService;
+
+    public GameController(GameService gameService, PlayerService playerService, UserService userService, CharacterService characterService) {
         this.gameService = gameService;
         this.playerService = playerService;
         this.userService = userService;
+        this.characterService = characterService;
     }
 
     @PostMapping
@@ -49,6 +54,11 @@ public class GameController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<List<GameResponse>> getAllGames() {
+        return ResponseEntity.ok(gameService.getAll().stream().map(GameResponse::new).toList());
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<GameResponse> getGameById(@PathVariable Integer id) {
@@ -59,8 +69,8 @@ public class GameController {
         }
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<GameResponse> updateGameById(@PathVariable Integer id, @RequestBody GameRequest request) {
+    @PutMapping("/{id}/textData")
+    public ResponseEntity<GameResponse> updateGameTextDataById(@PathVariable Integer id, @RequestBody GameRequest request) {
         try {
             Game game = gameService.getById(id);
             game.setName(request.getName());
@@ -82,7 +92,47 @@ public class GameController {
         }
     }
 
-//    TODO:: dodać requesty, zastanowić się co trzeba
+    @PostMapping("/{id}/player/{playerId}")
+    public ResponseEntity<GameResponse> addPlayerToGame(@PathVariable Integer id, @PathVariable Integer playerId) {
+        try {
+            Game game = gameService.getById(id);
+            Player player = playerService.getById(playerId);
+            gameService.addPlayerToGame(id, player);
+            return ResponseEntity.ok(new GameResponse("Player added to game successfully", game));
+        } catch (GameNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (PlayerNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @DeleteMapping("/{id}/player/{playerId}")
+    public ResponseEntity<GameResponse> removePlayerFromGame(@PathVariable Integer id, @PathVariable Integer playerId) {
+        try {
+            Game game = gameService.getById(id);
+            Player player = playerService.getById(playerId);
+            gameService.kickPlayerFromGame(id, player);
+            return ResponseEntity.ok(new GameResponse("Player removed from game successfully", game));
+        } catch (GameNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (PlayerNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PutMapping("/{id}/gameMaster/{userId}")
+    public ResponseEntity<GameResponse> makeUserOwnerOfGame(@PathVariable Integer id, @PathVariable Integer userId) {
+        try {
+            Game game = gameService.getById(id);
+            User user = userService.getUserById(userId);
+            gameService.makeUserOwnerOfGame(id, user);
+            return ResponseEntity.ok(new GameResponse("User is now the owner of the game", game));
+        } catch (GameNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (UserServiceException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Getter
     @NoArgsConstructor

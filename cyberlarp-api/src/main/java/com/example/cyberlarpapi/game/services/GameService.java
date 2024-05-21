@@ -24,33 +24,34 @@ public class GameService {
         this.characterService = characterService;
     }
 
-    public boolean addPlayerToGame(Integer gameId, Player player) {
+    public void addPlayerToGame(Integer gameId, Player player) {
         for (Game game : this.gameRepository.findAll()) {
             if (game.getId().equals(gameId)) {
                 if (!game.getPlayers().contains(player)){
-                    return game.getPlayers().add(player);
+                    game.addPlayer(player);
+                    gameRepository.save(game);
                 }
             }
         }
-        return false;
     }
 
-    public boolean kickPlayerFromGame(Integer gameId, Player player) {
+    public void kickPlayerFromGame(Integer gameId, Player player) {
         for (Game game : this.gameRepository.findAll()) {
             if (game.getId().equals(gameId)) {
                 if (game.getPlayers().contains(player)) {
-                    return game.getPlayers().remove(player);
+                    game.removePlayer(player);
+                    gameRepository.save(game);
                 }
             }
         }
-        return false;
     }
 
-    public boolean makeUserOwnerOfGame(Integer roomId, User user) {
+    public boolean makeUserOwnerOfGame(Integer gameId, User user) {
         for (Game game : this.gameRepository.findAll()) {
-            if (game.getId().equals(roomId)) {
+            if (game.getId().equals(gameId)) {
                 if (game.getGameMaster() != user) {
                     game.setGameMaster(user);
+                    gameRepository.save(game);
                     return true;
                 }
             }
@@ -74,18 +75,6 @@ public class GameService {
         if(!gameRepository.existsById(id))
             throw new GameServiceException("Game " + id + " not found");
         gameRepository.deleteById(id);
-    }
-
-    public void updateById(int id, Game game) throws GameServiceException, GameNotFoundException {
-        if(!gameRepository.existsById(id))
-            throw new GameServiceException("Game " + id + " not found");
-        Game oldGame = getById(id);
-        oldGame.setGameMaster(game.getGameMaster());
-        oldGame.setName(game.getName());
-        oldGame.setDescription(game.getDescription());
-        oldGame.setPlayers(game.getPlayers());
-        oldGame.setAvailableCharacters(game.getAvailableCharacters());
-        gameRepository.save(oldGame);
     }
 
     public Game save(Game game) {
