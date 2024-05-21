@@ -20,6 +20,7 @@ public class Character {
 
     @OneToOne
     @Getter
+    @Setter
     private Player player;
 
     @Getter

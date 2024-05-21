@@ -37,7 +37,6 @@ public class CharacterService {
 
     public Character setPlayer(Character character, int playerId) throws CharacterServiceException {
         try {
-
             Player player = playerService.getById(playerId);
             character.setPlayer(player); // Set the character to the player
             player.setCharacter(character); // Set the player to the character
