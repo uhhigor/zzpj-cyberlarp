@@ -6,6 +6,7 @@ import com.example.cyberlarpapi.game.exceptions.FactionException.FactionNotFound
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
 import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.character.Attribute;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.character.Style;
@@ -116,11 +117,11 @@ public class CharacterController {
             character.setCharacterClass(CharacterClass.valueOf(request.getCharacterClass()));
             character.setFaction(faction);
             character.setStyle(Style.valueOf(request.getStyle()));
-            character.setStrength(request.getStrength());
-            character.setAgility(request.getAgility());
-            character.setPresence(request.getPresence());
-            character.setToughness(request.getToughness());
-            character.setKnowledge(request.getKnowledge());
+            character.setAttribute(Attribute.STRENGTH, request.getStrength());
+            character.setAttribute(Attribute.AGILITY, request.getAgility());
+            character.setAttribute(Attribute.PRESENCE, request.getPresence());
+            character.setAttribute(Attribute.TOUGHNESS, request.getToughness());
+            character.setAttribute(Attribute.KNOWLEDGE, request.getKnowledge());
             character.setMaxHp(request.getMaxHp());
             return ResponseEntity.ok(new CharacterResponse(characterService.save(character)));
         } catch (CharacterNotFoundException | FactionNotFoundException e) {
@@ -185,6 +186,7 @@ public class CharacterController {
             private Integer currentHp;
             private Integer balance;
             private String accountNumber;
+            private Integer armor;
 
             public CharacterData(Character character) {
                 this.id = character.getId();
@@ -193,13 +195,14 @@ public class CharacterController {
                 this.characterClass = character.getCharacterClass().name();
                 this.factionId = character.getFaction().getId();
                 this.style = character.getStyle().name();
-                this.strength = character.getStrength();
-                this.agility = character.getAgility();
-                this.presence = character.getPresence();
-                this.toughness = character.getToughness();
-                this.knowledge = character.getKnowledge();
+                this.strength = character.getAttribute(Attribute.STRENGTH);
+                this.agility = character.getAttribute(Attribute.AGILITY);
+                this.presence = character.getAttribute(Attribute.PRESENCE);
+                this.toughness = character.getAttribute(Attribute.TOUGHNESS);
+                this.knowledge = character.getAttribute(Attribute.KNOWLEDGE);
                 this.maxHp = character.getMaxHp();
                 this.currentHp = character.getCurrentHp();
+                this.armor = character.getArmor();
                 this.balance = character.getBalance();
                 this.accountNumber = character.getAccount_number();
             }
