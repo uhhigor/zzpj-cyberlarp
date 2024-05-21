@@ -88,7 +88,7 @@ public class Game {
                 throw new IllegalArgumentException("Name and description are required");
             }
             if(game.getAvailableCharacters() == null) {
-                game.setAvailableCharacters(DefaultGameData.getDefaultCharacters(game));
+                game.setAvailableCharacters(DefaultGameData.getDefaultCharacters());
             }
             if(game.getPlayers() == null) {
                 game.setPlayers(List.of());
