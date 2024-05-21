@@ -1,10 +1,9 @@
 package com.example.cyberlarpapi.game.controllers;
 
-import com.example.cyberlarpapi.User;
+import com.example.cyberlarpapi.game.model.user.User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerException;
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
-import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerServiceException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.player.Player;

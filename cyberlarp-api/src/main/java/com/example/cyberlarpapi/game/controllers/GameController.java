@@ -1,9 +1,7 @@
 package com.example.cyberlarpapi.game.controllers;
 
-import com.example.cyberlarpapi.User;
-import com.example.cyberlarpapi.game.exceptions.GameException.GameException;
+import com.example.cyberlarpapi.game.model.user.User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
-import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.player.Player;
@@ -12,7 +10,6 @@ import com.example.cyberlarpapi.game.services.PlayerService;
 import com.example.cyberlarpapi.game.services.UserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

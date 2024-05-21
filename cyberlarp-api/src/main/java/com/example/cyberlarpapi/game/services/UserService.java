@@ -1,8 +1,9 @@
 package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.User;
-import com.example.cyberlarpapi.UserRepository;
-import com.example.cyberlarpapi.game.exceptions.UserException.UserException;
+import java.util.Optional;
+import com.example.cyberlarpapi.game.model.player.Player;
+import com.example.cyberlarpapi.game.model.user.User;
+import com.example.cyberlarpapi.game.repositories.UserRepository;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +19,13 @@ public class UserService {
     public User save(User user) {
         return userRepository.save(user);
     }
+
     public User getUserById(int id) throws UserServiceException {
         return userRepository.findById(id).orElseThrow(() -> new UserServiceException("User not found"));
+    }
+
+    public Optional<User> getUserByEmail(String email) throws UserServiceException {
+        return userRepository.findByEmail(email);
     }
 
     public void deleteUserById(int id) {

@@ -37,9 +37,9 @@ public class Character {
 
     // ATTRIBUTES
 
-    private int strength;
-
     private int agility;
+
+    private int strength;
 
     private int presence;
 

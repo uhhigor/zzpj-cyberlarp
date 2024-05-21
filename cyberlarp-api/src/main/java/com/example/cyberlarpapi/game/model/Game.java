@@ -1,6 +1,6 @@
 package com.example.cyberlarpapi.game.model;
 
-import com.example.cyberlarpapi.User;
+import com.example.cyberlarpapi.game.model.user.User;
 import com.example.cyberlarpapi.game.DefaultGameData;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.player.Player;

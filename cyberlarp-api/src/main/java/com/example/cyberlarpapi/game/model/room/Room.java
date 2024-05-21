@@ -1,6 +1,6 @@
 package com.example.cyberlarpapi.game.model.room;
 
-import com.example.cyberlarpapi.User;
+import com.example.cyberlarpapi.game.model.user.User;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.example.cyberlarpapi;
+package com.example.cyberlarpapi.game.model.user;
 
 
 import jakarta.persistence.*;
@@ -10,7 +10,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Entity(name = "users")
+@Entity
 @Getter
 @Setter
 public class User {
@@ -36,13 +36,4 @@ public class User {
     public void removeAllPlayers() {
         this.players.clear();
     }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
 }

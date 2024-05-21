@@ -1,10 +1,8 @@
 package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.User;
+import com.example.cyberlarpapi.game.model.user.User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
-import com.example.cyberlarpapi.game.exceptions.RoomException.RoomServiceException;
 import com.example.cyberlarpapi.game.model.Game;
-import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.room.Room;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.repositories.GameRepository;
@@ -12,7 +10,6 @@ import com.example.cyberlarpapi.game.repositories.room.RoomRepository;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
