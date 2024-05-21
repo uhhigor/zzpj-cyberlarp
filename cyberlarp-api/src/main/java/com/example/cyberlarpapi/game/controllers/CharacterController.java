@@ -5,7 +5,7 @@ import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotF
 import com.example.cyberlarpapi.game.exceptions.FactionException.FactionNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
-import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.character.Style;

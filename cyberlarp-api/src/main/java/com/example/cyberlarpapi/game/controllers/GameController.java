@@ -1,18 +1,16 @@
 package com.example.cyberlarpapi.game.controllers;
 
 import com.example.cyberlarpapi.User;
-import com.example.cyberlarpapi.game.exceptions.GameException.GameException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
-import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
-import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.services.GameService;
 import com.example.cyberlarpapi.game.services.PlayerService;
 import com.example.cyberlarpapi.game.services.UserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +34,7 @@ public class GameController {
     }
 
     @PostMapping
-    public ResponseEntity<GameResponse> create(@RequestBody GameRequest request) {
+    public ResponseEntity<GameResponse> createGame(@RequestBody GameRequest request) {
         try {
             User gameMaster = userService.getUserById(request.getGameMasterUserId());
             Game game = Game.builder()
@@ -52,15 +50,39 @@ public class GameController {
     }
 
 
-
     @GetMapping("/{id}")
-    public ResponseEntity<GameResponse> getById(@PathVariable Integer id) {
+    public ResponseEntity<GameResponse> getGameById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(new GameResponse(gameService.getById(id)));
         } catch (GameNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<GameResponse> updateGameById(@PathVariable Integer id, @RequestBody GameRequest request) {
+        try {
+            Game game = gameService.getById(id);
+            game.setName(request.getName());
+            game.setDescription(request.getDescription());
+            game = gameService.save(game);
+            return ResponseEntity.ok(new GameResponse("Game updated successfully", game));
+        } catch (GameNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<GameResponse> deleteGame(@PathVariable Integer id) {
+        try {
+            gameService.deleteById(id);
+            return ResponseEntity.ok(new GameResponse("Game deleted successfully"));
+        } catch (GameServiceException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+//    TODO:: dodać requesty, zastanowić się co trzeba
 
     @Getter
     @NoArgsConstructor

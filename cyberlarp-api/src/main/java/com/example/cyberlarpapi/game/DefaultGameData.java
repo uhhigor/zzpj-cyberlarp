@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
 import com.example.cyberlarpapi.game.exceptions.FactionException.FactionException;
-import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.character.Style;
