@@ -1,3 +1,4 @@
+
 package com.example.cyberlarpapi.game.model;
 
 import com.example.cyberlarpapi.User;
@@ -8,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -23,7 +25,7 @@ public class Game {
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Character> availableCharacters;
+    private List<Character> availableCharacters = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Player> players;
@@ -88,7 +90,7 @@ public class Game {
                 throw new IllegalArgumentException("Name and description are required");
             }
             if(game.getAvailableCharacters() == null) {
-                game.setAvailableCharacters(DefaultGameData.getDefaultCharacters(game));
+                game.setAvailableCharacters(DefaultGameData.getDefaultCharacters());
             }
             if(game.getPlayers() == null) {
                 game.setPlayers(List.of());
