@@ -2,7 +2,7 @@ package com.example.cyberlarpapi.game.model.chat;
 
 import com.example.cyberlarpapi.game.exceptions.ChatExceptions.CharacterAlreadyInGroupException;
 import com.example.cyberlarpapi.game.exceptions.ChatExceptions.InvalidFactionException;
-import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.chat.message.ChatMessage;
 import jakarta.persistence.Entity;

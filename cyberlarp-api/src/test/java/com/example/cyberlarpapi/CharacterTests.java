@@ -90,7 +90,7 @@ public class CharacterTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(characterRequest))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.message").value("Character 4 added to game 1"))
+                    .andExpect(jsonPath("$.message").value("Character 1 added to game 1"))
                     .andExpect(jsonPath("$.character.id").exists())
                     .andExpect(jsonPath("$.character.name").value("Character 1"))
                     .andExpect(jsonPath("$.character.description").value("This is an example character"))
