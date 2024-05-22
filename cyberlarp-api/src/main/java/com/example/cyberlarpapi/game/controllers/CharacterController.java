@@ -91,15 +91,10 @@ public class CharacterController {
     }
 
     @PostMapping("/character/{userId}")
-    public ResponseEntity<CharacterResponse> addCharacterToPlayer(@RequestBody CharacterRequest request, @PathVariable Integer userId) {
-        System.out.println("Adding character to player");
-        System.out.println(request.getName());
-        System.out.println(userId);
+    public ResponseEntity<CharacterResponse> addCharacterToUser(@RequestBody CharacterRequest request, @PathVariable Integer userId) {
         try {
             User user = userService.getUserById(userId);
             Character character = createAndSaveCharacter(request);
-            user.addCharacter(character);
-            userService.save(user);
             return ResponseEntity.ok(new CharacterResponse(characterService.save(character)));
         } catch (UserServiceException | FactionNotFoundException | CharacterException e) {
             return ResponseEntity.notFound().build();

@@ -3,7 +3,6 @@ package com.example.cyberlarpapi.game.model;
 import com.example.cyberlarpapi.game.model.user.User;
 import com.example.cyberlarpapi.game.DefaultGameData;
 import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.model.player.Player;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,17 +25,17 @@ public class Game {
     private List<Character> availableCharacters;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Player> players;
+    private List<User> users;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private User gameMaster;
 
-    public void addPlayer(Player player) {
-        players.add(player);
+    public void addPlayer(User player) {
+        users.add(player);
     }
 
-    public void removePlayer(Player player) {
-        players.remove(player);
+    public void removePlayer(User player) {
+        users.remove(player);
     }
 
     public void addAvailableCharacter(Character character) {
@@ -63,8 +62,8 @@ public class Game {
             return this;
         }
 
-        public GameBuilder players(List<Player> players) {
-            game.setPlayers(players);
+        public GameBuilder users(List<User> users) {
+            game.setUsers(users);
             return this;
         }
 
@@ -90,8 +89,8 @@ public class Game {
             if(game.getAvailableCharacters() == null) {
                 game.setAvailableCharacters(DefaultGameData.getDefaultCharacters(game));
             }
-            if(game.getPlayers() == null) {
-                game.setPlayers(List.of());
+            if(game.getUsers() == null) {
+                game.setUsers(List.of());
             }
             if(game.getGameMaster() == null) {
                 throw new IllegalArgumentException("Game master is required");

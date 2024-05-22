@@ -23,16 +23,4 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonBackReference
     private List<Character> characters;
-
-    public void addCharacter(Character character) {
-        this.characters.add(character);
-    }
-
-    public void removeCharacter(Character character) {
-        this.characters.remove(character);
-    }
-
-    public void removeAllCharacters() {
-        this.characters.clear();
-    }
 }

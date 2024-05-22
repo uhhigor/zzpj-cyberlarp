@@ -12,11 +12,8 @@ public class CharacterService {
 
     private final CharacterRepository characterRepository;
 
-    private final PlayerService playerService;
-
-    public CharacterService(CharacterRepository characterRepository, PlayerService playerService) {
+    public CharacterService(CharacterRepository characterRepository) {
         this.characterRepository = characterRepository;
-        this.playerService = playerService;
     }
 
 

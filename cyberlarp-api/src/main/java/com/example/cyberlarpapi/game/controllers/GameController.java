@@ -4,9 +4,7 @@ import com.example.cyberlarpapi.game.model.user.User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import com.example.cyberlarpapi.game.model.Game;
-import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.services.GameService;
-import com.example.cyberlarpapi.game.services.PlayerService;
 import com.example.cyberlarpapi.game.services.UserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,13 +20,10 @@ import java.util.List;
 public class GameController {
     private final GameService gameService;
 
-    private final PlayerService playerService;
-
     private final UserService userService;
 
-    public GameController(GameService gameService, PlayerService playerService, UserService userService) {
+    public GameController(GameService gameService, UserService userService) {
         this.gameService = gameService;
-        this.playerService = playerService;
         this.userService = userService;
     }
 
@@ -101,7 +96,7 @@ public class GameController {
                 this.name = game.getName();
                 this.description = game.getDescription();
                 this.gameMasterId = game.getGameMaster().getId();
-                this.playerIds = game.getPlayers().stream().map(Player::getId).toList();
+                this.playerIds = game.getUsers().stream().map(User::getId).toList();
                 this.availableCharacterIds = game.getAvailableCharacters().stream().map(Character::getId).toList();
             }
         }

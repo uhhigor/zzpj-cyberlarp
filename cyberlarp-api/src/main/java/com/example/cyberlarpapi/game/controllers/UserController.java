@@ -78,7 +78,6 @@ public class UserController {
         if (oidcUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
         }
-
         try {
             return ResponseEntity.ok(characterService.getById(id));
         } catch (CharacterNotFoundException e) {
@@ -86,18 +85,6 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/characters/{id}")
-    public ResponseEntity<?> deleteCharacter(@AuthenticationPrincipal OidcUser oidcUser, @PathVariable Integer id) {
-        if (oidcUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
-        }
-        try {
-            characterService.deleteById(id);
-            return ResponseEntity.ok("Character deleted successfully");
-        } catch (CharacterNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     // only for testing purposes
     public static class UserRequest {
