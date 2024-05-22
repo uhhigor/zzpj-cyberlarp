@@ -7,8 +7,6 @@ import com.example.cyberlarpapi.game.exceptions.FactionException.FactionNotFound
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
-import com.example.cyberlarpapi.game.model.Game;
-import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.character.Attribute;
@@ -117,6 +115,8 @@ public class CharacterController {
             return ResponseEntity.notFound().build();
         } catch (CharacterException e) {
             return ResponseEntity.badRequest().body(new CharacterResponse(e.getMessage()));
+        } catch (FactionNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -130,6 +130,8 @@ public class CharacterController {
             return ResponseEntity.ok(new CharacterResponse("Character " + character.getId() + " added to player " + player.getId(), characterService.save(character)));
         } catch (PlayerNotFoundException | CharacterException e) {
             return ResponseEntity.notFound().build();
+        } catch (FactionNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

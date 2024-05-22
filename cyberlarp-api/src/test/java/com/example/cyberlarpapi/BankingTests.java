@@ -77,46 +77,46 @@ public class BankingTests {
             fail("Exception thrown", e);
         }
 
-        String character1Request = """
-           {
-           "name": "Character 1",
-           "description": "This is an example character",
-           "characterClass": "PUNK",
-           "factionId": null,
-           "style": "Kitsch",
-           "strength": 10,
-           "agility": 2,
-           "presence": 2,
-           "toughness": 2,
-           "knowledge": 4,
-           "maxHp": 10,
-           "currentHp": 10,
-           "balance": 1000
-           }
-            """;
+        String characterRequest = """
+                {
+                "name": "Character 1",
+                "description": "This is an example character",
+                "characterClass": "PUNK",
+                "factionId": null,
+                "style": "KITSCH",
+                "strength": 10,
+                "agility": 2,
+                "presence": 2,
+                "toughness": 2,
+                "knowledge": 4,
+                "maxHp": 10,
+                "currentHp": 10,
+                "balance": 10
+                }
+                """;
 
-        String character2Request = """
-           {
-           "name": "Character 1",
-           "description": "This is an example character",
-           "characterClass": "PUNK",
-           "factionId": null,
-           "style": "Kitsch",
-           "strength": 10,
-           "agility": 2,
-           "presence": 2,
-           "toughness": 2,
-           "knowledge": 4,
-           "maxHp": 10,
-           "currentHp": 10,
-           "balance": 1000
-           }
-            """;
+        String characterRequest2 = """
+                {
+                "name": "Character 2",
+                "description": "This is an example character",
+                "characterClass": "PUNK",
+                "factionId": null,
+                "style": "KITSCH",
+                "strength": 10,
+                "agility": 2,
+                "presence": 2,
+                "toughness": 2,
+                "knowledge": 4,
+                "maxHp": 10,
+                "currentHp": 10,
+                "balance": 10
+                }
+                """;
 
         try {
             character1 = mockMvc.perform(post("/characters/game/1")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(character1Request))
+                            .content(characterRequest))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.character.id").exists())
                     .andReturn();
@@ -128,7 +128,7 @@ public class BankingTests {
         try {
             character2 = mockMvc.perform(post("/characters/game/1")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(character2Request))
+                            .content(characterRequest2))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.character.id").exists())
                     .andReturn();
@@ -150,7 +150,7 @@ public class BankingTests {
         ",
         "receiverBankAccount": \"""" + accountNumber2 + """
         ",
-        "amount": 100,
+        "amount": 1,
         "gameId": 1
         }
         """;
@@ -161,7 +161,7 @@ public class BankingTests {
                             .content(transactionRequest))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.transaction.id").exists())
-                    .andExpect(jsonPath("$.transaction.amount").value(100));
+                    .andExpect(jsonPath("$.transaction.amount").value(1));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -181,7 +181,7 @@ public class BankingTests {
         ",
         "receiverBankAccount": \"""" + accountNumber2 + """
         ",
-        "amount": 100,
+        "amount": 1,
         "gameId": 1
         }
         """;
@@ -192,7 +192,7 @@ public class BankingTests {
                             .content(transactionRequest))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.transaction.id").exists())
-                    .andExpect(jsonPath("$.transaction.amount").value(100));
+                    .andExpect(jsonPath("$.transaction.amount").value(1));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -201,7 +201,7 @@ public class BankingTests {
         try {
             mockMvc.perform(get("/characters/" + id1))
                             .andExpect(status().isOk())
-                            .andExpect(jsonPath("$.character.balance").value(900));
+                            .andExpect(jsonPath("$.character.balance").value(9));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -210,7 +210,7 @@ public class BankingTests {
         try {
             mockMvc.perform(get("/characters/" + id2))
                             .andExpect(status().isOk())
-                            .andExpect(jsonPath("$.character.balance").value(1100));
+                            .andExpect(jsonPath("$.character.balance").value(11));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -339,7 +339,7 @@ public class BankingTests {
            "description": "This is an example character",
            "characterClass": "PUNK",
            "factionId": null,
-           "style": "Kitsch",
+           "style": "KITSCH",
            "strength": 10,
            "agility": 2,
            "presence": 2,

@@ -2,13 +2,10 @@ package com.example.cyberlarpapi.game.controllers;
 
 import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
-import com.example.cyberlarpapi.game.exceptions.GameException.GameException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
-import com.example.cyberlarpapi.game.model.Game;
-import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.player.Player;
@@ -136,19 +133,6 @@ public class GameController {
             return ResponseEntity.notFound().build();
         } catch (UserServiceException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    // ====================== Banking ========================== //
-    @PostMapping("/transactions")
-    public ResponseEntity<List<Transaction>> getTransactionsOfGame(@RequestBody CharacterController.BankingRequest request) {
-        try {
-            List<Transaction> transactions = gameService.getTransactions(request.getSenderBankAccount(), request.getGameId());
-            return ResponseEntity.ok(transactions);
-        } catch (GameNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (GameServiceException | BankingServiceException e) {
-            return ResponseEntity.badRequest().build();
         }
     }
 

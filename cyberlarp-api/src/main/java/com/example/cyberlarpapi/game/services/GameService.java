@@ -3,20 +3,15 @@ package com.example.cyberlarpapi.game.services;
 import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
-import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.model.character.CharacterClass;
-import com.example.cyberlarpapi.game.model.room.Room;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
-import com.example.cyberlarpapi.game.repositories.GameRepository;
-import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
-import com.example.cyberlarpapi.game.repositories.room.RoomRepository;
 import com.example.cyberlarpapi.game.repositories.game.GameRepository;
+import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +27,7 @@ public class GameService {
     private final CharacterService characterService;
 
 
-    public GameService(GameRepository gameRepository, CharacterService characterService) {
+    public GameService(GameRepository gameRepository, CharacterService characterService, CharacterRepository characterRepository) {
         this.gameRepository = gameRepository;
         this.characterService = characterService;
         this.characterRepository = characterRepository;

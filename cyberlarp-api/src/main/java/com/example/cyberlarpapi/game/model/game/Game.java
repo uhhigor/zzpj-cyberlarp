@@ -2,6 +2,7 @@ package com.example.cyberlarpapi.game.model.game;
 
 import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.DefaultGameData;
+import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.player.Player;
 import jakarta.persistence.*;
