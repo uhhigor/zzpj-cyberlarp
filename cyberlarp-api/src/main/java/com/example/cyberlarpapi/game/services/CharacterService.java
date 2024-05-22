@@ -52,10 +52,10 @@ public class CharacterService {
     public Character setPlayer(Character character, int playerId) throws CharacterServiceException {
         try {
             Player player = playerService.getById(playerId);
-            character.setPlayer(player); // Set the character to the player
-            player.setCharacter(character); // Set the player to the character
-            playerService.update(player); // Update the player
-            return characterRepository.save(character); // Update the character
+            character.setPlayer(player);
+            player.setCharacter(character);
+            playerService.update(player);
+            return characterRepository.save(character);
         } catch (Exception e) {
             throw new CharacterServiceException("Error while setting player", e);
         }

@@ -1,3 +1,4 @@
+
 package com.example.cyberlarpapi.game.controllers;
 
 import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
@@ -7,6 +8,7 @@ import com.example.cyberlarpapi.game.exceptions.FactionException.FactionNotFound
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
+import com.example.cyberlarpapi.game.model.character.Attribute;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.character.Attribute;
@@ -66,7 +68,7 @@ public class CharacterController {
         }
     }
 
-    private Character createAndSaveCharacter(CharacterRequest request) throws FactionNotFoundException, CharacterException {
+    private Character createAndSaveCharacter(CharacterRequest request) throws CharacterException {
         Faction faction = null;
         if(request.getFactionId() != null) {
             try {

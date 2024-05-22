@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 public class InviteUserRequest {
 
-    private Integer userId;
+    private Integer characterId;
 
 }

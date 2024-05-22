@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -24,7 +25,7 @@ public class Game {
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Character> availableCharacters;
+    private List<Character> availableCharacters = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Player> players;

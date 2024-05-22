@@ -31,6 +31,8 @@ public class CharacterActionsController {
     }
     @PostMapping("/roll/{attribute}")
     public ResponseEntity<RollAttributeResponse> roll(@AuthenticationPrincipal UserDetails userDetails,
+                                                      @PathVariable String attribute,
+                                                      @RequestBody RollAttributeRequest request) {
                                                         @PathVariable String attribute,
                                                         @RequestBody RollAttributeRequest request) {
         if(userDetails == null) {
@@ -42,7 +44,7 @@ public class CharacterActionsController {
 
         Attribute attributeEnum;
         try {
-           attributeEnum = Attribute.valueOf(attribute.toUpperCase());
+            attributeEnum = Attribute.valueOf(attribute.toUpperCase());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new RollAttributeResponse("Invalid attribute", null));
         }
@@ -58,4 +60,4 @@ public class CharacterActionsController {
         }
         return ResponseEntity.ok(new RollAttributeResponse(null, character.rollAttributeCheck(attributeEnum)));
     }
-}
+}}

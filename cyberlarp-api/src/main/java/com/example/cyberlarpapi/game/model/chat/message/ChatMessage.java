@@ -1,7 +1,6 @@
 package com.example.cyberlarpapi.game.model.chat.message;
 
-import com.example.cyberlarpapi.User;
-import com.example.cyberlarpapi.game.model.chat.GroupChat;
+import com.example.cyberlarpapi.game.model.character.Character;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,17 +18,13 @@ public class ChatMessage {
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User sender;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private GroupChat groupChat;
+    private Character sender;
 
     private LocalDateTime timestamp;
 
-    public ChatMessage(String content, User sender, GroupChat groupChat) {
+    public ChatMessage(String content, Character sender) {
         this.content = content;
         this.sender = sender;
-        this.groupChat = groupChat;
         this.timestamp = LocalDateTime.now();
     }
 }
