@@ -1,8 +1,8 @@
 package com.example.cyberlarpapi.game.model.character;
 
-import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
+import com.example.cyberlarpapi.game.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,8 +17,8 @@ public class Character {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @OneToOne
-    private Player player;
+    @ManyToOne
+    private User user;
 
     private String name;
 
@@ -65,8 +65,8 @@ public class Character {
             character = new Character();
         }
 
-        public CharacterBuilder player(Player player) {
-            character.player = player;
+        public CharacterBuilder user(User user) {
+            character.user = user;
             return this;
         }
 

@@ -1,7 +1,6 @@
 package com.example.cyberlarpapi.game.services;
 
 import java.util.Optional;
-import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.model.user.User;
 import com.example.cyberlarpapi.game.repositories.UserRepository;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
@@ -31,4 +30,5 @@ public class UserService {
     public void deleteUserById(int id) {
         userRepository.deleteById(id);
     }
+
 }

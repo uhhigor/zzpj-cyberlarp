@@ -1,9 +1,7 @@
 package com.example.cyberlarpapi.game.model.player;
 
-import com.example.cyberlarpapi.game.model.user.User;
 import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerException;
 import jakarta.persistence.*;
 
 
@@ -14,8 +12,8 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @ManyToOne
-    private User user;
+//    @ManyToOne
+//    private User user;
 
     @OneToOne
     private Character character;
@@ -31,13 +29,13 @@ public class Player {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
+//    public User getUser() {
+//        return user;
+//    }
+//
+//    public void setUser(User user) {
+//        this.user = user;
+//    }
 
     public Character getCharacter() {
         return character;
@@ -74,10 +72,10 @@ public class Player {
             return this;
         }
 
-        public PlayerBuilder user(User user) {
-            player.user = user;
-            return this;
-        }
+//        public PlayerBuilder user(User user) {
+//            player.user = user;
+//            return this;
+//        }
 
         public PlayerBuilder character(Character character) {
             player.character = character;
@@ -88,10 +86,10 @@ public class Player {
             player.game = game;
             return this;
         }
-        public Player build() throws PlayerException {
-            if(player.user == null || player.game == null)
-                throw new PlayerException("User and game are required");
-            return player;
-        }
+//        public Player build() throws PlayerException {
+//            if(player.user == null || player.game == null)
+//                throw new PlayerException("User and game are required");
+//            return player;
+//        }
     }
 }

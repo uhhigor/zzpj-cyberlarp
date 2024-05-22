@@ -1,9 +1,9 @@
 package com.example.cyberlarpapi.game.services;
 
+import java.util.List;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterServiceException;
 import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
 import org.springframework.stereotype.Service;
 
@@ -35,17 +35,25 @@ public class CharacterService {
         characterRepository.deleteById(id);
     }
 
-    public Character setPlayer(Character character, int playerId) throws CharacterServiceException {
+    public Character getCharacterByUserId(int userId) throws CharacterServiceException {
         try {
-
-            Player player = playerService.getById(playerId);
-            character.setPlayer(player); // Set the character to the player
-            player.setCharacter(character); // Set the player to the character
-            playerService.update(player); // Update the player
-            return characterRepository.save(character); // Update the character
+            return characterRepository.findByUserId(userId).orElseThrow(() -> new CharacterServiceException("Character not found"));
         } catch (Exception e) {
-            throw new CharacterServiceException("Error while setting player", e);
+            throw new CharacterServiceException("Error while getting character by user id", e);
         }
     }
+
+    public List<Character> getCharactersByUserId(int userId) throws CharacterServiceException {
+        try {
+            List<Character> characters = characterRepository.findAllByUserId(userId);
+            if (characters.isEmpty()) {
+                throw new CharacterServiceException("No characters found for user id: " + userId);
+            }
+            return characters;
+        } catch (Exception e) {
+            throw new CharacterServiceException("Error while getting characters by user id", e);
+        }
+    }
+
 
 }

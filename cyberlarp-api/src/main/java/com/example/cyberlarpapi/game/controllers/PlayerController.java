@@ -50,29 +50,29 @@ public class PlayerController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<PlayerResponse> createPlayer(@RequestBody PlayerRequest request) {
-        try {
-            User user = userService.getUserById(request.getUserId());
-            Game game = gameService.getById(request.getGameId());
-            Player player = Player.builder()
-                    .user(user)
-                    .game(game)
-                    .build(); // Create player
-
-            player = playerService.save(player); // Save player
-
-            user.addPlayer(player); // Add player to user
-            game.addPlayer(player); // Add player to game
-            gameService.save(game); // Update game
-            userService.save(user); // Update user
-            return ResponseEntity.ok(new PlayerResponse("Player created successfully", player));
-        } catch (PlayerException  e) {
-            return ResponseEntity.badRequest().body(new PlayerResponse(e.getMessage()));
-        } catch (GameNotFoundException | UserServiceException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
+//    @PostMapping
+//    public ResponseEntity<PlayerResponse> createPlayer(@RequestBody PlayerRequest request) {
+//        try {
+//            User user = userService.getUserById(request.getUserId());
+//            Game game = gameService.getById(request.getGameId());
+//            Player player = Player.builder()
+//                    .user(user)
+//                    .game(game)
+//                    .build(); // Create player
+//
+//            player = playerService.save(player); // Save player
+//
+//            //user.addPlayer(player); // Add player to user
+//            game.addPlayer(player); // Add player to game
+//            gameService.save(game); // Update game
+//            userService.save(user); // Update user
+//            return ResponseEntity.ok(new PlayerResponse("Player created successfully", player));
+//        } catch (PlayerException  e) {
+//            return ResponseEntity.badRequest().body(new PlayerResponse(e.getMessage()));
+//        } catch (GameNotFoundException | UserServiceException e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 
     @Getter
     @NoArgsConstructor
@@ -106,7 +106,7 @@ public class PlayerController {
 
             public PlayerData(Player player) {
                 this.id = player.getId();
-                this.userId = player.getUser().getId();
+ //               this.userId = player.getUser().getId();
                 this.gameId = player.getGame().getId();
             }
         }

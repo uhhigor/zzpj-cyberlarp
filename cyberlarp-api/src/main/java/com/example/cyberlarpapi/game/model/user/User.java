@@ -2,9 +2,8 @@ package com.example.cyberlarpapi.game.model.user;
 
 
 import jakarta.persistence.*;
-import com.example.cyberlarpapi.game.model.player.Player;
+import com.example.cyberlarpapi.game.model.character.Character;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,17 +22,17 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonBackReference
-    private List<Player> players;
+    private List<Character> characters;
 
-    public void addPlayer(Player player) {
-        this.players.add(player);
+    public void addCharacter(Character character) {
+        this.characters.add(character);
     }
 
-    public void removePlayer(Player player) {
-        this.players.remove(player);
+    public void removeCharacter(Character character) {
+        this.characters.remove(character);
     }
 
-    public void removeAllPlayers() {
-        this.players.clear();
+    public void removeAllCharacters() {
+        this.characters.clear();
     }
 }

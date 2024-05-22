@@ -4,17 +4,14 @@ import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterExce
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.FactionException.FactionNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
-import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import com.example.cyberlarpapi.game.model.Game;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.character.Style;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
-import com.example.cyberlarpapi.game.model.player.Player;
-import com.example.cyberlarpapi.game.services.CharacterService;
-import com.example.cyberlarpapi.game.services.FactionService;
-import com.example.cyberlarpapi.game.services.GameService;
-import com.example.cyberlarpapi.game.services.PlayerService;
+import com.example.cyberlarpapi.game.model.user.User;
+import com.example.cyberlarpapi.game.services.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,13 +29,13 @@ public class CharacterController {
 
     private final GameService gameService;
 
-    private final PlayerService playerService;
+    private final UserService userService;
 
-    public CharacterController(CharacterService characterService, FactionService factionService, GameService gameService, PlayerService playerService) {
+    public CharacterController(CharacterService characterService, FactionService factionService, GameService gameService, UserService userService) {
         this.characterService = characterService;
         this.factionService = factionService;
         this.gameService = gameService;
-        this.playerService = playerService;
+        this.userService = userService;
     }
 
     @GetMapping("/{id}")
@@ -93,15 +90,18 @@ public class CharacterController {
         }
     }
 
-    @PostMapping("/player/{playerId}")
-    public ResponseEntity<CharacterResponse> addCharacterToPlayer(@RequestBody CharacterRequest request, @PathVariable Integer playerId) {
+    @PostMapping("/character/{userId}")
+    public ResponseEntity<CharacterResponse> addCharacterToPlayer(@RequestBody CharacterRequest request, @PathVariable Integer userId) {
+        System.out.println("Adding character to player");
+        System.out.println(request.getName());
+        System.out.println(userId);
         try {
-            Player player = playerService.getById(playerId);
+            User user = userService.getUserById(userId);
             Character character = createAndSaveCharacter(request);
-            player.setCharacter(character);
-            playerService.save(player);
+            user.addCharacter(character);
+            userService.save(user);
             return ResponseEntity.ok(new CharacterResponse(characterService.save(character)));
-        } catch (PlayerNotFoundException | FactionNotFoundException | CharacterException e) {
+        } catch (UserServiceException | FactionNotFoundException | CharacterException e) {
             return ResponseEntity.notFound().build();
         }
     }
