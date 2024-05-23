@@ -33,6 +33,7 @@ public class CharacterActionsController {
     public ResponseEntity<RollAttributeResponse> roll(@AuthenticationPrincipal UserDetails userDetails,
                                                       @PathVariable String attribute,
                                                       @RequestBody RollAttributeRequest request) {
+
         if(userDetails == null) {
             return ResponseEntity.badRequest().body(new RollAttributeResponse("Not logged in", null));
         }

@@ -46,9 +46,10 @@ public class Character {
 
     // BANK ACCOUNT
     @Getter
+    @Setter
     private int balance;
     @Getter
-    String account_number = "#" + RandomStringUtils.randomNumeric(6);
+    String accountNumber = "#" + RandomStringUtils.randomNumeric(6);
 
     // ATTRIBUTES
     private int strength;

@@ -2,14 +2,14 @@ package com.example.cyberlarpapi.game.services;
 
 import com.example.cyberlarpapi.game.exceptions.ChatExceptions.CharacterAlreadyInGroupException;
 import com.example.cyberlarpapi.game.exceptions.ChatExceptions.InvalidFactionException;
-import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.chat.DTO.ChatMessageDTO;
 import com.example.cyberlarpapi.game.model.chat.DTO.GroupChatRequest;
 import com.example.cyberlarpapi.game.model.chat.GroupChat;
 import com.example.cyberlarpapi.game.model.chat.Role;
 import com.example.cyberlarpapi.game.model.chat.message.ChatMessage;
 import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.repositories.GameRepository;
+import com.example.cyberlarpapi.game.repositories.game.GameRepository;
 import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
 import com.example.cyberlarpapi.game.repositories.chat.ChatMessageRepository;
 import com.example.cyberlarpapi.game.repositories.chat.GroupChatRepository;
