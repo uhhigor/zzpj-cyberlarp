@@ -1,4 +1,4 @@
-package com.example.cyberlarpapi.game.model;
+package com.example.cyberlarpapi.game.model.game;
 
 import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.DefaultGameData;
