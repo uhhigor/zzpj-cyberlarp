@@ -59,7 +59,7 @@ public class GroupChatService {
             throw new InvalidFactionException("Character does not belong to the same faction as the owner");
         }
 
-        groupChat.inviteCharacter(character, Role.MEMBER);
+        groupChat.inviteCharacter(character);
         groupChatRepository.save(groupChat);
     }
 
@@ -68,6 +68,7 @@ public class GroupChatService {
                 .orElseThrow(() -> new NotFoundException("Group chat not found with id: " + groupId));
         Character character = characterRepository.findById(characterId)
                 .orElseThrow(() -> new NotFoundException("Character not found with id: " + characterId));
+
         groupChat.acceptInvitation(character);
         groupChatRepository.save(groupChat);
     }
@@ -82,17 +83,11 @@ public class GroupChatService {
         groupChatRepository.save(groupChat);
     }
 
-    @Transactional
-    public void removeOldMessages(Integer groupId) throws NotFoundException {
-        List<ChatMessage> messages = groupChatRepository.findById(groupId)
-                .orElseThrow(() -> new NotFoundException("Group chat not found with id: " + groupId))
-                .getMessages();
-        for (ChatMessage message : messages) {
-            if (message.getTimestamp().isBefore(LocalDateTime.now().minusDays(60))) {
-                chatMessageRepository.delete(message);
-            }
-        }
+    public void removeOldMessages() {
+        LocalDateTime thresholdDate = LocalDateTime.now().minusDays(60);
+        chatMessageRepository.deleteByTimestampBefore(thresholdDate);
     }
+
 
     public List<ChatMessageDTO> getMessagesFromGroupChat(Integer groupId) throws NotFoundException {
         List<ChatMessage> messages = groupChatRepository.findById(groupId)

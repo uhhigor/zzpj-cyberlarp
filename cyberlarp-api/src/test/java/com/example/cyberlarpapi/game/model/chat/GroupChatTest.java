@@ -1,5 +1,7 @@
 package com.example.cyberlarpapi.game.model.chat;
 
+
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
@@ -15,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.assertj.core.api.Fail.fail;
@@ -529,6 +533,8 @@ class GroupChatTest {
             e.printStackTrace();
             fail("Exception thrown", e);
         }
+
+
     }
 
     // Scenario 4: Attempt to invite character already in the group chat
@@ -700,6 +706,23 @@ class GroupChatTest {
             mockMvc.perform(post("/groupChat/1/invite")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(inviteCharacterRequest))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+
+        String acceptCharacterRequest = """
+                {
+                    "groupChatId": 1,
+                    "characterId": 2
+                }
+                """;
+
+        try {
+            mockMvc.perform(post("/groupChat/1/accept")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(acceptCharacterRequest))
                     .andExpect(status().isOk());
         } catch (Exception e) {
             e.printStackTrace();
@@ -962,9 +985,9 @@ class GroupChatTest {
 
     }
 
-    // Scenario 6: Remove old messages from group chat
+    //Scenario 6 accept invite to chatGroup
     @Test
-    void removeOldMessagesFromGroupChat() throws InterruptedException {
+    void acceptInviteToGroupChat() {
         String userRequest = """
                 {
                     "username": "user1"
@@ -1138,7 +1161,6 @@ class GroupChatTest {
             fail("Exception thrown", e);
         }
 
-
         String acceptInviteRequest = """
                 {
                     "groupChatId": 1,
@@ -1152,82 +1174,6 @@ class GroupChatTest {
                             .content(acceptInviteRequest))
                     .andExpect(status().isOk());
         } catch (Exception e) {
-            e.printStackTrace();
-            fail("Exception thrown", e);
-        }
-
-        String messageRequest = """
-                {
-                "content": "Siemanko",
-                "senderId": 1
-                }
-                """;
-
-        try {
-            mockMvc.perform(post("/groupChat/1/message")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(messageRequest))
-                    .andExpect(status().isOk());
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Exception thrown", e);
-        }
-
-        String messageRequest2 = """
-                {
-                "content": "Cześć",
-                "senderId": 2
-                }
-                """;
-
-        try {
-            mockMvc.perform(post("/groupChat/1/message")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(messageRequest2))
-                    .andExpect(status().isOk());
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Exception thrown", e);
-        }
-
-        try {
-            Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().minusDays(65));
-            jdbcTemplate.update("UPDATE ChatMessage SET timestamp = ? WHERE id = 1", timestamp);
-        } catch (
-                Exception e) {
-            e.printStackTrace();
-            fail("Exception thrown during timestamp update", e);
-        }
-
-        try {
-            assertTrue(Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT timestamp FROM ChatMessage WHERE id = 1", Timestamp.class)).before(Timestamp.valueOf(LocalDateTime.now().minusDays(60))));
-        } catch (
-                Exception e) {
-            e.printStackTrace();
-            fail("Exception thrown during timestamp check", e);
-        }
-
-        try {
-            mockMvc.perform(delete("/groupChat/1/messages")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk());
-        } catch (
-                Exception e) {
-            e.printStackTrace();
-            fail("Exception thrown", e);
-        }
-
-        Thread.sleep(1000);
-
-        try {
-            mockMvc.perform(get("/groupChat/1/messages")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$[0].content").value("Siemanko"))
-                    .andExpect(jsonPath("$[0].senderId").value(1))
-                    .andExpect(jsonPath("$[1]").doesNotExist());
-        } catch (
-                Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
         }

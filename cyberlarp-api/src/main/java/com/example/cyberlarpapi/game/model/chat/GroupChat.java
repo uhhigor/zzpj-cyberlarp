@@ -34,9 +34,11 @@ public class GroupChat {
     @ManyToOne
     private Character owner;
 
+    @Transient
+    private List<Character> invitations = new ArrayList<>();
 
-    public void inviteCharacter(Character character, Role role) {
-        if (characters.stream().anyMatch(gc -> gc.getCharacter().equals(character))) {
+    public void inviteCharacter(Character character) {
+        if (hasCharacter(character)) {
             throw new CharacterAlreadyInGroupException("Character already in group chat");
         }
 
@@ -44,8 +46,7 @@ public class GroupChat {
             throw new InvalidFactionException("Character does not belong to the same faction as the owner");
         }
 
-        GroupChatCharacter groupChatCharacter = new GroupChatCharacter(character, this, role);
-        characters.add(groupChatCharacter);
+        invitations.add(character);
     }
 
     public boolean hasCharacter(Character character) {
@@ -53,33 +54,22 @@ public class GroupChat {
     }
 
     public void acceptInvitation(Character character) {
-        for (GroupChatCharacter groupChatCharacter : characters) {
-            if (groupChatCharacter.getCharacter().equals(character)) {
-                groupChatCharacter.setRole(Role.MEMBER);
-            }
+        if (invitations.contains(character)) {
+            GroupChatCharacter groupChatCharacter = new GroupChatCharacter(character, this, Role.MEMBER);
+            characters.add(groupChatCharacter);
+            invitations.remove(character);
         }
     }
 
     public boolean hasAccess(Character character) {
-        for (GroupChatCharacter groupChatCharacter : characters) {
-            if (groupChatCharacter.getCharacter().equals(character) && groupChatCharacter.getRole().equals(Role.MEMBER)){
-                return true;
-            }
-        }
-        return false;
+        return characters.stream().anyMatch(gc -> gc.getCharacter().equals(character) && gc.getRole().equals(Role.MEMBER));
     }
 
     public boolean isOwner(Character character) {
-        for (GroupChatCharacter groupChatCharacter : characters) {
-            if (groupChatCharacter.getCharacter().equals(character) && groupChatCharacter.getRole().equals(Role.OWNER)){
-                return true;
-            }
-        }
-        return false;
+        return characters.stream().anyMatch(gc -> gc.getCharacter().equals(character) && gc.getRole().equals(Role.OWNER));
     }
 
     public void addMessage(ChatMessage message) {
         messages.add(message);
     }
-
 }
