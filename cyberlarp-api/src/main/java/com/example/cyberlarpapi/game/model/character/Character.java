@@ -47,7 +47,7 @@ public class Character {
     // BANK ACCOUNT
     @Getter
     @Setter
-    private int balance;
+    private Float balance;
     @Getter
     String accountNumber = "#" + RandomStringUtils.randomNumeric(6);
 
@@ -140,7 +140,7 @@ public class Character {
             return this;
         }
 
-        public CharacterBuilder balance(int balance) {
+        public CharacterBuilder balance(Float balance) {
             character.balance = balance;
             return this;
         }

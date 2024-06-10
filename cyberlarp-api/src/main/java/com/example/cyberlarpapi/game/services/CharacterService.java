@@ -4,6 +4,7 @@ import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceE
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterServiceException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
+import com.example.cyberlarpapi.game.exceptions.PlayerException.PlayerNotFoundException;
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;

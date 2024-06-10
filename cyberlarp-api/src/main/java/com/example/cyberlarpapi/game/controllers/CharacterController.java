@@ -170,7 +170,7 @@ public class CharacterController {
         private Integer knowledge;
         private Integer maxHp;
         private Integer currentHp;
-        private Integer balance;
+        private Float balance;
     }
 
     @Getter
@@ -210,7 +210,7 @@ public class CharacterController {
             private Integer knowledge;
             private Integer maxHp;
             private Integer currentHp;
-            private Integer balance;
+            private Float balance;
             private String accountNumber;
             private Integer armor;
 
