@@ -115,8 +115,8 @@ public class BankingTests {
 
         try {
             character1 = mockMvc.perform(post("/characters/game/1")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(character1Request))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(character1Request))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.character.id").exists())
                     .andReturn();
@@ -127,8 +127,8 @@ public class BankingTests {
 
         try {
             character2 = mockMvc.perform(post("/characters/game/1")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(character2Request))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(character2Request))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.character.id").exists())
                     .andReturn();
@@ -161,7 +161,9 @@ public class BankingTests {
                             .content(transactionRequest))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.transaction.id").exists())
+
                     .andExpect(jsonPath("$.transaction.amount").value(100));
+
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -211,6 +213,7 @@ public class BankingTests {
             mockMvc.perform(get("/characters/" + id2))
                             .andExpect(status().isOk())
                             .andExpect(jsonPath("$.character.balance").value(1100));
+
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -339,7 +342,11 @@ public class BankingTests {
            "description": "This is an example character",
            "characterClass": "PUNK",
            "factionId": null,
+<<<<<<< HEAD
            "style": "Kitsch",
+=======
+           "style": "KITSCH",
+>>>>>>> 90fe4751bc1f9c853a4c08ff21bf08fe24ac0c89
            "strength": 10,
            "agility": 2,
            "presence": 2,

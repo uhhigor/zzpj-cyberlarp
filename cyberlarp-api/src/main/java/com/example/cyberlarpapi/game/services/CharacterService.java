@@ -4,11 +4,11 @@ import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceE
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterServiceException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
-import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.player.Player;
-import com.example.cyberlarpapi.game.repositories.GameRepository;
+import com.example.cyberlarpapi.game.repositories.game.GameRepository;
 import com.example.cyberlarpapi.game.repositories.TransactionRepository;
 import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
 import jakarta.transaction.Transactional;
@@ -51,7 +51,6 @@ public class CharacterService {
 
     public Character setPlayer(Character character, int playerId) throws CharacterServiceException {
         try {
-
             Player player = playerService.getById(playerId);
             character.setPlayer(player); // Set the character to the player
             player.setCharacter(character); // Set the player to the character

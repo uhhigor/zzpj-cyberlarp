@@ -1,7 +1,8 @@
-package com.example.cyberlarpapi.game.model;
+package com.example.cyberlarpapi.game.model.game;
 
 import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.DefaultGameData;
+import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.player.Player;
 import jakarta.persistence.*;
@@ -91,7 +92,7 @@ public class Game {
                 throw new IllegalArgumentException("Name and description are required");
             }
             if(game.getAvailableCharacters() == null) {
-                game.setAvailableCharacters(DefaultGameData.getDefaultCharacters(game));
+                game.setAvailableCharacters(DefaultGameData.getDefaultCharacters());
             }
             if(game.getPlayers() == null) {
                 game.setPlayers(List.of());

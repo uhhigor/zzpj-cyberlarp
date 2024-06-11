@@ -4,20 +4,20 @@ import java.util.List;
 
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
 import com.example.cyberlarpapi.game.exceptions.FactionException.FactionException;
-import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.character.Style;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
 
 public class DefaultGameData {
-    public static List<Character> getDefaultCharacters(Game game) {
+    public static List<Character> getDefaultCharacters() {
         try {
             return List.of(
                     Character.builder()
                             .name("John")
                             .characterClass(CharacterClass.NETRUNNER)
-                            .style(Style.HighTech)
+                            .style(Style.HIGHTECH)
                             .balance(100)
                             .strength(4)
                             .agility(3)
@@ -30,7 +30,7 @@ public class DefaultGameData {
                     Character.builder()
                             .name("Jane")
                             .characterClass(CharacterClass.PUNK)
-                            .style(Style.Neokitsch)
+                            .style(Style.NEOKITSCH)
                             .balance(100)
                             .strength(6)
                             .agility(2)
@@ -43,7 +43,7 @@ public class DefaultGameData {
                     Character.builder()
                             .name("Jack")
                             .characterClass(CharacterClass.TECHIE)
-                            .style(Style.HighTech)
+                            .style(Style.HIGHTECH)
                             .balance(100)
                             .strength(6)
                             .agility(2)
