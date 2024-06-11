@@ -6,13 +6,16 @@ import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterExce
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.FactionException.FactionNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
-import com.example.cyberlarpapi.game.model.Game;
+import com.example.cyberlarpapi.game.model.Transaction;
+import com.example.cyberlarpapi.game.model.character.Attribute;
+import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.character.Style;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
-import com.example.cyberlarpapi.game.model.user.User;
+import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.services.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -116,10 +119,10 @@ public class CharacterController {
     @PostMapping("/character/{userId}")
     public ResponseEntity<CharacterResponse> addCharacterToUser(@RequestBody CharacterRequest request, @PathVariable Integer userId) {
         try {
-            User user = userService.getUserById(userId);
+            _User user = userService.getUserById(userId);
             Character character = createAndSaveCharacter(request);
             return ResponseEntity.ok(new CharacterResponse(characterService.save(character)));
-        } catch (UserServiceException | FactionNotFoundException | CharacterException e) {
+        } catch (UserServiceException | CharacterException e) {
             return ResponseEntity.notFound().build();
         }
     }

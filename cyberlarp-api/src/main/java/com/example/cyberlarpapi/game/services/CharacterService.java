@@ -7,10 +7,11 @@ import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceExcepti
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.model.player.Player;
+import com.example.cyberlarpapi.game.repositories.TransactionRepository;
 import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
+import com.example.cyberlarpapi.game.repositories.game.GameRepository;
+import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,18 +22,13 @@ public class CharacterService {
 
     private final CharacterRepository characterRepository;
 
-    public CharacterService(CharacterRepository characterRepository) {
-    private final TransactionRepository transactionRepository;
-    private final GameRepository gameRepository;
-    private final PlayerService playerService;
-
-    public CharacterService(CharacterRepository characterRepository, PlayerService playerService, TransactionRepository transactionRepository, GameRepository gameRepository) {
+    public CharacterService(CharacterRepository characterRepository, TransactionRepository transactionRepository, GameRepository gameRepository) {
         this.characterRepository = characterRepository;
-        this.playerService = playerService;
         this.transactionRepository = transactionRepository;
         this.gameRepository = gameRepository;
     }
-
+    private final TransactionRepository transactionRepository;
+    private final GameRepository gameRepository;
 
     public Character save(Character character) {
         return characterRepository.save(character);

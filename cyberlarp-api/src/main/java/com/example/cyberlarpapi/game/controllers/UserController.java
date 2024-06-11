@@ -12,7 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.example.cyberlarpapi.game.model.user.User;
+import com.example.cyberlarpapi.game.model.user._User;
 @Controller
 @RequestMapping("/users")
 public class UserController {
@@ -27,8 +27,9 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Object> createUser(@RequestBody UserRequest request) {
-            User user = new User();
+            _User user = new _User();
             user.setUsername(request.username);
+            user.setEmail(request.email);
             return ResponseEntity.ok(userService.save(user));
     }
 
@@ -40,9 +41,9 @@ public class UserController {
 
         String email = oidcUser.getEmail();
         try {
-            Optional<User> existingUser = userService.getUserByEmail(email);
+            Optional<_User> existingUser = userService.getUserByEmail(email);
             if (existingUser.isEmpty()) {
-                User user = new User();
+                _User user = new _User();
                 user.setEmail(email);
                 userService.save(user);
             }
@@ -62,11 +63,11 @@ public class UserController {
 
         String email = oidcUser.getEmail();
         try {
-            Optional<User> existingUser = userService.getUserByEmail(email);
+            Optional<_User> existingUser = userService.getUserByEmail(email);
             if (existingUser.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             }
-            User user = existingUser.get();
+            _User user = existingUser.get();
             return ResponseEntity.ok(characterService.getCharactersByUserId(user.getId()));
         } catch (UserServiceException | CharacterServiceException e) {
             throw new RuntimeException(e);
@@ -89,5 +90,7 @@ public class UserController {
     // only for testing purposes
     public static class UserRequest {
         private String username;
+
+        private String email;
     }
 }

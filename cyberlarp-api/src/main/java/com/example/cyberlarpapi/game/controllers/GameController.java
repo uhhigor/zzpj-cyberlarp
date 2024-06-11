@@ -1,6 +1,8 @@
 package com.example.cyberlarpapi.game.controllers;
 
-import com.example.cyberlarpapi.game.model.user.User;
+import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
+import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
+import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import com.example.cyberlarpapi.game.model.game.Game;
@@ -35,7 +37,7 @@ public class GameController {
     @PostMapping
     public ResponseEntity<GameResponse> createGame(@RequestBody GameRequest request) {
         try {
-            User gameMaster = userService.getUserById(request.getGameMasterUserId());
+            _User gameMaster = userService.getUserById(request.getGameMasterUserId());
             Game game = Game.builder()
                     .name(request.getName())
                     .description(request.getDescription())
@@ -90,13 +92,10 @@ public class GameController {
     public ResponseEntity<GameResponse> addPlayerToGame(@PathVariable Integer id, @PathVariable Integer playerId) {
         try {
             Game game = gameService.getById(id);
-            Player player = playerService.getById(playerId);
-            gameService.addPlayerToGame(id, player);
+            //gameService.addPlayerToGame(id, player);
             return ResponseEntity.ok(new GameResponse("Player added to game successfully", game));
         } catch (GameNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (PlayerNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -104,13 +103,10 @@ public class GameController {
     public ResponseEntity<GameResponse> removePlayerFromGame(@PathVariable Integer id, @PathVariable Integer playerId) {
         try {
             Game game = gameService.getById(id);
-            Player player = playerService.getById(playerId);
-            gameService.kickPlayerFromGame(id, player);
+            //gameService.kickPlayerFromGame(id, player);
             return ResponseEntity.ok(new GameResponse("Player removed from game successfully", game));
         } catch (GameNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (PlayerNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -118,7 +114,7 @@ public class GameController {
     public ResponseEntity<GameResponse> makeUserOwnerOfGame(@PathVariable Integer id, @PathVariable Integer userId) {
         try {
             Game game = gameService.getById(id);
-            User user = userService.getUserById(userId);
+            _User user = userService.getUserById(userId);
             gameService.makeUserOwnerOfGame(id, user);
             return ResponseEntity.ok(new GameResponse("User is now the owner of the game", game));
         } catch (GameNotFoundException e) {
@@ -183,7 +179,7 @@ public class GameController {
                 this.name = game.getName();
                 this.description = game.getDescription();
                 this.gameMasterId = game.getGameMaster().getId();
-                this.playerIds = game.getUsers().stream().map(User::getId).toList();
+                this.playerIds = game.getUsers().stream().map(_User::getId).toList();
                 this.availableCharacterIds = game.getAvailableCharacters().stream().map(Character::getId).toList();
             }
         }

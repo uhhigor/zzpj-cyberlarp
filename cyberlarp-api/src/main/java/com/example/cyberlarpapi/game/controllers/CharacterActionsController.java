@@ -54,7 +54,7 @@ public class CharacterActionsController {
             return ResponseEntity.notFound().build();
         }
 
-        if(!Objects.equals(character.getPlayer().getUser().getUsername(), userDetails.getUsername())) {
+        if(!Objects.equals(character.getUser().getUsername(), userDetails.getUsername())) {
             return ResponseEntity.badRequest().body(new RollAttributeResponse("Not your character", null));
         }
         return ResponseEntity.ok(new RollAttributeResponse(null, character.rollAttributeCheck(attributeEnum)));

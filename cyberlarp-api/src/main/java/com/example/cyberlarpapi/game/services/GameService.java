@@ -1,6 +1,6 @@
 package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.game.model.user.User;
+import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.model.Transaction;
@@ -31,29 +31,29 @@ public class GameService {
         this.characterRepository = characterRepository;
     }
 
-    public void addPlayerToGame(Integer gameId, Player player) {
+    public void addPlayerToGame(Integer gameId, _User player) {
         for (Game game : this.gameRepository.findAll()) {
             if (game.getId().equals(gameId)) {
-                if (!game.getPlayers().contains(player)){
-                    game.addPlayer(player);
+                if (!game.getUsers().contains(player)){
+                    game.addCharacter(player);
                     gameRepository.save(game);
                 }
             }
         }
     }
 
-    public void kickPlayerFromGame(Integer gameId, Player player) {
+    public void kickPlayerFromGame(Integer gameId, _User player) {
         for (Game game : this.gameRepository.findAll()) {
             if (game.getId().equals(gameId)) {
-                if (game.getPlayers().contains(player)) {
-                    game.removePlayer(player);
+                if (game.getUsers().contains(player)) {
+                    game.removeCharacter(player);
                     gameRepository.save(game);
                 }
             }
         }
     }
 
-    public boolean makeUserOwnerOfGame(Integer gameId, User user) {
+    public boolean makeUserOwnerOfGame(Integer gameId, _User user) {
         for (Game game : this.gameRepository.findAll()) {
             if (game.getId().equals(gameId)) {
                 if (game.getGameMaster() != user) {

@@ -12,9 +12,9 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class User {
+public class _User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Integer id;
     private String email;
 

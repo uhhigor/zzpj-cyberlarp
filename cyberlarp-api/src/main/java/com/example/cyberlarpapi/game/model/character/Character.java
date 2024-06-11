@@ -1,9 +1,8 @@
 package com.example.cyberlarpapi.game.model.character;
 
-import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
-import com.example.cyberlarpapi.game.model.user.User;
+import com.example.cyberlarpapi.game.model.user._User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +11,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import java.util.Random;
 
 @Entity
+@Getter
+@Setter
 public class Character {
 
     @Id
@@ -20,7 +21,7 @@ public class Character {
     private Integer id;
 
     @ManyToOne
-    private User user;
+    private _User user;
 
     @Getter
     @Setter
@@ -114,7 +115,7 @@ public class Character {
             character = new Character();
         }
 
-        public CharacterBuilder user(User user) {
+        public CharacterBuilder user(_User user) {
             character.user = user;
             return this;
         }

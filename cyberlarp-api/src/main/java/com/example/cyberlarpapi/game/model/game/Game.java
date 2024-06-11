@@ -1,6 +1,6 @@
 package com.example.cyberlarpapi.game.model.game;
 
-import com.example.cyberlarpapi.game.model.user.User;
+import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.DefaultGameData;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
@@ -27,19 +27,21 @@ public class Game {
     private List<Character> availableCharacters = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<User> users;
+    private List<_User> users;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private User gameMaster;
+    private _User gameMaster;
 
-    public void addPlayer(User player) {
-        users.add(player);
+    public void addCharacter(_User character) {
+        users.add(character);
+    }
+
     @OneToMany(cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 
 
-    public void removePlayer(User player) {
-        users.remove(player);
+    public void removeCharacter(_User character) {
+        users.remove(character);
     }
 
     public void addAvailableCharacter(Character character) {
@@ -66,7 +68,7 @@ public class Game {
             return this;
         }
 
-        public GameBuilder users(List<User> users) {
+        public GameBuilder users(List<_User> users) {
             game.setUsers(users);
             return this;
         }
@@ -81,7 +83,7 @@ public class Game {
             return this;
         }
 
-        public GameBuilder gameMaster(User gameMaster) {
+        public GameBuilder gameMaster(_User gameMaster) {
             game.setGameMaster(gameMaster);
             return this;
         }
