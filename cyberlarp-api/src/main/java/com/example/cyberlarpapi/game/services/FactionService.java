@@ -34,10 +34,11 @@ public class FactionService {
 
     public Faction create(FactionDTO factionDTO) throws FactionServiceException {
         try {
-            return factionRepository.save(Faction.builder()
+            Faction faction = Faction.builder()
                     .name(factionDTO.getName())
                     .description(factionDTO.getDescription())
-                    .build());
+                    .build();
+            return factionRepository.save(faction);
         } catch (FactionException e) {
             throw new FactionServiceException("Error while creating faction", e);
         }

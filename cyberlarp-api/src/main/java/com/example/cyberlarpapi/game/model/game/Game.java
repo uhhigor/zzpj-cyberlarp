@@ -1,12 +1,14 @@
-package com.example.cyberlarpapi.game.model;
+package com.example.cyberlarpapi.game.model.game;
 
 import com.example.cyberlarpapi.game.model.user.User;
 import com.example.cyberlarpapi.game.DefaultGameData;
+import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -22,7 +24,7 @@ public class Game {
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Character> availableCharacters;
+    private List<Character> availableCharacters = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<User> users;
@@ -32,7 +34,9 @@ public class Game {
 
     public void addPlayer(User player) {
         users.add(player);
-    }
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Transaction> transactions;
+
 
     public void removePlayer(User player) {
         users.remove(player);
@@ -87,7 +91,7 @@ public class Game {
                 throw new IllegalArgumentException("Name and description are required");
             }
             if(game.getAvailableCharacters() == null) {
-                game.setAvailableCharacters(DefaultGameData.getDefaultCharacters(game));
+                game.setAvailableCharacters(DefaultGameData.getDefaultCharacters());
             }
             if(game.getUsers() == null) {
                 game.setUsers(List.of());

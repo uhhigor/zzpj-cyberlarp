@@ -1,5 +1,6 @@
 package com.example.cyberlarpapi.game.model.character;
 
+import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
 import com.example.cyberlarpapi.game.model.user.User;
@@ -8,38 +9,52 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
 
-@Getter
+import java.util.Random;
+
 @Entity
-@Setter
 public class Character {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Getter
     private Integer id;
 
     @ManyToOne
     private User user;
 
+    @Getter
+    @Setter
     private String name;
 
+    @Getter
+    @Setter
     private String description;
 
+    @Getter
+    @Setter
     private CharacterClass characterClass;
 
+    @Getter
+    @Setter
     @ManyToOne
     private Faction faction;
+
+    @Getter
+    @Setter
     private Style style;
 
     // BANK ACCOUNT
-
+    @Getter
+    @Setter
     private int balance;
-    String account_number = "#" + RandomStringUtils.randomNumeric(6);
+    @Getter
+    String accountNumber = "#" + RandomStringUtils.randomNumeric(6);
 
     // ATTRIBUTES
 
-    private int agility;
-
     private int strength;
+
+    private int agility;
 
     private int presence;
 
@@ -48,11 +63,45 @@ public class Character {
     private int knowledge;
 
     // STATS
+    @Getter
+    @Setter
     private int maxHp;
-
+    @Getter
     private int currentHp;
-
+    @Getter
     private int armor;
+
+    public int rollAttributeCheck(Attribute attribute) {
+        return new Random().nextInt(20) + getAttribute(attribute);
+    }
+
+    public int takeDamage(int damage) {
+        return currentHp -= (damage - armor);
+    }
+
+    public int heal(int amount) {
+        return currentHp = Math.min(maxHp, currentHp + amount);
+    }
+
+    public int getAttribute(Attribute attribute) {
+        return switch (attribute) {
+            case STRENGTH -> strength;
+            case AGILITY -> agility;
+            case PRESENCE -> presence;
+            case TOUGHNESS -> toughness;
+            case KNOWLEDGE -> knowledge;
+        };
+    }
+
+    public void setAttribute(Attribute attribute, int value) {
+        switch (attribute) {
+            case STRENGTH -> strength = value;
+            case AGILITY -> agility = value;
+            case PRESENCE -> presence = value;
+            case TOUGHNESS -> toughness = value;
+            case KNOWLEDGE -> knowledge = value;
+        }
+    }
 
     public static CharacterBuilder builder() {
         return new CharacterBuilder();
