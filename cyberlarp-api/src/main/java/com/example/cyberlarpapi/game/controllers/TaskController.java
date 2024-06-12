@@ -9,7 +9,6 @@ import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.model.task.DTO.TaskRequest;
 import com.example.cyberlarpapi.game.model.task.Task;
-import com.example.cyberlarpapi.game.repositories.game.GameRepository;
 import com.example.cyberlarpapi.game.services.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
