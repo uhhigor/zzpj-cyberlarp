@@ -1,14 +1,12 @@
 package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.User;
+import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.game.Game;
-import com.example.cyberlarpapi.game.model.player.Player;
-import com.example.cyberlarpapi.User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.repositories.game.GameRepository;
 import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
@@ -26,36 +24,35 @@ public class GameService {
 
     private final CharacterService characterService;
 
-
     public GameService(GameRepository gameRepository, CharacterService characterService, CharacterRepository characterRepository) {
         this.gameRepository = gameRepository;
         this.characterService = characterService;
         this.characterRepository = characterRepository;
     }
 
-    public void addPlayerToGame(Integer gameId, Player player) {
+    public void addCharacterToGame(Integer gameId, Character character) {
         for (Game game : this.gameRepository.findAll()) {
             if (game.getId().equals(gameId)) {
-                if (!game.getPlayers().contains(player)){
-                    game.addPlayer(player);
+                if (!game.getCharacters().contains(character)){
+                    game.addCharacter(character);
                     gameRepository.save(game);
                 }
             }
         }
     }
 
-    public void kickPlayerFromGame(Integer gameId, Player player) {
+    public void kickCharacterFromGame(Integer gameId, Character character) {
         for (Game game : this.gameRepository.findAll()) {
             if (game.getId().equals(gameId)) {
-                if (game.getPlayers().contains(player)) {
-                    game.removePlayer(player);
+                if (game.getCharacters().contains(character)) {
+                    game.removeCharacter(character);
                     gameRepository.save(game);
                 }
             }
         }
     }
 
-    public boolean makeUserOwnerOfGame(Integer gameId, User user) {
+    public boolean makeUserOwnerOfGame(Integer gameId, _User user) {
         for (Game game : this.gameRepository.findAll()) {
             if (game.getId().equals(gameId)) {
                 if (game.getGameMaster() != user) {

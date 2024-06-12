@@ -57,6 +57,23 @@ public class BankingTests {
             fail("Exception thrown", e);
         }
 
+        userRequest = """
+                {
+                "username": "user2"
+                }
+                """;
+
+        try {
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userRequest))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").exists());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+
         String gameRequest = """
                 {
                 "name": "Game 1",
@@ -77,46 +94,50 @@ public class BankingTests {
             fail("Exception thrown", e);
         }
 
-        String characterRequest = """
-                {
-                "name": "Character 1",
-                "description": "This is an example character",
-                "characterClass": "PUNK",
-                "factionId": null,
-                "style": "KITSCH",
-                "strength": 10,
-                "agility": 2,
-                "presence": 2,
-                "toughness": 2,
-                "knowledge": 4,
-                "maxHp": 10,
-                "currentHp": 10,
-                "balance": 10
-                }
-                """;
+        String character1Request = """
+           {
+           "userId": "1",
+           "gameId": "1",
+           "name": "Character 1",
+           "description": "This is an example character",
+           "characterClass": "PUNK",
+           "factionId": null,
+           "style": "KITSCH",
+           "strength": 10,
+           "agility": 2,
+           "presence": 2,
+           "toughness": 2,
+           "knowledge": 4,
+           "maxHp": 10,
+           "currentHp": 10,
+           "balance": 1000
+           }
+            """;
 
-        String characterRequest2 = """
-                {
-                "name": "Character 2",
-                "description": "This is an example character",
-                "characterClass": "PUNK",
-                "factionId": null,
-                "style": "KITSCH",
-                "strength": 10,
-                "agility": 2,
-                "presence": 2,
-                "toughness": 2,
-                "knowledge": 4,
-                "maxHp": 10,
-                "currentHp": 10,
-                "balance": 10
-                }
-                """;
+        String character2Request = """
+           {
+           "userId": "2",
+           "gameId": "1",
+           "name": "Character 1",
+           "description": "This is an example character",
+           "characterClass": "PUNK",
+           "factionId": null,
+           "style": "KITSCH",
+           "strength": 10,
+           "agility": 2,
+           "presence": 2,
+           "toughness": 2,
+           "knowledge": 4,
+           "maxHp": 10,
+           "currentHp": 10,
+           "balance": 1000
+           }
+            """;
 
         try {
             character1 = mockMvc.perform(post("/characters/game/1")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(characterRequest))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(character1Request))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.character.id").exists())
                     .andReturn();
@@ -127,8 +148,8 @@ public class BankingTests {
 
         try {
             character2 = mockMvc.perform(post("/characters/game/1")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(characterRequest2))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(character2Request))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.character.id").exists())
                     .andReturn();
@@ -150,7 +171,7 @@ public class BankingTests {
         ",
         "receiverBankAccount": \"""" + accountNumber2 + """
         ",
-        "amount": 1,
+        "amount": 100,
         "gameId": 1
         }
         """;
@@ -161,7 +182,9 @@ public class BankingTests {
                             .content(transactionRequest))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.transaction.id").exists())
-                    .andExpect(jsonPath("$.transaction.amount").value(1));
+
+                    .andExpect(jsonPath("$.transaction.amount").value(100));
+
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -181,7 +204,7 @@ public class BankingTests {
         ",
         "receiverBankAccount": \"""" + accountNumber2 + """
         ",
-        "amount": 1,
+        "amount": 100,
         "gameId": 1
         }
         """;
@@ -192,7 +215,7 @@ public class BankingTests {
                             .content(transactionRequest))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.transaction.id").exists())
-                    .andExpect(jsonPath("$.transaction.amount").value(1));
+                    .andExpect(jsonPath("$.transaction.amount").value(100));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -201,7 +224,7 @@ public class BankingTests {
         try {
             mockMvc.perform(get("/characters/" + id1))
                             .andExpect(status().isOk())
-                            .andExpect(jsonPath("$.character.balance").value(9));
+                            .andExpect(jsonPath("$.character.balance").value(900));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -210,7 +233,8 @@ public class BankingTests {
         try {
             mockMvc.perform(get("/characters/" + id2))
                             .andExpect(status().isOk())
-                            .andExpect(jsonPath("$.character.balance").value(11));
+                            .andExpect(jsonPath("$.character.balance").value(1100));
+
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -335,6 +359,8 @@ public class BankingTests {
 
         String character3Request = """
            {
+           "userId": 2,
+           "gameId": 2,
            "name": "Character 1",
            "description": "This is an example character",
            "characterClass": "PUNK",

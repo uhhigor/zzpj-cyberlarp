@@ -1,10 +1,9 @@
 package com.example.cyberlarpapi.game.model.game;
 
-import com.example.cyberlarpapi.User;
+import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.DefaultGameData;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.model.player.Player;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,21 +26,22 @@ public class Game {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Character> availableCharacters = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Player> players;
+    @OneToMany(mappedBy = "game")
+    private List<Character> characters;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private User gameMaster;
+    private _User gameMaster;
+
+    public void addCharacter(Character character) {
+        characters.add(character);
+    }
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 
-    public void addPlayer(Player player) {
-        players.add(player);
-    }
 
-    public void removePlayer(Player player) {
-        players.remove(player);
+    public void removeCharacter(Character character) {
+        characters.remove(character);
     }
 
     public void addAvailableCharacter(Character character) {
@@ -68,8 +68,8 @@ public class Game {
             return this;
         }
 
-        public GameBuilder players(List<Player> players) {
-            game.setPlayers(players);
+        public GameBuilder characters(List<Character> characters) {
+            game.setCharacters(characters);
             return this;
         }
 
@@ -83,7 +83,7 @@ public class Game {
             return this;
         }
 
-        public GameBuilder gameMaster(User gameMaster) {
+        public GameBuilder gameMaster(_User gameMaster) {
             game.setGameMaster(gameMaster);
             return this;
         }
@@ -95,8 +95,8 @@ public class Game {
             if(game.getAvailableCharacters() == null) {
                 game.setAvailableCharacters(DefaultGameData.getDefaultCharacters());
             }
-            if(game.getPlayers() == null) {
-                game.setPlayers(List.of());
+            if(game.getCharacters() == null) {
+                game.setCharacters(List.of());
             }
             if(game.getGameMaster() == null) {
                 throw new IllegalArgumentException("Game master is required");
