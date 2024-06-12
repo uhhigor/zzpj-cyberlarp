@@ -96,6 +96,8 @@ public class BankingTests {
 
         String character1Request = """
            {
+           "userId": "1",
+           "gameId": "1",
            "name": "Character 1",
            "description": "This is an example character",
            "characterClass": "PUNK",
@@ -114,6 +116,8 @@ public class BankingTests {
 
         String character2Request = """
            {
+           "userId": "2",
+           "gameId": "1",
            "name": "Character 1",
            "description": "This is an example character",
            "characterClass": "PUNK",
