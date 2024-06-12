@@ -520,9 +520,7 @@ public class GameTests {
                 resultActions.andDo(print());
                 resultActions
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.game.availableCharacterIds[0]").value(1)) //here
-                        .andExpect(jsonPath("$.game.availableCharacterIds[1]").value(2))
-                        .andExpect(jsonPath("$.game.availableCharacterIds[2]").value(3));
+                        .andExpect(jsonPath("$.game.availableCharacterIds").isEmpty()); //here
             } catch (Exception e) {
                 e.printStackTrace();
                 fail("Exception thrown", e);

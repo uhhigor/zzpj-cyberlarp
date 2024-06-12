@@ -1,18 +1,17 @@
 package com.example.cyberlarpapi.game.services;
 
-import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
+import java.util.List;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterServiceException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.model.player.Player;
-import com.example.cyberlarpapi.game.repositories.game.GameRepository;
 import com.example.cyberlarpapi.game.repositories.TransactionRepository;
 import com.example.cyberlarpapi.game.repositories.character.CharacterRepository;
+import com.example.cyberlarpapi.game.repositories.game.GameRepository;
+import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,17 +21,14 @@ import java.util.Optional;
 public class CharacterService {
 
     private final CharacterRepository characterRepository;
-    private final TransactionRepository transactionRepository;
-    private final GameRepository gameRepository;
-    private final PlayerService playerService;
 
-    public CharacterService(CharacterRepository characterRepository, PlayerService playerService, TransactionRepository transactionRepository, GameRepository gameRepository) {
+    public CharacterService(CharacterRepository characterRepository, TransactionRepository transactionRepository, GameRepository gameRepository) {
         this.characterRepository = characterRepository;
-        this.playerService = playerService;
         this.transactionRepository = transactionRepository;
         this.gameRepository = gameRepository;
     }
-
+    private final TransactionRepository transactionRepository;
+    private final GameRepository gameRepository;
 
     public Character save(Character character) {
         return characterRepository.save(character);
@@ -49,13 +45,21 @@ public class CharacterService {
         characterRepository.deleteById(id);
     }
 
-    public Character setPlayer(Character character, int playerId) throws CharacterServiceException {
+    public Character getCharacterByUserId(int userId) throws CharacterServiceException {
         try {
-            Player player = playerService.getById(playerId);
-            character.setPlayer(player); // Set the character to the player
-            player.setCharacter(character); // Set the player to the character
-            playerService.update(player); // Update the player
-            return characterRepository.save(character); // Update the character
+            return characterRepository.findByUserId(userId).orElseThrow(() -> new CharacterServiceException("Character not found"));
+        } catch (Exception e) {
+            throw new CharacterServiceException("Error while getting character by user id", e);
+        }
+    }
+
+    public List<Character> getCharactersByUserId(int userId) throws CharacterServiceException {
+        try {
+            List<Character> characters = characterRepository.findAllByUserId(userId);
+            if (characters.isEmpty()) {
+                throw new CharacterServiceException("No characters found for user id: " + userId);
+            }
+            return characters;
         } catch (Exception e) {
             throw new CharacterServiceException("Error while setting player", e);
         }

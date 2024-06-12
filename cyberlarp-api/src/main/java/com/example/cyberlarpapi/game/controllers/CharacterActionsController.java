@@ -31,8 +31,9 @@ public class CharacterActionsController {
     }
     @PostMapping("/roll/{attribute}")
     public ResponseEntity<RollAttributeResponse> roll(@AuthenticationPrincipal UserDetails userDetails,
-                                                        @PathVariable String attribute,
-                                                        @RequestBody RollAttributeRequest request) {
+                                                      @PathVariable String attribute,
+                                                      @RequestBody RollAttributeRequest request) {
+
         if(userDetails == null) {
             return ResponseEntity.badRequest().body(new RollAttributeResponse("Not logged in", null));
         }
@@ -42,7 +43,7 @@ public class CharacterActionsController {
 
         Attribute attributeEnum;
         try {
-           attributeEnum = Attribute.valueOf(attribute.toUpperCase());
+            attributeEnum = Attribute.valueOf(attribute.toUpperCase());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new RollAttributeResponse("Invalid attribute", null));
         }
@@ -53,7 +54,7 @@ public class CharacterActionsController {
             return ResponseEntity.notFound().build();
         }
 
-        if(!Objects.equals(character.getPlayer().getUser().getUsername(), userDetails.getUsername())) {
+        if(!Objects.equals(character.getUser().getUsername(), userDetails.getUsername())) {
             return ResponseEntity.badRequest().body(new RollAttributeResponse("Not your character", null));
         }
         return ResponseEntity.ok(new RollAttributeResponse(null, character.rollAttributeCheck(attributeEnum)));

@@ -57,6 +57,23 @@ public class BankingTests {
             fail("Exception thrown", e);
         }
 
+        userRequest = """
+                {
+                "username": "user2"
+                }
+                """;
+
+        try {
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userRequest))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").exists());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+
         String gameRequest = """
                 {
                 "name": "Game 1",
@@ -83,7 +100,7 @@ public class BankingTests {
            "description": "This is an example character",
            "characterClass": "PUNK",
            "factionId": null,
-           "style": "Kitsch",
+           "style": "KITSCH",
            "strength": 10,
            "agility": 2,
            "presence": 2,
@@ -101,7 +118,7 @@ public class BankingTests {
            "description": "This is an example character",
            "characterClass": "PUNK",
            "factionId": null,
-           "style": "Kitsch",
+           "style": "KITSCH",
            "strength": 10,
            "agility": 2,
            "presence": 2,
@@ -338,15 +355,13 @@ public class BankingTests {
 
         String character3Request = """
            {
+           "userId": 2,
+           "gameId": 2,
            "name": "Character 1",
            "description": "This is an example character",
            "characterClass": "PUNK",
            "factionId": null,
-<<<<<<< HEAD
-           "style": "Kitsch",
-=======
            "style": "KITSCH",
->>>>>>> 90fe4751bc1f9c853a4c08ff21bf08fe24ac0c89
            "strength": 10,
            "agility": 2,
            "presence": 2,

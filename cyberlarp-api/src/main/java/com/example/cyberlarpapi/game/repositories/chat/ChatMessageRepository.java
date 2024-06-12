@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 
 @Repository
-public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
+public interface ChatMessageRepository extends JpaRepository<ChatMessage, Integer> {
     void deleteByTimestampBefore(LocalDateTime thresholdDate);
 }

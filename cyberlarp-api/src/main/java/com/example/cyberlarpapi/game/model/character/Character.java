@@ -1,8 +1,11 @@
 package com.example.cyberlarpapi.game.model.character;
 
-import com.example.cyberlarpapi.game.model.player.Player;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
+import com.example.cyberlarpapi.game.model.game.Game;
+import com.example.cyberlarpapi.game.model.user._User;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +14,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import java.util.Random;
 
 @Entity
+@Getter
+@Setter
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "game_id"})})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Character {
 
     @Id
@@ -18,10 +25,13 @@ public class Character {
     @Getter
     private Integer id;
 
-    @OneToOne
-    @Getter
-    @Setter
-    private Player player;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private _User user;
+
+    @ManyToOne
+    @JoinColumn(name = "game_id")
+    private Game game;
 
     @Getter
     @Setter
@@ -53,10 +63,15 @@ public class Character {
     String accountNumber = "#" + RandomStringUtils.randomNumeric(6);
 
     // ATTRIBUTES
+
     private int strength;
+
     private int agility;
+
     private int presence;
+
     private int toughness;
+
     private int knowledge;
 
     // STATS
@@ -111,8 +126,13 @@ public class Character {
             character = new Character();
         }
 
-        public CharacterBuilder player(Player player) {
-            character.player = player;
+        public CharacterBuilder user(_User user) {
+            character.user = user;
+            return this;
+        }
+
+        public CharacterBuilder game(Game game) {
+            character.game = game;
             return this;
         }
 
