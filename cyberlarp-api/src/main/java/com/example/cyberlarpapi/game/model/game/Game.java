@@ -26,22 +26,22 @@ public class Game {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Character> availableCharacters = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<_User> users;
+    @OneToMany(mappedBy = "game")
+    private List<Character> characters;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private _User gameMaster;
 
-    public void addCharacter(_User character) {
-        users.add(character);
+    public void addCharacter(Character character) {
+        characters.add(character);
     }
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 
 
-    public void removeCharacter(_User character) {
-        users.remove(character);
+    public void removeCharacter(Character character) {
+        characters.remove(character);
     }
 
     public void addAvailableCharacter(Character character) {
@@ -68,8 +68,8 @@ public class Game {
             return this;
         }
 
-        public GameBuilder users(List<_User> users) {
-            game.setUsers(users);
+        public GameBuilder characters(List<Character> characters) {
+            game.setCharacters(characters);
             return this;
         }
 
@@ -95,8 +95,8 @@ public class Game {
             if(game.getAvailableCharacters() == null) {
                 game.setAvailableCharacters(DefaultGameData.getDefaultCharacters());
             }
-            if(game.getUsers() == null) {
-                game.setUsers(List.of());
+            if(game.getCharacters() == null) {
+                game.setCharacters(List.of());
             }
             if(game.getGameMaster() == null) {
                 throw new IllegalArgumentException("Game master is required");

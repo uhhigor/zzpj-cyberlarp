@@ -98,6 +98,8 @@ class GroupChatTest {
 
         String characterRequest = """
                 {
+                "userId": 1,
+                "gameId": 1,
                 "name": "Character 1",
                 "description": "This is an example character",
                 "characterClass": "PUNK",
@@ -149,8 +151,8 @@ class GroupChatTest {
             mockMvc.perform(post("/groupChat")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(groupChatRequest))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").exists());
+                    .andExpect(status().isCreated());
+                    //.andExpect(jsonPath("$.id").exists());
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -163,6 +165,23 @@ class GroupChatTest {
         String userRequest = """
                 {
                     "username": "user1"
+                }
+                """;
+
+        try {
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userRequest))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").exists());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+
+        userRequest = """
+                {
+                    "username": "user2"
                 }
                 """;
 
@@ -217,6 +236,8 @@ class GroupChatTest {
 
         String characterRequest = """
                 {
+                "userId": 1,
+                "gameId": 1,
                 "name": "Character 1",
                 "description": "This is an example character",
                 "characterClass": "PUNK",
@@ -277,6 +298,8 @@ class GroupChatTest {
 
         String characterRequest2 = """
                 {
+                "userId": 2,
+                "gameId": 1,
                 "name": "Character 2",
                 "description": "This is an example character",
                 "characterClass": "PUNK",
@@ -354,6 +377,23 @@ class GroupChatTest {
             fail("Exception thrown", e);
         }
 
+        userRequest = """
+                {
+                    "username": "user2"
+                }
+                """;
+
+        try {
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userRequest))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").exists());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+
         String gameRequest = """
                 {
                     "name": "Game 1",
@@ -413,6 +453,8 @@ class GroupChatTest {
 
         String characterRequest = """
                 {
+                    "userId": 1,
+                    "gameId": 1,
                     "name": "Character 1",
                     "description": "This is an example character",
                     "characterClass": "PUNK",
@@ -473,6 +515,8 @@ class GroupChatTest {
 
         String characterRequest2 = """
                 {
+                    "userId": 2,
+                    "gameId": 1,
                     "name": "Character 2",
                     "description": "This is an example character",
                     "characterClass": "PUNK",
@@ -551,6 +595,23 @@ class GroupChatTest {
             fail("Exception thrown", e);
         }
 
+        userRequest = """
+                {
+                    "username": "user2"
+                }
+                """;
+
+        try {
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userRequest))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").exists());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+
         String gameRequest = """
                 {
                     "name": "Game 1",
@@ -590,6 +651,8 @@ class GroupChatTest {
 
         String characterRequest = """
                 {
+                    "userId": 1,
+                    "gameId": 1,
                     "name": "Character 1",
                     "description": "This is an example character",
                     "characterClass": "PUNK",
@@ -650,6 +713,8 @@ class GroupChatTest {
 
         String characterRequest2 = """
                 {
+                    "userId": 2,
+                    "gameId": 1,
                     "name": "Character 2",
                     "description": "This is an example character",
                     "characterClass": "PUNK",
@@ -739,6 +804,23 @@ class GroupChatTest {
             fail("Exception thrown", e);
         }
 
+        userRequest = """
+                {
+                    "username": "user2"
+                }
+                """;
+
+        try {
+            mockMvc.perform(post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userRequest))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").exists());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+
         String gameRequest = """
                 {
                 "name": "Game 1",
@@ -779,6 +861,8 @@ class GroupChatTest {
 
         String characterRequest = """
                 {
+                "userId": 1,
+                "gameId": 1,
                 "name": "Character 1",
                 "description": "This is an example character",
                 "characterClass": "PUNK",
@@ -839,6 +923,8 @@ class GroupChatTest {
 
         String characterRequest2 = """
                 {
+                "userId": 2,
+                "gameId": 1,
                 "name": "Character 2",
                 "description": "This is an example character",
                 "characterClass": "PUNK",

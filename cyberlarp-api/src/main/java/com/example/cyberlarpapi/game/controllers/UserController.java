@@ -1,11 +1,17 @@
 package com.example.cyberlarpapi.game.controllers;
 
+import java.util.List;
 import java.util.Optional;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterServiceException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
+import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.services.CharacterService;
 import com.example.cyberlarpapi.game.services.UserService;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,15 +39,15 @@ public class UserController {
             return ResponseEntity.ok(userService.save(user));
     }
 
-    @GetMapping("/userinfo")
+    @GetMapping("/user")
     public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal OidcUser oidcUser) {
         if (oidcUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
         }
-
+        Optional<_User> existingUser;
         String email = oidcUser.getEmail();
         try {
-            Optional<_User> existingUser = userService.getUserByEmail(email);
+            existingUser = userService.getUserByEmail(email);
             if (existingUser.isEmpty()) {
                 _User user = new _User();
                 user.setEmail(email);
@@ -52,45 +58,47 @@ public class UserController {
         }
 
 
-        return ResponseEntity.ok("User email saved: " + email);
+        return ResponseEntity.ok(existingUser);
     }
 
-    @GetMapping("/characters")
-    public ResponseEntity<?> getUserCharacters(@AuthenticationPrincipal OidcUser oidcUser) {
-        if (oidcUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
-        }
-
-        String email = oidcUser.getEmail();
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUser(@PathVariable Integer userId) {
         try {
-            Optional<_User> existingUser = userService.getUserByEmail(email);
-            if (existingUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-            }
-            _User user = existingUser.get();
-            return ResponseEntity.ok(characterService.getCharactersByUserId(user.getId()));
-        } catch (UserServiceException | CharacterServiceException e) {
-            throw new RuntimeException(e);
+            _User user = userService.getUserById(userId);
+            return ResponseEntity.ok(user);
+        } catch (UserServiceException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-    @GetMapping("/characters/{id}")
-    public ResponseEntity<?> selectCharacter(@AuthenticationPrincipal OidcUser oidcUser, @PathVariable Integer id) {
-        if (oidcUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
-        }
+    @GetMapping("/characters/{userId}")
+    public ResponseEntity<?> getUserCharacters(@PathVariable Integer userId) {
         try {
-            return ResponseEntity.ok(characterService.getById(id));
-        } catch (CharacterNotFoundException e) {
-            throw new RuntimeException(e);
+            _User user = userService.getUserById(userId);
+            return ResponseEntity.ok(new UserResponse(user.getCharacters().size(), user.getCharacters()));
+        } catch (UserServiceException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-
-    // only for testing purposes
+    @Getter
+    @NoArgsConstructor
     public static class UserRequest {
         private String username;
 
         private String email;
+    }
+
+    @Getter
+    @NoArgsConstructor
+
+    public static class UserResponse {
+        private int size;
+        private List<Character> characters;
+
+        public UserResponse(int size, List<Character> characters) {
+            this.size = size;
+            this.characters = characters;
+        }
     }
 }

@@ -31,22 +31,22 @@ public class GameService {
         this.characterRepository = characterRepository;
     }
 
-    public void addPlayerToGame(Integer gameId, _User player) {
+    public void addCharacterToGame(Integer gameId, Character character) {
         for (Game game : this.gameRepository.findAll()) {
             if (game.getId().equals(gameId)) {
-                if (!game.getUsers().contains(player)){
-                    game.addCharacter(player);
+                if (!game.getCharacters().contains(character)){
+                    game.addCharacter(character);
                     gameRepository.save(game);
                 }
             }
         }
     }
 
-    public void kickPlayerFromGame(Integer gameId, _User player) {
+    public void kickCharacterFromGame(Integer gameId, Character character) {
         for (Game game : this.gameRepository.findAll()) {
             if (game.getId().equals(gameId)) {
-                if (game.getUsers().contains(player)) {
-                    game.removeCharacter(player);
+                if (game.getCharacters().contains(character)) {
+                    game.removeCharacter(character);
                     gameRepository.save(game);
                 }
             }

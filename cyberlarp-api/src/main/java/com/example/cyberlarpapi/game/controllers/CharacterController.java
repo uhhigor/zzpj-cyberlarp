@@ -54,13 +54,17 @@ public class CharacterController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<CharacterResponse> deleteCharacter(@PathVariable Integer id) {
+    @DeleteMapping("/{characterId}/{userId}")
+    public ResponseEntity<CharacterResponse> deleteCharacter(@PathVariable Integer characterId, @PathVariable Integer userId) {
         try {
-            characterService.deleteById(id);
-            return ResponseEntity.ok(new CharacterResponse("Character " + id + " deleted successfully"));
+            _User user = userService.getUserById(userId);
+            user.getCharacters().removeIf(character -> character.getId().equals(characterId));
+            characterService.deleteById(characterId);
+            return ResponseEntity.ok(new CharacterResponse("Character " + characterId + " deleted successfully"));
         } catch (CharacterNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (UserServiceException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -85,7 +89,22 @@ public class CharacterController {
         } catch (IllegalArgumentException e) {
             throw new CharacterException("Invalid character class");
         }
+        _User user;
+        try {
+            user = userService.getUserById(request.getUserId());
+        } catch (UserServiceException e) {
+            throw new RuntimeException(e);
+        }
+        Game game;
+        try {
+            game = gameService.getById(request.getGameId());
+        } catch (GameNotFoundException e) {
+            throw new CharacterException("Invalid game");
+        }
+
         Character character = Character.builder()
+                .user(user)
+                .game(game)
                 .name(request.getName())
                 .description(request.getDescription())
                 .characterClass(characterClass)
@@ -99,6 +118,7 @@ public class CharacterController {
                 .maxHp(request.getMaxHp())
                 .balance(request.getBalance())
                 .build();
+        user.addCharacter(character);
         return characterService.save(character);
     }
 
@@ -116,22 +136,15 @@ public class CharacterController {
         }
     }
 
-    @PostMapping("/character/{userId}")
-    public ResponseEntity<CharacterResponse> addCharacterToUser(@RequestBody CharacterRequest request, @PathVariable Integer userId) {
-        try {
-            _User user = userService.getUserById(userId);
-            Character character = createAndSaveCharacter(request);
-            return ResponseEntity.ok(new CharacterResponse(characterService.save(character)));
-        } catch (UserServiceException | CharacterException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @PostMapping("/{id}")
     public ResponseEntity<CharacterResponse> updateCharacter(@PathVariable Integer id, @RequestBody CharacterRequest request) {
         try {
             Character character = characterService.getById(id);
             Faction faction = factionService.getById(request.getFactionId());
+            _User user = userService.getUserById(request.getUserId());
+            Game game = gameService.getById(request.getGameId());
+            character.setUser(user);
+            character.setGame(game);
             character.setName(request.getName());
             character.setDescription(request.getDescription());
             character.setCharacterClass(CharacterClass.valueOf(request.getCharacterClass()));
@@ -146,12 +159,16 @@ public class CharacterController {
             return ResponseEntity.ok(new CharacterResponse("Character " + id + " updated successfully", characterService.save(character)));
         } catch (CharacterNotFoundException | FactionNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (UserServiceException | GameNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Getter
     @NoArgsConstructor
     public static class CharacterRequest {
+        private Integer userId;
+        private Integer gameId;
         private String name;
         private String description;
         private String characterClass;
@@ -191,6 +208,8 @@ public class CharacterController {
         @Getter
         @NoArgsConstructor
         public static class CharacterData {
+            private Integer userId;
+            private Integer gameId;
             private Integer id;
             private String name;
             private String description;
@@ -209,6 +228,8 @@ public class CharacterController {
             private Integer armor;
 
             public CharacterData(Character character) {
+                this.userId = character.getUser().getId();
+                this.gameId = character.getGame().getId();
                 this.id = character.getId();
                 this.name = character.getName();
                 this.description = character.getDescription();

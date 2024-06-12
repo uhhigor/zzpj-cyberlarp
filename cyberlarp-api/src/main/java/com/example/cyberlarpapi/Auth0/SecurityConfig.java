@@ -26,7 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).
                 authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/users/**", "/characters/character/**").permitAll()
+                        .requestMatchers("/").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(withDefaults())
                 .logout(logout -> logout.addLogoutHandler(logoutHandler()));

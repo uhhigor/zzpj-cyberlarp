@@ -1,6 +1,7 @@
 package com.example.cyberlarpapi.game.controllers;
 
 import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
+import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
@@ -88,25 +89,31 @@ public class GameController {
         }
     }
 
-    @PostMapping("/{id}/player/{playerId}")
-    public ResponseEntity<GameResponse> addPlayerToGame(@PathVariable Integer id, @PathVariable Integer playerId) {
+    @PostMapping("/{id}/character/{characterId}")
+    public ResponseEntity<GameResponse> addCharacterToGame(@PathVariable Integer id, @PathVariable Integer characterId) {
         try {
             Game game = gameService.getById(id);
-            //gameService.addPlayerToGame(id, player);
+            Character character = characterService.getById(characterId);
+            gameService.addCharacterToGame(id, character);
             return ResponseEntity.ok(new GameResponse("Player added to game successfully", game));
         } catch (GameNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (CharacterNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    @DeleteMapping("/{id}/player/{playerId}")
-    public ResponseEntity<GameResponse> removePlayerFromGame(@PathVariable Integer id, @PathVariable Integer playerId) {
+    @DeleteMapping("/{id}/character/{characterId}")
+    public ResponseEntity<GameResponse> removeCharacterFromGame(@PathVariable Integer id, @PathVariable Integer characterId) {
         try {
             Game game = gameService.getById(id);
-            //gameService.kickPlayerFromGame(id, player);
+            Character character = characterService.getById(characterId);
+            gameService.kickCharacterFromGame(id, character);
             return ResponseEntity.ok(new GameResponse("Player removed from game successfully", game));
         } catch (GameNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (CharacterNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -170,7 +177,7 @@ public class GameController {
             private String name;
             private String description;
             private Integer gameMasterId;
-            private List<Integer> playerIds;
+            private List<Integer> charactersId;
             private List<Integer> availableCharacterIds;
 
 
@@ -179,7 +186,7 @@ public class GameController {
                 this.name = game.getName();
                 this.description = game.getDescription();
                 this.gameMasterId = game.getGameMaster().getId();
-                this.playerIds = game.getUsers().stream().map(_User::getId).toList();
+                this.charactersId = game.getCharacters().stream().map(Character::getId).toList();
                 this.availableCharacterIds = game.getAvailableCharacters().stream().map(Character::getId).toList();
             }
         }
