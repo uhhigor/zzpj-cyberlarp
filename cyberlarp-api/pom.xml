@@ -101,7 +101,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.2.3</version>
                 <configuration>
-                    <warName>SpringBootHelloWorldExampleApplication</warName>
+                    <warName>cyberlarp-api-0.0.1-SNAPSHOT</warName>
                 </configuration>
                 <executions>
                     <execution>
