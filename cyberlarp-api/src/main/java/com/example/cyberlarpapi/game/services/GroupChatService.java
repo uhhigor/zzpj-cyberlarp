@@ -59,7 +59,7 @@ public class GroupChatService {
             throw new InvalidFactionException("Character does not belong to the same faction as the owner");
         }
 
-        groupChat.inviteCharacter(character, Role.MEMBER);
+        groupChat.inviteCharacter(character);
         groupChatRepository.save(groupChat);
     }
 
@@ -68,31 +68,30 @@ public class GroupChatService {
                 .orElseThrow(() -> new NotFoundException("Group chat not found with id: " + groupId));
         Character character = characterRepository.findById(characterId)
                 .orElseThrow(() -> new NotFoundException("Character not found with id: " + characterId));
+
         groupChat.acceptInvitation(character);
         groupChatRepository.save(groupChat);
     }
 
+    @Transactional
     public void addMessageToGroupChat(Integer groupId, String content, Integer senderId) throws NotFoundException {
         GroupChat groupChat = groupChatRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group chat not found with id: " + groupId));
         Character sender = characterRepository.findById(senderId)
                 .orElseThrow(() -> new NotFoundException("Character not found with id: " + senderId));
         ChatMessage chatMessage = new ChatMessage(content, sender);
-        groupChat.addMessage(chatMessage);
-        groupChatRepository.save(groupChat);
-    }
-
-    @Transactional
-    public void removeOldMessages(Integer groupId) throws NotFoundException {
-        List<ChatMessage> messages = groupChatRepository.findById(groupId)
-                .orElseThrow(() -> new NotFoundException("Group chat not found with id: " + groupId))
-                .getMessages();
-        for (ChatMessage message : messages) {
-            if (message.getTimestamp().isBefore(LocalDateTime.now().minusDays(60))) {
-                chatMessageRepository.delete(message);
-            }
+        try {
+            groupChat.addMessage(chatMessage);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not add message to group chat");
         }
     }
+
+    public void removeOldMessages() {
+        LocalDateTime thresholdDate = LocalDateTime.now().minusDays(60);
+        chatMessageRepository.deleteByTimestampBefore(thresholdDate);
+    }
+
 
     public List<ChatMessageDTO> getMessagesFromGroupChat(Integer groupId) throws NotFoundException {
         List<ChatMessage> messages = groupChatRepository.findById(groupId)
