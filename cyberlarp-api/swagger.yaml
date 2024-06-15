@@ -4,90 +4,14 @@ info:
   description: "cyberlarp_api API"
   version: "1.0.0"
 servers:
-  - url: "http://localhost:63342"
+  - url: "http://localhost:8080"
 paths:
-  /players:
-    post:
-      summary: "POST players"
-      operationId: "createPlayer"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PlayerRequest"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/PlayerResponse"
-  /players/{id}:
-    get:
-      summary: "GET players/{id}"
-      operationId: "getPlayerById"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/PlayerResponse"
-    delete:
-      summary: "DELETE players/{id}"
-      operationId: "deletePlayer"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
   /characters/game/{gameId}:
     post:
       summary: "POST characters/game/{gameId}"
       operationId: "addCharacterToGame"
       parameters:
         - name: "gameId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CharacterRequest"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CharacterResponse"
-  /characters/player/{playerId}:
-    post:
-      summary: "POST characters/player/{playerId}"
-      operationId: "addCharacterToPlayer"
-      parameters:
-        - name: "playerId"
           in: "path"
           required: true
           schema:
@@ -123,6 +47,30 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BankingResponse"
+  /characters/{characterId}/{userId}:
+    delete:
+      summary: "DELETE characters/{characterId}/{userId}"
+      operationId: "deleteCharacter"
+      parameters:
+        - name: "characterId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CharacterResponse"
   /characters/{id}:
     get:
       summary: "GET characters/{id}"
@@ -164,23 +112,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/CharacterResponse"
-    delete:
-      summary: "DELETE characters/{id}"
-      operationId: "deleteCharacter"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/CharacterResponse"
   /users:
     post:
       summary: "POST users"
@@ -198,6 +129,53 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Object"
+  /users/characters/{userId}:
+    get:
+      summary: "GET users/characters/{userId}"
+      operationId: "getUserCharacters"
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /users/user:
+    get:
+      summary: "GET users/user"
+      operationId: "getUserInfo"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /users/{userId}:
+    get:
+      summary: "GET users/{userId}"
+      operationId: "getUser"
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
   /game:
     get:
       summary: "GET game"
@@ -281,34 +259,10 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/GameResponse"
-  /game/{id}/gameMaster/{userId}:
-    put:
-      summary: "PUT game/{id}/gameMaster/{userId}"
-      operationId: "makeUserOwnerOfGame"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-        - name: "userId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/GameResponse"
-  /game/{id}/player/{playerId}:
+  /game/{id}/character/{characterId}:
     post:
-      summary: "POST game/{id}/player/{playerId}"
-      operationId: "addPlayerToGame"
+      summary: "POST game/{id}/character/{characterId}"
+      operationId: "addCharacterToGame"
       parameters:
         - name: "id"
           in: "path"
@@ -316,7 +270,7 @@ paths:
           schema:
             type: "integer"
             format: "int32"
-        - name: "playerId"
+        - name: "characterId"
           in: "path"
           required: true
           schema:
@@ -330,8 +284,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/GameResponse"
     delete:
-      summary: "DELETE game/{id}/player/{playerId}"
-      operationId: "removePlayerFromGame"
+      summary: "DELETE game/{id}/character/{characterId}"
+      operationId: "removeCharacterFromGame"
       parameters:
         - name: "id"
           in: "path"
@@ -339,7 +293,31 @@ paths:
           schema:
             type: "integer"
             format: "int32"
-        - name: "playerId"
+        - name: "characterId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/GameResponse"
+  /game/{id}/gameMaster/{userId}:
+    put:
+      summary: "PUT game/{id}/gameMaster/{userId}"
+      operationId: "makeUserOwnerOfGame"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+        - name: "userId"
           in: "path"
           required: true
           schema:
@@ -399,40 +377,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/RollAttributeResponse"
-  /auth/save/{email}:
-    post:
-      summary: "POST auth/save/{email}"
-      operationId: "saveUser"
-      parameters:
-        - name: "email"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "object"
-  /auth/user/{email}:
-    get:
-      summary: "GET auth/user/{email}"
-      operationId: "getUser"
-      parameters:
-        - name: "email"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "object"
   /groupChat:
     post:
       summary: "POST groupChat"
@@ -712,9 +656,212 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Void"
+  /task/all/{characterId}:
+    get:
+      summary: "GET task/all/{characterId}"
+      operationId: "getAllTasks"
+      parameters:
+        - name: "characterId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Task"
+  /task/assign/{id}:
+    post:
+      summary: "POST task/assign/{id}"
+      operationId: "assignTask"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+        - name: "characterId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+  /task/complete/{id}:
+    post:
+      summary: "POST task/complete/{id}"
+      operationId: "completeTask"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+        - name: "reward"
+          in: "query"
+          required: true
+          schema:
+            type: "number"
+            format: "float"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+  /task/create:
+    post:
+      summary: "POST task/create"
+      operationId: "createTask"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+  /task/delete/{id}:
+    post:
+      summary: "POST task/delete/{id}"
+      operationId: "deleteTask"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+  /task/get/{id}:
+    get:
+      summary: "GET task/get/{id}"
+      operationId: "getTask"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+  /task/incomplete/{id}:
+    post:
+      summary: "POST task/incomplete/{id}"
+      operationId: "incompleteTask"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+  /task/unassign/{id}:
+    post:
+      summary: "POST task/unassign/{id}"
+      operationId: "unassignTask"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+  /task/update/{id}:
+    post:
+      summary: "POST task/update/{id}"
+      operationId: "updateTask"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+  /api/email:
+    get:
+      summary: "GET api/email"
+      operationId: "getEmail"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /api/token:
+    get:
+      summary: "GET api/token"
+      operationId: "getToken"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
 components:
   schemas:
-    PlayerRequest:
+    CharacterRequest:
       type: "object"
       properties:
         userId:
@@ -723,22 +870,6 @@ components:
         gameId:
           type: "integer"
           format: "int32"
-    PlayerData:
-      type: "object"
-      properties: { }
-    PlayerResponse:
-      type: "object"
-      properties:
-        message:
-          type: "string"
-        player:
-          $ref: "#/components/schemas/PlayerData"
-    Object:
-      type: "object"
-      properties: { }
-    CharacterRequest:
-      type: "object"
-      properties:
         name:
           type: "string"
         description:
@@ -772,11 +903,17 @@ components:
           type: "integer"
           format: "int32"
         balance:
-          type: "integer"
-          format: "int32"
+          type: "number"
+          format: "float"
     CharacterData:
       type: "object"
       properties:
+        userId:
+          type: "integer"
+          format: "int32"
+        gameId:
+          type: "integer"
+          format: "int32"
         id:
           type: "integer"
           format: "int32"
@@ -813,8 +950,8 @@ components:
           type: "integer"
           format: "int32"
         balance:
-          type: "integer"
-          format: "int32"
+          type: "number"
+          format: "float"
         accountNumber:
           type: "string"
         armor:
@@ -865,6 +1002,13 @@ components:
           $ref: "#/components/schemas/TransactionData"
     UserRequest:
       type: "object"
+      properties:
+        username:
+          type: "string"
+        email:
+          type: "string"
+    Object:
+      type: "object"
       properties: { }
     GameData:
       type: "object"
@@ -879,7 +1023,7 @@ components:
         gameMasterId:
           type: "integer"
           format: "int32"
-        playerIds:
+        charactersId:
           type: "array"
           items:
             type: "integer"
@@ -906,7 +1050,7 @@ components:
         gameMasterUserId:
           type: "integer"
           format: "int32"
-    User:
+    _User:
       type: "object"
       properties:
         id:
@@ -916,10 +1060,10 @@ components:
           type: "string"
         username:
           type: "string"
-        players:
+        characters:
           type: "array"
           items:
-            $ref: "#/components/schemas/Player"
+            $ref: "#/components/schemas/Character"
     Game:
       type: "object"
       properties:
@@ -934,28 +1078,16 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Character"
-        players:
+        characters:
           type: "array"
           items:
-            $ref: "#/components/schemas/Player"
+            $ref: "#/components/schemas/Character"
         gameMaster:
-          $ref: "#/components/schemas/User"
+          $ref: "#/components/schemas/_User"
         transactions:
           type: "array"
           items:
             $ref: "#/components/schemas/Transaction"
-    Player:
-      type: "object"
-      properties:
-        id:
-          type: "integer"
-          format: "int32"
-        user:
-          $ref: "#/components/schemas/User"
-        character:
-          $ref: "#/components/schemas/Character"
-        game:
-          $ref: "#/components/schemas/Game"
     Faction:
       type: "object"
       properties:
@@ -972,8 +1104,10 @@ components:
         id:
           type: "integer"
           format: "int32"
-        player:
-          $ref: "#/components/schemas/Player"
+        user:
+          $ref: "#/components/schemas/_User"
+        game:
+          $ref: "#/components/schemas/Game"
         name:
           type: "string"
         description:
@@ -1000,10 +1134,25 @@ components:
             - "ENTROPISM"
             - "NEOMILITARISM"
         balance:
-          type: "integer"
-          format: "int32"
+          type: "number"
+          format: "float"
         accountNumber:
           type: "string"
+        strength:
+          type: "integer"
+          format: "int32"
+        agility:
+          type: "integer"
+          format: "int32"
+        presence:
+          type: "integer"
+          format: "int32"
+        toughness:
+          type: "integer"
+          format: "int32"
+        knowledge:
+          type: "integer"
+          format: "int32"
         maxHp:
           type: "integer"
           format: "int32"
@@ -1065,16 +1214,11 @@ components:
         timestamp:
           type: "string"
           format: "date-time"
-    GroupChatCharacter:
+    CharacterRole:
       type: "object"
       properties:
-        id:
-          type: "integer"
-          format: "int32"
         character:
           $ref: "#/components/schemas/Character"
-        groupChat:
-          $ref: "#/components/schemas/GroupChat"
         role:
           type: "string"
           enum:
@@ -1093,11 +1237,19 @@ components:
         characters:
           type: "array"
           items:
-            $ref: "#/components/schemas/GroupChatCharacter"
+            $ref: "#/components/schemas/Character"
         game:
           $ref: "#/components/schemas/Game"
         owner:
           $ref: "#/components/schemas/Character"
+        invitations:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Character"
+        characterRoles:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CharacterRole"
     AcceptInvitationRequest:
       type: "object"
       properties:
@@ -1142,3 +1294,76 @@ components:
           type: "string"
         description:
           type: "string"
+    Task:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        character:
+          $ref: "#/components/schemas/Character"
+        name:
+          type: "string"
+        description:
+          type: "string"
+        status:
+          type: "string"
+          enum:
+            - "SUCCESS"
+            - "FAILURE"
+            - "IN_PROGRESS"
+        type:
+          type: "string"
+        location:
+          type: "string"
+        reward:
+          type: "number"
+          format: "float"
+        deadline:
+          type: "string"
+          format: "date"
+        completionDate:
+          type: "string"
+          format: "date"
+        completionTime:
+          type: "string"
+          format: "partial-time"
+    TaskResponse:
+      type: "object"
+      properties:
+        message:
+          type: "string"
+        task:
+          $ref: "#/components/schemas/Task"
+    TaskRequest:
+      type: "object"
+      properties:
+        characterId:
+          type: "integer"
+          format: "int32"
+        name:
+          type: "string"
+        description:
+          type: "string"
+        status:
+          type: "string"
+          enum:
+            - "SUCCESS"
+            - "FAILURE"
+            - "IN_PROGRESS"
+        type:
+          type: "string"
+        location:
+          type: "string"
+        reward:
+          type: "number"
+          format: "float"
+        deadline:
+          type: "string"
+          format: "date"
+        completionDate:
+          type: "string"
+          format: "date"
+        completionTime:
+          type: "string"
+          format: "partial-time"
