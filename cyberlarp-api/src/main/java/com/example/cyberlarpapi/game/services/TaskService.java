@@ -67,7 +67,14 @@ public class TaskService {
     }
 
     public Task getById(Integer id) throws TaskNotFoundException {
-        return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task " + id + " not found"));
+        Task task;
+        if (!taskRepository.existsById(id)) {
+            throw new TaskNotFoundException("Task " + id + " not found");
+        }
+        else {
+             task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task " + id + " not found"));
+        }
+        return task;
     }
 
     public void completeTask(Integer id, Float reward) throws TaskNotFoundException {
