@@ -20,11 +20,10 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final CharacterService characterService;
-    private final GameService gameService;
 
     private Task setsTask(TaskRequest taskRequest, Integer id) throws GameNotFoundException, CharacterNotFoundException, TaskNotFoundException {
         Task task;
-        if (!taskRepository.existsById(id)) {
+        if (id == null) {
             task = new Task();
         }
         else {
@@ -33,13 +32,8 @@ public class TaskService {
         if (characterService.getById(taskRequest.getCharacterId()) == null) {
             throw new CharacterNotFoundException("Character not found");
         }
-        if (gameService.getById(taskRequest.getGameId()) == null) {
-            throw new GameNotFoundException("Game not found");
-        }
         Character character = characterService.getById(taskRequest.getCharacterId());
-        Game game = gameService.getById(taskRequest.getGameId());
         task.setCharacter(character);
-        task.setGame(game);
         task.setName(taskRequest.getName());
         task.setDescription(taskRequest.getDescription());
         task.setStatus(taskRequest.getStatus());
@@ -118,22 +112,6 @@ public class TaskService {
             return tasks;
         } catch (Exception e) {
             throw new TaskNotFoundException("Tasks not found");
-        }
-    }
-
-    public List<Task> getAllTasksForGame(Integer gameId) throws GameNotFoundException, TaskNotFoundException {
-        Game game = gameService.getById(gameId);
-        try {
-            List<Task> tasks = (List<Task>) taskRepository.findAll();
-            for (Task task : tasks) {
-                if (task.getGame().equals(game)) {
-                    tasks.add(task);
-                }
-            }
-            return tasks;
-        } catch (Exception e) {
-            throw new TaskNotFoundException("Tasks not found");
-
         }
     }
 

@@ -22,10 +22,6 @@ public class Task {
     @Setter
     private Character character;
 
-    @ManyToOne
-    @Setter
-    private Game game;
-
     @Setter
     private String name;
 
@@ -67,11 +63,6 @@ public class Task {
 
         public TaskBuilder withCharacter(Character character) {
             task.setCharacter(character);
-            return this;
-        }
-
-        public TaskBuilder withGame(Game game) {
-            task.setGame(game);
             return this;
         }
 
@@ -121,8 +112,8 @@ public class Task {
         }
 
         public Task build() throws TaskException {
-            if (task.getCharacter() == null || task.getGame() == null) {
-                throw new TaskException("Character and Game must be set");
+            if (task.getCharacter() == null) {
+                throw new TaskException("Character must be set");
             }
             return task;
         }

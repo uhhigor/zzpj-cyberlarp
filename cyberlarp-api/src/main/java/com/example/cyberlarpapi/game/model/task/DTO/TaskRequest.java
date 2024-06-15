@@ -11,7 +11,6 @@ import java.time.LocalTime;
 @Getter
 public class TaskRequest {
     private Integer characterId;
-    private Integer gameId;
     private String name;
     private String description;
     private Completed status;

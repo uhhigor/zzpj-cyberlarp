@@ -16,6 +16,7 @@ import com.example.cyberlarpapi.game.repositories.chat.GroupChatRepository;
 import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -72,14 +73,18 @@ public class GroupChatService {
         groupChatRepository.save(groupChat);
     }
 
+    @Transactional
     public void addMessageToGroupChat(Integer groupId, String content, Integer senderId) throws NotFoundException {
         GroupChat groupChat = groupChatRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group chat not found with id: " + groupId));
         Character sender = characterRepository.findById(senderId)
                 .orElseThrow(() -> new NotFoundException("Character not found with id: " + senderId));
         ChatMessage chatMessage = new ChatMessage(content, sender);
-        groupChat.addMessage(chatMessage);
-        groupChatRepository.save(groupChat);
+        try {
+            groupChat.addMessage(chatMessage);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not add message to group chat");
+        }
     }
 
     public void removeOldMessages() {
