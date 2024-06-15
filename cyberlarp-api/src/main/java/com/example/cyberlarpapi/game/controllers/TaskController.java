@@ -96,7 +96,12 @@ public class TaskController {
 
     @PostMapping("/delete/{id}")
     public ResponseEntity<TaskResponse> deleteTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id) throws TaskNotFoundException {
-        Task task = taskService.getById(id);
+        Task task;
+        try {
+            task = taskService.getById(id);
+        } catch (TaskNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
         if (!Objects.equals(task.getCharacter().getUser().getUsername(), userDetails.getUsername())) {
             return ResponseEntity.badRequest().body(new TaskResponse("Not your task", null));
         }

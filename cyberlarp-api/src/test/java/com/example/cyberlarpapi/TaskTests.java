@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -115,7 +116,7 @@ class TaskTests {
                 }
                 """;
 
-        MvcResult task = mockMvc.perform(post("/task/create")
+         mockMvc.perform(post("/task/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(taskRequest))
                 .andExpect(status().isOk())
@@ -326,6 +327,151 @@ class TaskTests {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(taskRequest))
                     .andExpect(status().isNotFound());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+    }
+
+    // get a task success
+    @Test
+    @WithMockUser(username = "user1")
+    void getTask_Success() throws Exception {
+        createTask();
+
+        try {
+            mockMvc.perform(get("/task/get/1"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.task.id").exists())
+                    .andExpect(jsonPath("$.task.character.id").value(1))
+                    .andExpect(jsonPath("$.task.name").value("Task 1"))
+                    .andExpect(jsonPath("$.task.description").value("This is an example task"))
+                    .andExpect(jsonPath("$.task.status").value("IN_PROGRESS"))
+                    .andExpect(jsonPath("$.task.type").value("DELIVERY"))
+                    .andExpect(jsonPath("$.task.location").value("Location 1"))
+                    .andExpect(jsonPath("$.task.reward").value(100.0))
+                    .andExpect(jsonPath("$.task.deadline").value("2022-12-31"))
+                    .andExpect(jsonPath("$.task.completionDate").value("2022-12-31"))
+                    .andExpect(jsonPath("$.task.completionTime").value("12:00:00"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+    }
+
+    // get a task bad request
+    @Test
+    @WithMockUser(username = "user1")
+    void getTask_Task_Not_Found() {
+        try {
+            mockMvc.perform(get("/task/get/1"))
+                    .andExpect(status().isNotFound());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+    }
+
+    // delete a task success
+    @Test
+    @WithMockUser(username = "user1")
+    void deleteTask_Success() throws Exception {
+        createTask();
+
+        try {
+            mockMvc.perform(post("/task/delete/1"))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+    }
+
+    // delete a task bad request
+    @Test
+    @WithMockUser(username = "user1")
+    void deleteTask_Task_Not_Found() {
+        try {
+            mockMvc.perform(post("/task/delete/1"))
+                    .andExpect(status().isNotFound());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+    }
+
+    // complete a task success
+    @Test
+    @WithMockUser(username = "user1")
+    void completeTask_Success() throws Exception {
+        createTask();
+
+        try {
+            mockMvc.perform(post("/task/complete/1?reward=100"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.task.id").exists())
+                    .andExpect(jsonPath("$.task.character.id").value(1))
+                    .andExpect(jsonPath("$.task.name").value("Task 1"))
+                    .andExpect(jsonPath("$.task.description").value("This is an example task"))
+                    .andExpect(jsonPath("$.task.status").value("SUCCESS"))
+                    .andExpect(jsonPath("$.task.type").value("DELIVERY"))
+                    .andExpect(jsonPath("$.task.location").value("Location 1"))
+                    .andExpect(jsonPath("$.task.reward").value(100.0))
+                    .andExpect(jsonPath("$.task.deadline").value("2022-12-31"))
+                    .andExpect(jsonPath("$.task.completionDate").value("2022-12-31"))
+                    .andExpect(jsonPath("$.task.completionTime").value("12:00:00"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+    }
+
+    // incomplete a task success
+    @Test
+    @WithMockUser(username = "user1")
+    void incompleteTask_Success() throws Exception {
+        createTask();
+
+        try {
+            mockMvc.perform(post("/task/incomplete/1"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.task.id").exists())
+                    .andExpect(jsonPath("$.task.character.id").value(1))
+                    .andExpect(jsonPath("$.task.name").value("Task 1"))
+                    .andExpect(jsonPath("$.task.description").value("This is an example task"))
+                    .andExpect(jsonPath("$.task.status").value("FAILURE"))
+                    .andExpect(jsonPath("$.task.type").value("DELIVERY"))
+                    .andExpect(jsonPath("$.task.location").value("Location 1"))
+                    .andExpect(jsonPath("$.task.reward").value(100.0))
+                    .andExpect(jsonPath("$.task.deadline").value("2022-12-31"))
+                    .andExpect(jsonPath("$.task.completionDate").value("2022-12-31"))
+                    .andExpect(jsonPath("$.task.completionTime").value("12:00:00"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+    }
+
+    // assign a task success
+    @Test
+    @WithMockUser(username = "user1")
+    void assignTask_Success() throws Exception {
+        createTask();
+
+        try {
+            mockMvc.perform(post("/task/assign/1?characterId=2"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.task.id").exists())
+                    .andExpect(jsonPath("$.task.character.id").value(2))
+                    .andExpect(jsonPath("$.task.name").value("Task 1"))
+                    .andExpect(jsonPath("$.task.description").value("This is an example task"))
+                    .andExpect(jsonPath("$.task.status").value("IN_PROGRESS"))
+                    .andExpect(jsonPath("$.task.type").value("DELIVERY"))
+                    .andExpect(jsonPath("$.task.location").value("Location 1"))
+                    .andExpect(jsonPath("$.task.reward").value(100.0))
+                    .andExpect(jsonPath("$.task.deadline").value("2022-12-31"))
+                    .andExpect(jsonPath("$.task.completionDate").value("2022-12-31"))
+                    .andExpect(jsonPath("$.task.completionTime").value("12:00:00"));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
