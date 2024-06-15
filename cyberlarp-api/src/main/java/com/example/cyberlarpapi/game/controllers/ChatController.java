@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,6 +53,7 @@ public class ChatController {
             return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.NOT_FOUND);
         }
     }
+
     @PostMapping("/{groupId}/accept")
     public ResponseEntity<Void> acceptInvitationToGroupChat(@PathVariable Integer groupId, @RequestBody AcceptInvitationRequest acceptInvitationRequest) {
         try {
@@ -85,14 +87,14 @@ public class ChatController {
                     map.put("senderId", message.getSenderId().toString());
                     return map;
                 })
-                .toList();
+                .collect(Collectors.toList());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{groupId}/messages")
     public ResponseEntity<Void> removeOldMessages(@PathVariable Integer groupId) throws NotFoundException {
-        groupChatService.removeOldMessages(groupId);
+        groupChatService.removeOldMessages();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
