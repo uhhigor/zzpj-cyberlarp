@@ -66,6 +66,20 @@ public class GameController {
         }
     }
 
+    @PutMapping("/{id}/gameMaster/{userId}")
+    public ResponseEntity<GameResponse> makeUserOwnerOfGame(@PathVariable Integer id, @PathVariable Integer userId) {
+        try {
+            Game game = gameService.getById(id);
+            _User user = userService.getUserById(userId);
+            gameService.makeUserOwnerOfGame(id, user);
+            return ResponseEntity.ok(new GameResponse("User is now the owner of the game", game));
+        } catch (GameNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (UserServiceException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @PutMapping("/{id}/textData")
     public ResponseEntity<GameResponse> updateGameTextDataById(@PathVariable Integer id, @RequestBody GameRequest request) {
         try {
