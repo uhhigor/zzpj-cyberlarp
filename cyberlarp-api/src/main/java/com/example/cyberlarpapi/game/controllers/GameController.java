@@ -103,34 +103,6 @@ public class GameController {
         }
     }
 
-    @DeleteMapping("/{id}/character/{characterId}")
-    public ResponseEntity<GameResponse> removeCharacterFromGame(@PathVariable Integer id, @PathVariable Integer characterId) {
-        try {
-            Game game = gameService.getById(id);
-            Character character = characterService.getById(characterId);
-            gameService.kickCharacterFromGame(id, character);
-            return ResponseEntity.ok(new GameResponse("Player removed from game successfully", game));
-        } catch (GameNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (CharacterNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @PutMapping("/{id}/gameMaster/{userId}")
-    public ResponseEntity<GameResponse> makeUserOwnerOfGame(@PathVariable Integer id, @PathVariable Integer userId) {
-        try {
-            Game game = gameService.getById(id);
-            _User user = userService.getUserById(userId);
-            gameService.makeUserOwnerOfGame(id, user);
-            return ResponseEntity.ok(new GameResponse("User is now the owner of the game", game));
-        } catch (GameNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (UserServiceException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     // ====================== Banking ========================== //
     @PostMapping("/transactions")
     public ResponseEntity<List<Transaction>> getTransactionsOfGame(@RequestBody CharacterController.BankingRequest request) {

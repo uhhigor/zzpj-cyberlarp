@@ -1,6 +1,5 @@
-package com.example.cyberlarpapi;
+package com.example.cyberlarpapi.e2e;
 
-import org.h2.engine.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
@@ -460,10 +459,6 @@ public class CharacterTests {
             e.printStackTrace();
             fail("Exception thrown", e);
         }
-
-
-
-
 
     }
 }
