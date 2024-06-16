@@ -104,7 +104,7 @@ public class GameController {
     }
 
     // ====================== Banking ========================== //
-    @PostMapping("/transactions")
+    @GetMapping("/transactions")
     public ResponseEntity<List<Transaction>> getTransactionsOfGame(@RequestBody CharacterController.BankingRequest request) {
         try {
             List<Transaction> transactions = gameService.getTransactions(request.getSenderBankAccount(), request.getGameId());
