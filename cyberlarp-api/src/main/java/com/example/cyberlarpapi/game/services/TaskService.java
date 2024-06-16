@@ -12,7 +12,10 @@ import com.example.cyberlarpapi.game.model.task.Task;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -109,17 +112,24 @@ public class TaskService {
 
     public List<Task> getAllTasksForCharacter(Integer characterId) throws CharacterNotFoundException, TaskNotFoundException {
         Character character = characterService.getById(characterId);
-        try {
-            List<Task> tasks = (List<Task>) taskRepository.findAll();
-            for (Task task : tasks) {
-                if (task.getCharacter().equals(character)) {
-                    tasks.add(task);
-                }
+        Iterable<Task> taskIterable = taskRepository.findAll();
+        List<Task> allTasks = StreamSupport.stream(taskIterable.spliterator(), false)
+                .collect(Collectors.toList());
+        List<Task> characterTasks = new ArrayList<>();
+
+        for (Task task : allTasks) {
+            if (task.getCharacter().getId().equals(character.getId())) {
+                characterTasks.add(task);
             }
-            return tasks;
-        } catch (Exception e) {
-            throw new TaskNotFoundException("Tasks not found");
         }
+
+        if (characterTasks.isEmpty()) {
+            throw new TaskNotFoundException("No tasks found for character ID: " + characterId);
+        }
+
+        return characterTasks;
     }
+
+
 
 }
