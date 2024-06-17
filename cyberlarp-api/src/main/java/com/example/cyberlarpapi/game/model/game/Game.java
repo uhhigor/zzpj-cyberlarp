@@ -24,10 +24,7 @@ public class Game {
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Character> availableCharacters = new ArrayList<>();
-
-    @OneToMany(mappedBy = "game")
-    private List<Character> characters;
+    private List<Character> characters = new ArrayList<>();
 
     @ManyToOne(cascade = CascadeType.ALL)
     private _User gameMaster;
@@ -44,14 +41,6 @@ public class Game {
         characters.remove(character);
     }
 
-    public void addAvailableCharacter(Character character) {
-        availableCharacters.add(character);
-    }
-
-    public void removeAvailableCharacter(Character character) {
-        availableCharacters.remove(character);
-    }
-
     public static GameBuilder builder() {
         return new GameBuilder();
     }
@@ -61,11 +50,6 @@ public class Game {
 
         public GameBuilder() {
             game = new Game();
-        }
-
-        public GameBuilder availableCharacters(List<Character> availableCharacters) {
-            game.setAvailableCharacters(availableCharacters);
-            return this;
         }
 
         public GameBuilder characters(List<Character> characters) {
@@ -91,9 +75,6 @@ public class Game {
         public Game build() {
             if(game.getName() == null || game.getDescription() == null) {
                 throw new IllegalArgumentException("Name and description are required");
-            }
-            if(game.getAvailableCharacters() == null) {
-                game.setAvailableCharacters(DefaultGameData.getDefaultCharacters());
             }
             if(game.getCharacters() == null) {
                 game.setCharacters(List.of());

@@ -9,6 +9,7 @@ import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.services.CharacterService;
 import com.example.cyberlarpapi.game.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,7 +44,7 @@ public class UserController {
             return ResponseEntity.ok(userService.save(user));
     }
 
-    @Operation(summary = "Get user info", description = "Get user info")
+    @Operation(summary = "Get current user info", description = "Get current user")
     @GetMapping("/user")
     public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal OidcUser oidcUser) {
         if (oidcUser == null) {
@@ -56,40 +57,28 @@ public class UserController {
             if (existingUser.isEmpty()) {
                 _User user = new _User();
                 user.setEmail(email);
-                userService.save(user);
+                existingUser = Optional.ofNullable(userService.save(user));
             }
         } catch (UserServiceException e) {
             throw new RuntimeException(e);
         }
-
-
-        return ResponseEntity.ok(existingUser);
+        return ResponseEntity.ok(new UserResponse(existingUser.get()));
     }
 
     @Operation(summary = "Get user by id", description = "Get user by id")
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUser(@PathVariable Integer userId) {
+    public ResponseEntity<UserResponse> getUser(@PathVariable Integer userId) {
         try {
             _User user = userService.getUserById(userId);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(new UserResponse(user));
         } catch (UserServiceException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @Operation(summary = "Get user characters", description = "Get user characters by user id")
-    @GetMapping("/characters/{userId}")
-    public ResponseEntity<?> getUserCharacters(@PathVariable Integer userId) {
-        try {
-            _User user = userService.getUserById(userId);
-            return ResponseEntity.ok(new UserResponse(user.getCharacters().size(), user.getCharacters()));
-        } catch (UserServiceException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 
     @Getter
     @NoArgsConstructor
+    @Schema(hidden = true)
     public static class UserRequest {
         private String username;
 
@@ -98,14 +87,15 @@ public class UserController {
 
     @Getter
     @NoArgsConstructor
-
     public static class UserResponse {
-        private int size;
-        private List<Character> characters;
+        private Integer id;
+        private String username;
+        private String email;
 
-        public UserResponse(int size, List<Character> characters) {
-            this.size = size;
-            this.characters = characters;
+        UserResponse(_User user) {
+            this.id = user.getId();
+            this.username = user.getUsername();
+            this.email = user.getEmail();
         }
     }
 }

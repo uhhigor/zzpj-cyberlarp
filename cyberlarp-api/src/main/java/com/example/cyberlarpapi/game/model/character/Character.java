@@ -1,6 +1,5 @@
 package com.example.cyberlarpapi.game.model.character;
 
-import com.example.cyberlarpapi.game.model.character.faction.Faction;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.user._User;
@@ -16,7 +15,7 @@ import java.util.Random;
 @Entity
 @Getter
 @Setter
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "game_id"})})
+@Table(name = "characters", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "game_id"})})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Character {
 
@@ -28,10 +27,6 @@ public class Character {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private _User user;
-
-    @ManyToOne
-    @JoinColumn(name = "game_id")
-    private Game game;
 
     @Getter
     @Setter
@@ -47,7 +42,6 @@ public class Character {
 
     @Getter
     @Setter
-    @ManyToOne
     private Faction faction;
 
     @Getter
@@ -128,11 +122,6 @@ public class Character {
 
         public CharacterBuilder user(_User user) {
             character.user = user;
-            return this;
-        }
-
-        public CharacterBuilder game(Game game) {
-            character.game = game;
             return this;
         }
 

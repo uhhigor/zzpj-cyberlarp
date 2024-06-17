@@ -52,4 +52,22 @@ public class UserService {
         }
         return "No authenticated user found";
     }
+
+    public _User getCurrentUser() throws UserServiceException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof OAuth2AuthenticationToken oauth2Token) {
+            OidcUser oidcUser = (OidcUser) oauth2Token.getPrincipal();
+            String email = oidcUser.getEmail();
+            if (email != null) {
+                Optional<_User> existingUser = userRepository.findByEmail(email);
+                if (existingUser.isEmpty()) {
+                    _User user = new _User();
+                    user.setEmail(email);
+                    userRepository.save(user);
+                }
+            }
+            return userRepository.findByEmail(email).orElse(null);
+        }
+        throw new UserServiceException("No authenticated user found");
+    }
 }

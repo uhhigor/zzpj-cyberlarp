@@ -4,83 +4,88 @@ package com.example.cyberlarpapi.game.controllers;
 import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
-import com.example.cyberlarpapi.game.exceptions.FactionException.FactionNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import com.example.cyberlarpapi.game.model.Transaction;
-import com.example.cyberlarpapi.game.model.character.Attribute;
-import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.model.character.CharacterClass;
-import com.example.cyberlarpapi.game.model.character.Style;
-import com.example.cyberlarpapi.game.model.character.faction.Faction;
+import com.example.cyberlarpapi.game.model.character.*;
+import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.user._User;
-import com.example.cyberlarpapi.game.services.*;
+import com.example.cyberlarpapi.game.services.CharacterService;
+import com.example.cyberlarpapi.game.services.GameService;
+import com.example.cyberlarpapi.game.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
 @Tag(name = "Character Operations", description = "Operations on characters")
 @RestController
-@RequestMapping("/characters")
+@RequestMapping("/game/{gameId}/character")
 public class CharacterController {
 
     private final CharacterService characterService;
-
-    private final FactionService factionService;
-
     private final GameService gameService;
 
     private final UserService userService;
 
-    public CharacterController(CharacterService characterService, FactionService factionService, GameService gameService, UserService userService) {
+    public CharacterController(CharacterService characterService, GameService gameService, UserService userService) {
         this.characterService = characterService;
-        this.factionService = factionService;
         this.gameService = gameService;
         this.userService = userService;
     }
 
-    @Operation(summary = "Get character by id")
+    @Operation(summary = "Get character by id [GM/Player]", description = "Get character by id by providing character id and game id")
     @GetMapping("/{id}")
-    public ResponseEntity<CharacterResponse> getCharacterById(@PathVariable Integer id) {
+    public ResponseEntity<CharacterResponse> getCharacterById(@PathVariable Integer id, @PathVariable Integer gameId) {
         try {
-            return ResponseEntity.ok(new CharacterResponse(characterService.getById(id)));
+            Game game = gameService.getById(gameId);
+            _User sender = userService.getCurrentUser();
+            Character character = characterService.getById(id);
+            if(game.getGameMaster().getId().equals(sender.getId())
+                    || (character.getUser() != null && character.getUser().getId().equals(sender.getId())))
+                return ResponseEntity.ok(new CharacterResponse(character));
         } catch (CharacterNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (GameNotFoundException | UserServiceException e) {
+            return ResponseEntity.badRequest().body(new CharacterResponse(e.getMessage()));
         }
+        return ResponseEntity.badRequest().body(new CharacterResponse("Character not found"));
     }
 
-    @Operation(summary = "Delete character by id and user id")
-    @DeleteMapping("/{characterId}/{userId}")
-    public ResponseEntity<CharacterResponse> deleteCharacter(@PathVariable Integer characterId, @PathVariable Integer userId) {
+    @Operation(summary = "Delete character by id [GM]", description = "Delete character by id by providing character id and game id")
+    @DeleteMapping("/{characterId}")
+    public ResponseEntity<CharacterResponse> deleteCharacter(@PathVariable Integer characterId, @PathVariable Integer gameId) {
         try {
-            _User user = userService.getUserById(userId);
-            user.getCharacters().removeIf(character -> character.getId().equals(characterId));
+            Game game = gameService.getById(gameId);
+            _User user = userService.getCurrentUser();
+            if(!game.getGameMaster().getId().equals(user.getId()))
+                return ResponseEntity.badRequest().body(new CharacterResponse("Only game master can delete characters"));
+
+            game.removeCharacter(characterService.getById(characterId));
+            gameService.save(game);
             characterService.deleteById(characterId);
             return ResponseEntity.ok(new CharacterResponse("Character " + characterId + " deleted successfully"));
-        } catch (CharacterNotFoundException e) {
+        } catch (CharacterNotFoundException | GameNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (UserServiceException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.badRequest().body(new CharacterResponse(e.getMessage()));
         }
     }
 
-    private Character createAndSaveCharacter(CharacterRequest request) throws CharacterException {
-        Faction faction = null;
-        if(request.getFactionId() != null) {
-            try {
-                faction = factionService.getById(request.getFactionId());
-            } catch (FactionNotFoundException e) {
-                throw new CharacterException("Invalid faction");
-            }
+    private Character createAndSaveCharacter(CharacterRequest request, Game game) throws CharacterException {
+        Faction faction;
+        try {
+            faction = Faction.valueOf(request.getFaction());
+        } catch (IllegalArgumentException e) {
+            throw new CharacterException("Invalid faction");
         }
         Style style;
         try {
@@ -94,22 +99,8 @@ public class CharacterController {
         } catch (IllegalArgumentException e) {
             throw new CharacterException("Invalid character class");
         }
-        _User user;
-        try {
-            user = userService.getUserById(request.getUserId());
-        } catch (UserServiceException e) {
-            throw new RuntimeException(e);
-        }
-        Game game;
-        try {
-            game = gameService.getById(request.getGameId());
-        } catch (GameNotFoundException e) {
-            throw new CharacterException("Invalid game");
-        }
 
         Character character = Character.builder()
-                .user(user)
-                .game(game)
                 .name(request.getName())
                 .description(request.getDescription())
                 .characterClass(characterClass)
@@ -123,48 +114,88 @@ public class CharacterController {
                 .maxHp(request.getMaxHp())
                 .balance(request.getBalance())
                 .build();
-        user.addCharacter(character);
-        return characterService.save(character);
+        Character savedCharacter = characterService.save(character);
+        game.addCharacter(savedCharacter);
+        gameService.save(game);
+        return savedCharacter;
     }
 
-    @Operation(summary = "Add new character to game", description = "Add new character to game by providing character details and game id")
-    @PostMapping("/game/{gameId}")
+    @Operation(summary = "Add new character to game [GM]", description = "Add new character to game by providing character details and game id")
+    @PostMapping("/")
     public ResponseEntity<CharacterResponse> addCharacterToGame(@RequestBody CharacterRequest request, @PathVariable Integer gameId) {
         try {
+            _User sender = userService.getCurrentUser();
             Game game = gameService.getById(gameId);
-            Character character = createAndSaveCharacter(request);
-            game.addAvailableCharacter(character);
+            if(!game.getGameMaster().getId().equals(sender.getId()))
+                return ResponseEntity.badRequest().body(new CharacterResponse("Only game master can add characters"));
+
+            Character character = createAndSaveCharacter(request, game);
+            game.addCharacter(character);
+            gameService.save(game);
             return ResponseEntity.ok(new CharacterResponse("Character " + character.getId() + " added to game " + game.getId(), characterService.save(character)));
         } catch (GameNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (CharacterException e) {
             return ResponseEntity.badRequest().body(new CharacterResponse(e.getMessage()));
+        } catch (UserServiceException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    @Operation(summary = "Update character", description = "Update character by providing character details and character id")
-    @PostMapping("/{id}")
-    public ResponseEntity<CharacterResponse> updateCharacter(@PathVariable Integer id, @RequestBody CharacterRequest request) {
+    @Operation(summary = "Assign character to user [GM]", description = "Assign character to user by providing character id and user id")
+    @PostMapping("/{characterId}/assignUser/{userId}")
+    public ResponseEntity<CharacterResponse> assignCharacterToUser(@PathVariable Integer gameId, @PathVariable Integer characterId, @PathVariable Integer userId) {
         try {
-            Character character = characterService.getById(id);
-            Faction faction = factionService.getById(request.getFactionId());
-            _User user = userService.getUserById(request.getUserId());
-            Game game = gameService.getById(request.getGameId());
+            _User sender = userService.getCurrentUser();
+            Game game = gameService.getById(gameId);
+            if(!game.getGameMaster().getId().equals(sender.getId()))
+                return ResponseEntity.badRequest().body(new CharacterResponse("Only game master can assign characters"));
+            Character character = characterService.getById(characterId);
+            if(!game.getCharacters().contains(character))
+                return ResponseEntity.badRequest().body(new CharacterResponse("Character " + characterId + " is not in game " + gameId));
+
+            _User user = userService.getUserById(userId);
             character.setUser(user);
-            character.setGame(game);
-            character.setName(request.getName());
-            character.setDescription(request.getDescription());
-            character.setCharacterClass(CharacterClass.valueOf(request.getCharacterClass()));
-            character.setFaction(faction);
-            character.setStyle(Style.valueOf(request.getStyle()));
-            character.setAttribute(Attribute.STRENGTH, request.getStrength());
-            character.setAttribute(Attribute.AGILITY, request.getAgility());
-            character.setAttribute(Attribute.PRESENCE, request.getPresence());
-            character.setAttribute(Attribute.TOUGHNESS, request.getToughness());
-            character.setAttribute(Attribute.KNOWLEDGE, request.getKnowledge());
-            character.setMaxHp(request.getMaxHp());
+            character = characterService.save(character);
+            return ResponseEntity.ok(new CharacterResponse("Character " + characterId + " assigned to user " + userId, character));
+        } catch (GameNotFoundException | CharacterNotFoundException | UserServiceException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Update character [GM]", description = "Update character by providing character details and character id")
+    @PostMapping("/{id}")
+    public ResponseEntity<CharacterResponse> updateCharacter(@PathVariable Integer id, @RequestBody CharacterRequest request, @PathVariable Integer gameId) {
+        try {
+            _User sender = userService.getCurrentUser();
+            Game game = gameService.getById(gameId);
+            if(!game.getGameMaster().getId().equals(sender.getId()))
+                return ResponseEntity.badRequest().body(new CharacterResponse("Only game master can update characters"));
+            Character character = characterService.getById(id);
+            if(request.getName() != null)
+                character.setName(request.getName());
+            if(request.getDescription() != null)
+                character.setDescription(request.getDescription());
+            if(request.getCharacterClass() != null)
+                character.setCharacterClass(CharacterClass.valueOf(request.getCharacterClass()));
+            if(request.getFaction() != null)
+                character.setFaction(Faction.valueOf(request.getFaction()));
+            if(request.getStyle() != null)
+                character.setStyle(Style.valueOf(request.getStyle()));
+            if(request.getStrength() != null)
+                character.setAttribute(Attribute.STRENGTH, request.getStrength());
+            if(request.getAgility() != null)
+                character.setAttribute(Attribute.AGILITY, request.getAgility());
+            if(request.getPresence() != null)
+                character.setAttribute(Attribute.PRESENCE, request.getPresence());
+            if(request.getToughness() != null)
+                character.setAttribute(Attribute.TOUGHNESS, request.getToughness());
+            if(request.getKnowledge() != null)
+                character.setAttribute(Attribute.KNOWLEDGE, request.getKnowledge());
+            if(request.getMaxHp() != null)
+                character.setMaxHp(request.getMaxHp());
             return ResponseEntity.ok(new CharacterResponse("Character " + id + " updated successfully", characterService.save(character)));
-        } catch (CharacterNotFoundException | FactionNotFoundException e) {
+        } catch (CharacterNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (UserServiceException | GameNotFoundException e) {
             throw new RuntimeException(e);
@@ -173,13 +204,12 @@ public class CharacterController {
 
     @Getter
     @NoArgsConstructor
+    @Schema(hidden = true)
     public static class CharacterRequest {
-        private Integer userId;
-        private Integer gameId;
         private String name;
         private String description;
         private String characterClass;
-        private Integer factionId;
+        private String faction;
         private String style;
         private Integer strength;
         private Integer agility;
@@ -193,6 +223,7 @@ public class CharacterController {
 
     @Getter
     @NoArgsConstructor
+    @Schema(hidden = true)
     public static class CharacterResponse {
 
         private String message;
@@ -216,12 +247,11 @@ public class CharacterController {
         @NoArgsConstructor
         public static class CharacterData {
             private Integer userId;
-            private Integer gameId;
             private Integer id;
             private String name;
             private String description;
             private String characterClass;
-            private Integer factionId;
+            private String faction;
             private String style;
             private Integer strength;
             private Integer agility;
@@ -235,14 +265,17 @@ public class CharacterController {
             private Integer armor;
 
             public CharacterData(Character character) {
-                this.userId = character.getUser().getId();
-                this.gameId = character.getGame().getId();
+                if(character.getUser() != null)
+                    this.userId = character.getUser().getId();
                 this.id = character.getId();
                 this.name = character.getName();
                 this.description = character.getDescription();
-                this.characterClass = character.getCharacterClass().name();
-                this.factionId = character.getFaction() == null ? null : character.getFaction().getId();
-                this.style = character.getStyle().name();
+                if(character.getCharacterClass() != null)
+                    this.characterClass = character.getCharacterClass().name();
+                if(character.getFaction() != null)
+                    this.faction = character.getFaction().name();
+                if(character.getStyle() != null)
+                    this.style = character.getStyle().name();
                 this.strength = character.getAttribute(Attribute.STRENGTH);
                 this.agility = character.getAttribute(Attribute.AGILITY);
                 this.presence = character.getAttribute(Attribute.PRESENCE);
@@ -256,69 +289,4 @@ public class CharacterController {
             }
         }
     }
-
-    // ====================== Banking ========================== //
-
-    @Operation(summary = "Transfer money between characters", description = "Transfer money between characters by providing sender and receiver account numbers and amount")
-    @PostMapping("/transfer")
-    public ResponseEntity<CharacterController.BankingResponse> create(@RequestBody CharacterController.BankingRequest request) {
-        try {
-            Transaction newTransaction = characterService.transferMoney(request.getSenderBankAccount(),
-                                                                        request.getReceiverBankAccount(),
-                                                                        request.getAmount(),
-                                                                        request.getGameId());
-
-            gameService.addTransaction(newTransaction, request.getGameId());
-            return ResponseEntity.ok(new BankingResponse(newTransaction));
-        } catch (BankingServiceException | GameServiceException e) {
-            return ResponseEntity.badRequest().body(new BankingResponse(e.getMessage()));
-        }
-    }
-
-    @Getter
-    @NoArgsConstructor
-    public static class BankingRequest {
-        private String senderBankAccount;
-        private String receiverBankAccount;
-        private int amount;
-        private Integer gameId;
-    }
-
-    @Getter
-    @NoArgsConstructor
-    public static class BankingResponse {
-        private String message;
-        private TransactionData transaction;
-
-        public BankingResponse(String message, Transaction transaction) {
-            this.message = message;
-            this.transaction = new TransactionData(transaction);
-        }
-
-        public BankingResponse(Transaction transaction) {
-            this.transaction = new TransactionData(transaction);
-        }
-
-        public BankingResponse(String message) {
-            this.message = message;
-        }
-
-        @Getter
-        public static class TransactionData {
-            private Integer id;
-            private String senderAccountNumber;
-            private String receiverAccountNumber;
-            private int amount;
-            private LocalDateTime timestamp;
-
-            public TransactionData(Transaction transaction) {
-                this.id = transaction.getId();
-                this.senderAccountNumber = transaction.getSender().getAccountNumber();
-                this.receiverAccountNumber = transaction.getReceiver().getAccountNumber();
-                this.amount = transaction.getAmount();
-                this.timestamp = transaction.getTimestamp();
-            }
-        }
-    }
-
 }

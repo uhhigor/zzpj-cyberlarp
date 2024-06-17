@@ -1,14 +1,12 @@
 package com.example.cyberlarpapi.game;
 
-import java.util.List;
-
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
-import com.example.cyberlarpapi.game.exceptions.FactionException.FactionException;
-import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
+import com.example.cyberlarpapi.game.model.character.Faction;
 import com.example.cyberlarpapi.game.model.character.Style;
-import com.example.cyberlarpapi.game.model.character.faction.Faction;
+
+import java.util.List;
 
 public class DefaultGameData {
     public static List<Character> getDefaultCharacters() {
@@ -18,6 +16,7 @@ public class DefaultGameData {
                             .name("John")
                             .characterClass(CharacterClass.NETRUNNER)
                             .style(Style.HIGHTECH)
+                            .faction(Faction.CORPORATE)
                             .balance(100F)
                             .strength(4)
                             .agility(3)
@@ -31,6 +30,7 @@ public class DefaultGameData {
                             .name("Jane")
                             .characterClass(CharacterClass.PUNK)
                             .style(Style.NEOKITSCH)
+                            .faction(Faction.STREET)
                             .balance(100F)
                             .strength(6)
                             .agility(2)
@@ -44,6 +44,7 @@ public class DefaultGameData {
                             .name("Jack")
                             .characterClass(CharacterClass.TECHIE)
                             .style(Style.HIGHTECH)
+                            .faction(Faction.TECHIES)
                             .balance(100F)
                             .strength(6)
                             .agility(2)
@@ -55,26 +56,6 @@ public class DefaultGameData {
                             .build()
             );
         } catch (CharacterException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public static List<Faction> getDefaultFactions() {
-        try {
-            return List.of(
-                    Faction.builder()
-                            .name("Arasaka")
-                            .description("Arasaka Corporation is a world-wide megacorporation dealing in corporate security, banking, and manufacturing.")
-                            .build(),
-                    Faction.builder()
-                            .name("Militech")
-                            .description("Militech International Armaments is a megacorporation specializing in weapons manufacturing and private military contracting.")
-                            .build(),
-                    Faction.builder()
-                            .name("Trauma Team International")
-                            .description("Trauma Team International is a megacorporation specializing in medical services and paramilitary operations.")
-                            .build()
-            );
-        } catch (FactionException e) {
             throw new RuntimeException(e);
         }
     }

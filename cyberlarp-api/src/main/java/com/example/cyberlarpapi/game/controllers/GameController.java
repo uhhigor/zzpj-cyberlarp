@@ -1,5 +1,6 @@
 package com.example.cyberlarpapi.game.controllers;
 
+import com.example.cyberlarpapi.game.DefaultGameData;
 import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
@@ -12,6 +13,7 @@ import com.example.cyberlarpapi.game.services.CharacterService;
 import com.example.cyberlarpapi.game.services.GameService;
 import com.example.cyberlarpapi.game.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,13 +44,18 @@ public class GameController {
     @PostMapping
     public ResponseEntity<GameResponse> createGame(@RequestBody GameRequest request) {
         try {
-            _User gameMaster = userService.getUserById(request.getGameMasterUserId());
+            _User gameMaster = userService.getCurrentUser();
             Game game = Game.builder()
                     .name(request.getName())
                     .description(request.getDescription())
                     .gameMaster(gameMaster)
                     .build();
             game = gameService.save(game);
+            List<Character> defaultCharacters = DefaultGameData.getDefaultCharacters();
+            for (Character character : defaultCharacters) {
+                character = characterService.save(character);
+                gameService.addCharacterToGame(game.getId(), character);
+            }
             return ResponseEntity.ok(new GameResponse("Game created successfully", game));
         } catch (UserServiceException e) {
             return ResponseEntity.notFound().build();
@@ -97,36 +104,6 @@ public class GameController {
         }
     }
 
-    @Operation(summary = "Add character to game", description = "Add character to game by providing game id and character id")
-    @PostMapping("/{id}/character/{characterId}")
-    public ResponseEntity<GameResponse> addCharacterToGame(@PathVariable Integer id, @PathVariable Integer characterId) {
-        try {
-            Game game = gameService.getById(id);
-            Character character = characterService.getById(characterId);
-            gameService.addCharacterToGame(id, character);
-            return ResponseEntity.ok(new GameResponse("Player added to game successfully", game));
-        } catch (GameNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (CharacterNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Operation(summary = "Remove character from game", description = "Remove character from game by providing game id and character id")
-    @DeleteMapping("/{id}/character/{characterId}")
-    public ResponseEntity<GameResponse> removeCharacterFromGame(@PathVariable Integer id, @PathVariable Integer characterId) {
-        try {
-            Game game = gameService.getById(id);
-            Character character = characterService.getById(characterId);
-            gameService.kickCharacterFromGame(id, character);
-            return ResponseEntity.ok(new GameResponse("Player removed from game successfully", game));
-        } catch (GameNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (CharacterNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Operation(summary = "Make user owner of game", description = "Make user owner of game by providing game id and user id")
     @PutMapping("/{id}/gameMaster/{userId}")
     public ResponseEntity<GameResponse> makeUserOwnerOfGame(@PathVariable Integer id, @PathVariable Integer userId) {
@@ -145,7 +122,7 @@ public class GameController {
     // ====================== Banking ========================== //
     @Operation(summary = "Get transactions of game", description = "Get transactions of game by providing sender bank account and game id")
     @PostMapping("/transactions")
-    public ResponseEntity<List<Transaction>> getTransactionsOfGame(@RequestBody CharacterController.BankingRequest request) {
+    public ResponseEntity<List<Transaction>> getTransactionsOfGame(@RequestBody CharacterActionsController.BankingRequest request) {
         try {
             List<Transaction> transactions = gameService.getTransactions(request.getSenderBankAccount(), request.getGameId());
             return ResponseEntity.ok(transactions);
@@ -158,14 +135,15 @@ public class GameController {
 
     @Getter
     @NoArgsConstructor
+    @Schema(hidden = true)
     public static class GameRequest {
         private String name;
         private String description;
-        private Integer gameMasterUserId;
     }
 
     @Getter
     @NoArgsConstructor
+    @Schema(hidden = true)
     public static class GameResponse {
         private String message;
         private GameData game;
@@ -185,21 +163,18 @@ public class GameController {
 
         @Getter
         public static class GameData {
-            private Integer id;
-            private String name;
-            private String description;
-            private Integer gameMasterId;
-            private List<Integer> charactersId;
-            private List<Integer> availableCharacterIds;
-
+            private final Integer id;
+            private final String name;
+            private final String description;
+            private final UserController.UserResponse gameMaster;
+            private final List<CharacterController.CharacterResponse.CharacterData> characters;
 
             public GameData(Game game) {
                 this.id = game.getId();
                 this.name = game.getName();
                 this.description = game.getDescription();
-                this.gameMasterId = game.getGameMaster().getId();
-                this.charactersId = game.getCharacters().stream().map(Character::getId).toList();
-                this.availableCharacterIds = game.getAvailableCharacters().stream().map(Character::getId).toList();
+                this.gameMaster = new UserController.UserResponse(game.getGameMaster());
+                this.characters = game.getCharacters().stream().map(CharacterController.CharacterResponse.CharacterData::new).toList();
             }
         }
     }

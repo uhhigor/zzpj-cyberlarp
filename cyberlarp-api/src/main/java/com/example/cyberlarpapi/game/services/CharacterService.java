@@ -81,8 +81,8 @@ public class CharacterService {
         }
         Optional<Game> game = gameRepository.findById(gameId);
         if (game.isPresent()) {
-            if (!game.get().getAvailableCharacters().contains(sender) ||
-                !game.get().getAvailableCharacters().contains(receiver)) {
+            if (!game.get().getCharacters().contains(sender) ||
+                !game.get().getCharacters().contains(receiver)) {
                 throw new BankingServiceException("Characters are not in the same game!");
             }
         }

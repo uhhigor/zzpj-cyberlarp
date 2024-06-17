@@ -22,11 +22,4 @@ public class _User {
     private String email;
 
     private String username;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Character> characters = new ArrayList<>();
-
-    public void addCharacter(Character character) {
-        characters.add(character);
-    }
 }
