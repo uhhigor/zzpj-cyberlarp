@@ -1,6 +1,7 @@
 package com.example.cyberlarpapi.game.model.character;
 
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
+import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.user._User;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.util.List;
 import java.util.Random;
 
 @Entity
@@ -55,6 +57,9 @@ public class Character {
     private Float balance;
     @Getter
     String accountNumber = "#" + RandomStringUtils.randomNumeric(6);
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Transaction> transactions;
 
     // ATTRIBUTES
 

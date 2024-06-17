@@ -65,37 +65,4 @@ public class CharacterService {
             throw new CharacterServiceException("Error while setting player", e);
         }
     }
-
-
-    // ====================== Banking ========================== //
-
-    @Transactional
-    public Transaction transferMoney(String senderAccountNumber, String receiverAccountNumber, int amount, Integer gameId) throws BankingServiceException, GameServiceException {
-        if(!this.gameRepository.existsById(gameId))
-            throw new GameServiceException("Game " + gameId + " not found");
-
-        Character receiver = characterRepository.findByAccountNumber(receiverAccountNumber);
-        Character sender = characterRepository.findByAccountNumber(senderAccountNumber);
-        if (receiver == null || sender == null) {
-            throw new BankingServiceException("There is no character with given account number!");
-        }
-        Optional<Game> game = gameRepository.findById(gameId);
-        if (game.isPresent()) {
-            if (!game.get().getCharacters().contains(sender) ||
-                !game.get().getCharacters().contains(receiver)) {
-                throw new BankingServiceException("Characters are not in the same game!");
-            }
-        }
-        if (sender.getBalance() < amount) {
-            throw new BankingServiceException("Not enough money on your bank account!");
-        }
-
-        sender.setBalance(sender.getBalance() - amount);
-        receiver.setBalance(receiver.getBalance() + amount);
-
-        Transaction newTransaction = new Transaction(sender, receiver, amount, LocalDateTime.now());
-        transactionRepository.save(newTransaction);
-        return newTransaction;
-    }
-
 }

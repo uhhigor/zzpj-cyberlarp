@@ -87,31 +87,4 @@ public class GameService {
 
         return gameRepository.save(game);
     }
-
-    // ====================== Banking ========================== //
-
-    public void addTransaction(Transaction transaction, int id) throws GameServiceException {
-        if(!gameRepository.existsById(id))
-            throw new GameServiceException("Game " + id + " not found");
-        Optional<Game> game = gameRepository.findById(id);
-        game.ifPresent(value -> value.getTransactions().add(transaction));
-    }
-
-    public List<Transaction> getTransactions(String characterBankNumber, int id) throws GameServiceException, GameNotFoundException, BankingServiceException {
-        if(!gameRepository.existsById(id))
-            throw new GameNotFoundException("Game " + id + " not found");
-        Character character = characterRepository.findByAccountNumber(characterBankNumber);
-        if (character == null) {
-            throw new BankingServiceException("There is no character with given account number!");
-        }
-        if (character.getCharacterClass() == CharacterClass.NETRUNNER) {
-            Optional<Game> game = gameRepository.findById(id);
-            if (game.isPresent()) {
-                return game.get().getTransactions();
-            }
-        } else {
-            throw new GameServiceException("Character does not have access to transactions");
-        }
-        return null;
-    }
 }

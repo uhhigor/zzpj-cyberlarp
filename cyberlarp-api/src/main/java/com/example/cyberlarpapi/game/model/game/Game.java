@@ -33,10 +33,6 @@ public class Game {
         characters.add(character);
     }
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Transaction> transactions;
-
-
     public void removeCharacter(Character character) {
         characters.remove(character);
     }

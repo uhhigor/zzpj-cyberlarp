@@ -119,20 +119,6 @@ public class GameController {
         }
     }
 
-    // ====================== Banking ========================== //
-    @Operation(summary = "Get transactions of game", description = "Get transactions of game by providing sender bank account and game id")
-    @PostMapping("/transactions")
-    public ResponseEntity<List<Transaction>> getTransactionsOfGame(@RequestBody CharacterActionsController.BankingRequest request) {
-        try {
-            List<Transaction> transactions = gameService.getTransactions(request.getSenderBankAccount(), request.getGameId());
-            return ResponseEntity.ok(transactions);
-        } catch (GameNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (GameServiceException | BankingServiceException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
     @Getter
     @NoArgsConstructor
     @Schema(hidden = true)

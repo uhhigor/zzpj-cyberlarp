@@ -4,6 +4,7 @@ import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceE
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
+import com.example.cyberlarpapi.game.exceptions.MoneyServiceException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Attribute;
@@ -12,6 +13,7 @@ import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.services.CharacterService;
 import com.example.cyberlarpapi.game.services.GameService;
+import com.example.cyberlarpapi.game.services.MoneyService;
 import com.example.cyberlarpapi.game.services.UserService;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Tag(name = "Character Actions", description = "Actions that can be performed by a character")
@@ -37,10 +40,13 @@ public class CharacterActionsController {
 
     private final UserService userService;
 
-    public CharacterActionsController(CharacterService characterService, GameService gameService, UserService userService) {
+    private final MoneyService moneyService;
+
+    public CharacterActionsController(CharacterService characterService, GameService gameService, UserService userService, MoneyService moneyService) {
         this.characterService = characterService;
         this.gameService = gameService;
         this.userService = userService;
+        this.moneyService = moneyService;
     }
 
     public record RollAttributeRequest(Integer characterId, String attribute) {}
@@ -86,17 +92,30 @@ public class CharacterActionsController {
 
     @Operation(summary = "Transfer money between characters", description = "Transfer money between characters by providing sender and receiver account numbers and amount")
     @PostMapping("/moneytransfer")
-    public ResponseEntity<BankingResponse> create(@RequestBody BankingRequest request) {
+    public ResponseEntity<BankingResponse> create(@RequestBody BankingRequest request, @PathVariable Integer gameId) {
         try {
-            Transaction newTransaction = characterService.transferMoney(request.getSenderBankAccount(),
-                    request.getReceiverBankAccount(),
-                    request.getAmount(),
-                    request.getGameId());
-
-            gameService.addTransaction(newTransaction, request.getGameId());
-            return ResponseEntity.ok(new BankingResponse(newTransaction));
+            Game game = gameService.getById(gameId);
+            Transaction transaction = moneyService.transferMoney(request.senderBankAccount, request.receiverBankAccount, request.amount, game);
+            return ResponseEntity.ok(new BankingResponse(transaction));
         } catch (BankingServiceException | GameServiceException e) {
             return ResponseEntity.badRequest().body(new BankingResponse(e.getMessage()));
+        } catch (GameNotFoundException | CharacterNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @Operation(summary = "Get money transfers of character", description = "Get money transfers of character by providing bank account number")
+    @PostMapping("/moneytransfer/list")
+    public ResponseEntity<List<Transaction>> getTransactionsOfGame(@PathVariable Integer gameId, @RequestBody TransferListRequest request) {
+        try {
+            Game game = gameService.getById(gameId);
+            Character sender = characterService.getById(request.characterId);
+            String bankAccount = request.bankAccount;
+            List<Transaction> transactions = moneyService.getTransactions(game, sender, bankAccount);
+            return ResponseEntity.ok(transactions);
+        } catch (GameNotFoundException | CharacterNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (MoneyServiceException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -107,7 +126,13 @@ public class CharacterActionsController {
         private String senderBankAccount;
         private String receiverBankAccount;
         private int amount;
-        private Integer gameId;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class TransferListRequest {
+        private Integer characterId;
+        private String bankAccount;
     }
 
     @Getter
