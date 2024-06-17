@@ -1,5 +1,6 @@
 package com.example.cyberlarpapi.game.services;
 
+import com.example.cyberlarpapi.game.exceptions.TaskException.TaskException;
 import com.example.cyberlarpapi.game.exceptions.TaskException.TaskNotFoundException;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.task.TaskStatus;
@@ -28,15 +29,16 @@ public class TaskService {
         return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task " + id + " not found"));
     }
 
-    public void setTaskStatus(Task task, TaskStatus status) {
+    public void setTaskStatus(Task task, TaskStatus status) throws TaskException {
+        if(!task.getStatus().equals(TaskStatus.PENDING)) {
+            throw new TaskException("Task status can be changed only from PENDING status");
+        }
         task.setStatus(status);
         taskRepository.save(task);
     }
 
-    public void completeTask(Task task, Character character) {
-        task.setStatus(TaskStatus.SUCCESS);
-        taskRepository.save(task);
-
+    public void completeTask(Task task, Character character) throws TaskException {
+        setTaskStatus(task, TaskStatus.SUCCESS);
         character.setBalance(character.getBalance() + task.getReward());
         characterService.save(character);
     }

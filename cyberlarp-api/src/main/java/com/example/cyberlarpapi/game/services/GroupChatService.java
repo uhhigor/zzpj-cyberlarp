@@ -4,9 +4,7 @@ import com.example.cyberlarpapi.game.exceptions.ChatExceptions.CharacterAlreadyI
 import com.example.cyberlarpapi.game.exceptions.ChatExceptions.InvalidFactionException;
 import com.example.cyberlarpapi.game.model.game.Game;
 import com.example.cyberlarpapi.game.model.chat.DTO.ChatMessageDTO;
-import com.example.cyberlarpapi.game.model.chat.DTO.GroupChatRequest;
 import com.example.cyberlarpapi.game.model.chat.GroupChat;
-import com.example.cyberlarpapi.game.model.chat.Role;
 import com.example.cyberlarpapi.game.model.chat.message.ChatMessage;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.repositories.game.GameRepository;
@@ -31,14 +29,14 @@ public class GroupChatService {
     private final CharacterRepository characterRepository;
     private final GameRepository gameRepository;
 
-    public GroupChat createGroupChat(Game game, GroupChatRequest groupChatRequest) throws NotFoundException {
-        Character owner = characterRepository.findById(groupChatRequest.getOwnerId())
-                .orElseThrow(() -> new NotFoundException("Character not found with id: " + groupChatRequest.getOwnerId()));
+    public GroupChat createGroupChat(Game game, Character character) throws NotFoundException {
 
         GroupChat groupChat = new GroupChat();
         groupChat.setGame(game);
-        groupChat.setOwner(owner);
-        groupChatRepository.save(groupChat);
+        groupChat.setOwner(character);
+        groupChat = groupChatRepository.save(groupChat);
+        game.getGroupChats().add(groupChat);
+        gameRepository.save(game);
         return groupChat;
     }
 

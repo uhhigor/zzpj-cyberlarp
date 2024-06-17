@@ -21,7 +21,7 @@ public class Task {
     private String description;
 
     @Setter
-    private TaskStatus status = TaskStatus.IN_PROGRESS;
+    private TaskStatus status = TaskStatus.PENDING;
 
     @Setter
     private String type;

@@ -23,12 +23,10 @@ public class GroupChat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_chat_id")
+    @OneToMany(cascade = CascadeType.ALL)
     private List<ChatMessage> messages = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_chat_id")
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Character> characters = new ArrayList<>();
 
     @ManyToOne

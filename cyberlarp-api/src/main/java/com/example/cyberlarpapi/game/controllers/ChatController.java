@@ -1,17 +1,21 @@
 package com.example.cyberlarpapi.game.controllers;
 
+import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.ChatExceptions.CharacterAlreadyInGroupException;
 import com.example.cyberlarpapi.game.exceptions.ChatExceptions.ErrorResponse;
 import com.example.cyberlarpapi.game.exceptions.ChatExceptions.InvalidFactionException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
+import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
+import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.chat.DTO.AcceptInvitationRequest;
 import com.example.cyberlarpapi.game.model.chat.DTO.ChatMessageDTO;
-import com.example.cyberlarpapi.game.model.chat.DTO.GroupChatRequest;
 import com.example.cyberlarpapi.game.model.chat.DTO.InviteUserRequest;
 import com.example.cyberlarpapi.game.model.chat.GroupChat;
 import com.example.cyberlarpapi.game.model.game.Game;
+import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.services.GameService;
 import com.example.cyberlarpapi.game.services.GroupChatService;
+import com.example.cyberlarpapi.game.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javassist.NotFoundException;
@@ -32,6 +36,7 @@ import java.util.stream.Collectors;
 public class ChatController {
     private final GroupChatService groupChatService;
     private final GameService gameService;
+    private final UserService userService;
 
     @ExceptionHandler({NotFoundException.class, CharacterAlreadyInGroupException.class, InvalidFactionException.class})
     public ResponseEntity<ErrorResponse> handleException(RuntimeException e) {
@@ -41,15 +46,17 @@ public class ChatController {
 
     @Operation(summary = "Create a new group chat", description = "Create a new group chat in the game")
     @PostMapping("/")
-    public ResponseEntity<GroupChat> createGroupChat(@RequestBody GroupChatRequest chatRequest, @PathVariable Integer gameId) {
+    public ResponseEntity<GroupChat> createGroupChat(@PathVariable Integer gameId) {
         try {
+            _User user = userService.getCurrentUser();
             Game game = gameService.getById(gameId);
-            GroupChat groupChat = groupChatService.createGroupChat(game, chatRequest);
+            Character character = game.getUserCharacter(user);
+            GroupChat groupChat = groupChatService.createGroupChat(game, character);
             return new ResponseEntity<>(groupChat, HttpStatus.CREATED);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException | GameNotFoundException | CharacterNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (GameNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (UserServiceException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 

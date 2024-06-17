@@ -156,12 +156,15 @@ public class TaskController {
             return ResponseEntity.badRequest().body(new TaskResponse("Invalid status", null));
         }
 
-        if(taskStatusStatus == TaskStatus.SUCCESS) {
-            taskService.completeTask(task, task.getAssignedCharacter());
-        } else {
-            taskService.setTaskStatus(task, taskStatusStatus);
+        try {
+            if (taskStatusStatus == TaskStatus.SUCCESS) {
+                taskService.completeTask(task, task.getAssignedCharacter());
+            } else {
+                taskService.setTaskStatus(task, taskStatusStatus);
+            }
+        } catch (TaskException e) {
+            return ResponseEntity.badRequest().body(new TaskResponse(e.getMessage(), null));
         }
-
         return ResponseEntity.ok(new TaskResponse(null, task));
     }
 

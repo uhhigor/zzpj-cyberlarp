@@ -1,6 +1,7 @@
 package com.example.cyberlarpapi.game.model.game;
 
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
+import com.example.cyberlarpapi.game.model.chat.GroupChat;
 import com.example.cyberlarpapi.game.model.task.Task;
 import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.DefaultGameData;
@@ -31,6 +32,9 @@ public class Game {
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Task> tasks = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<GroupChat> groupChats = new ArrayList<>();
 
     @ManyToOne(cascade = CascadeType.ALL)
     private _User gameMaster;
