@@ -7,6 +7,5 @@ import lombok.Setter;
 @Getter
 public class GroupChatRequest {
 
-    private Integer gameId;
     private Integer ownerId;
 }

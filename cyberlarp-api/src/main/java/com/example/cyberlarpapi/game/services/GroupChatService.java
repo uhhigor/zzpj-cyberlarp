@@ -31,10 +31,7 @@ public class GroupChatService {
     private final CharacterRepository characterRepository;
     private final GameRepository gameRepository;
 
-    public GroupChat createGroupChat(GroupChatRequest groupChatRequest) throws NotFoundException {
-        Game game = gameRepository.findById(groupChatRequest.getGameId())
-                .orElseThrow(() -> new NotFoundException("Game not found with id: " + groupChatRequest.getGameId()));
-
+    public GroupChat createGroupChat(Game game, GroupChatRequest groupChatRequest) throws NotFoundException {
         Character owner = characterRepository.findById(groupChatRequest.getOwnerId())
                 .orElseThrow(() -> new NotFoundException("Character not found with id: " + groupChatRequest.getOwnerId()));
 

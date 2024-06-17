@@ -49,7 +49,6 @@ public class Task {
     @Setter
     private LocalTime completionTime;
 
-
     public Task() {
     }
 

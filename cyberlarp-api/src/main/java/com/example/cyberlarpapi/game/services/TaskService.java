@@ -21,49 +21,13 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final CharacterService characterService;
 
-    private Task setsTask(TaskRequest taskRequest, Integer id) throws GameNotFoundException, CharacterNotFoundException, TaskNotFoundException {
-        Task task;
-        if (id == null) {
-            task = new Task();
-        }
-        else {
-            task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task " + id + " not found"));
-        }
-        if (characterService.getById(taskRequest.getCharacterId()) == null) {
-            throw new CharacterNotFoundException("Character not found");
-        }
-        Character character = characterService.getById(taskRequest.getCharacterId());
-        task.setCharacter(character);
-        task.setName(taskRequest.getName());
-        task.setDescription(taskRequest.getDescription());
-        task.setStatus(taskRequest.getStatus());
-        task.setType(taskRequest.getType());
-        task.setLocation(taskRequest.getLocation());
-        task.setReward(taskRequest.getReward());
-        task.setDeadline(taskRequest.getDeadline());
-        task.setCompletionDate(taskRequest.getCompletionDate());
-        task.setCompletionTime(taskRequest.getCompletionTime());
-
-        return task;
-    }
-
-    public Task createTask(TaskRequest taskRequest) throws GameNotFoundException, CharacterNotFoundException, TaskNotFoundException {
-        Task task = setsTask(taskRequest, null);
+    public Task save(Task task) {
         taskRepository.save(task);
         return task;
     }
 
-    public Task updateTask(TaskRequest taskRequest, Integer id) throws TaskNotFoundException, CharacterNotFoundException, GameNotFoundException {
-        Task task = setsTask(taskRequest, id);
-        taskRepository.save(task);
-        return task;
-    }
-
-    public void deleteTask(Integer id) throws TaskNotFoundException {
-        if (!taskRepository.existsById(id)) {
-            throw new TaskNotFoundException("Task " + id + " not found");
-        }
-        taskRepository.deleteById(id);
+    public void delete(Task task) {
+        taskRepository.delete(task);
     }
 
     public Task getById(Integer id) throws TaskNotFoundException {
