@@ -8,6 +8,8 @@ import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceExcepti
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.services.CharacterService;
 import com.example.cyberlarpapi.game.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +21,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.example.cyberlarpapi.game.model.user._User;
+@Tag(name = "User Operations", description = "Operations related to users")
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -31,6 +34,7 @@ public class UserController {
         this.characterService = characterService;
     }
 
+    @Operation(summary = "Create a new user", description = "Create a new user in the system, providing username and email")
     @PostMapping
     public ResponseEntity<Object> createUser(@RequestBody UserRequest request) {
             _User user = new _User();
@@ -39,6 +43,7 @@ public class UserController {
             return ResponseEntity.ok(userService.save(user));
     }
 
+    @Operation(summary = "Get user info", description = "Get user info")
     @GetMapping("/user")
     public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal OidcUser oidcUser) {
         if (oidcUser == null) {
@@ -61,6 +66,7 @@ public class UserController {
         return ResponseEntity.ok(existingUser);
     }
 
+    @Operation(summary = "Get user by id", description = "Get user by id")
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUser(@PathVariable Integer userId) {
         try {
@@ -71,6 +77,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Get user characters", description = "Get user characters by user id")
     @GetMapping("/characters/{userId}")
     public ResponseEntity<?> getUserCharacters(@PathVariable Integer userId) {
         try {

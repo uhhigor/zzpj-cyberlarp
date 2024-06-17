@@ -11,6 +11,8 @@ import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.services.CharacterService;
 import com.example.cyberlarpapi.game.services.GameService;
 import com.example.cyberlarpapi.game.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import com.example.cyberlarpapi.game.model.character.Character;
 
 import java.util.List;
 
+@Tag(name = "Game Operations", description = "Operations related to games in the system")
 @RestController
 @RequestMapping("/game")
 public class GameController {
@@ -35,6 +38,7 @@ public class GameController {
         this.characterService = characterService;
     }
 
+    @Operation(summary = "Create a new game", description = "Create a new game in the system, providing name, description and game master user id")
     @PostMapping
     public ResponseEntity<GameResponse> createGame(@RequestBody GameRequest request) {
         try {
@@ -51,12 +55,14 @@ public class GameController {
         }
     }
 
+    @Operation(summary = "Get all games", description = "Get all games in the system")
     @GetMapping
     public ResponseEntity<List<GameResponse>> getAllGames() {
         return ResponseEntity.ok(gameService.getAll().stream().map(GameResponse::new).toList());
     }
 
 
+    @Operation(summary = "Get game by id", description = "Get game by id")
     @GetMapping("/{id}")
     public ResponseEntity<GameResponse> getGameById(@PathVariable Integer id) {
         try {
@@ -66,6 +72,7 @@ public class GameController {
         }
     }
 
+    @Operation(summary = "Update game text data by id", description = "Update game text data by id, providing name and description")
     @PutMapping("/{id}/textData")
     public ResponseEntity<GameResponse> updateGameTextDataById(@PathVariable Integer id, @RequestBody GameRequest request) {
         try {
@@ -79,6 +86,7 @@ public class GameController {
         }
     }
 
+    @Operation(summary = "Delete game by id", description = "Delete game by id")
     @DeleteMapping("/{id}")
     public ResponseEntity<GameResponse> deleteGame(@PathVariable Integer id) {
         try {
@@ -89,6 +97,7 @@ public class GameController {
         }
     }
 
+    @Operation(summary = "Add character to game", description = "Add character to game by providing game id and character id")
     @PostMapping("/{id}/character/{characterId}")
     public ResponseEntity<GameResponse> addCharacterToGame(@PathVariable Integer id, @PathVariable Integer characterId) {
         try {
@@ -103,6 +112,7 @@ public class GameController {
         }
     }
 
+    @Operation(summary = "Remove character from game", description = "Remove character from game by providing game id and character id")
     @DeleteMapping("/{id}/character/{characterId}")
     public ResponseEntity<GameResponse> removeCharacterFromGame(@PathVariable Integer id, @PathVariable Integer characterId) {
         try {
@@ -117,6 +127,7 @@ public class GameController {
         }
     }
 
+    @Operation(summary = "Make user owner of game", description = "Make user owner of game by providing game id and user id")
     @PutMapping("/{id}/gameMaster/{userId}")
     public ResponseEntity<GameResponse> makeUserOwnerOfGame(@PathVariable Integer id, @PathVariable Integer userId) {
         try {
@@ -132,6 +143,7 @@ public class GameController {
     }
 
     // ====================== Banking ========================== //
+    @Operation(summary = "Get transactions of game", description = "Get transactions of game by providing sender bank account and game id")
     @PostMapping("/transactions")
     public ResponseEntity<List<Transaction>> getTransactionsOfGame(@RequestBody CharacterController.BankingRequest request) {
         try {

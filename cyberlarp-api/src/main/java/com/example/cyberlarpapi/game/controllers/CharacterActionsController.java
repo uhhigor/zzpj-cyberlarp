@@ -5,6 +5,8 @@ import com.example.cyberlarpapi.game.model.character.Attribute;
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.services.CharacterService;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
+@Tag(name = "Character Actions", description = "Actions that can be performed by a character")
 @RestController
 @RequestMapping("/action")
 public class CharacterActionsController {
@@ -26,6 +29,8 @@ public class CharacterActionsController {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record RollAttributeResponse(String message, Integer result) {
     }
+
+    @Operation(summary = "Attribute check roll", description = "Roll an attribute check for a character")
     @PostMapping("/roll/{attribute}")
     public ResponseEntity<RollAttributeResponse> roll(@AuthenticationPrincipal UserDetails userDetails,
                                                       @PathVariable String attribute,

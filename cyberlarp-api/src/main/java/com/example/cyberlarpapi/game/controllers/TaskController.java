@@ -11,6 +11,8 @@ import com.example.cyberlarpapi.game.model.task.Task;
 import com.example.cyberlarpapi.game.services.CharacterService;
 import com.example.cyberlarpapi.game.services.TaskService;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Objects;
 
+@Tag(name = "Task Operations", description = "Operations related to tasks in specific game")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/task")
@@ -57,6 +60,7 @@ public class TaskController {
         return null;
     }
 
+    @Operation(summary = "Create a new task", description = "Create a new task in the game, providing name, description, reward and character id")
     @PostMapping("/create")
     public ResponseEntity<TaskResponse> createTask(@AuthenticationPrincipal UserDetails userDetails, @RequestBody TaskRequest taskRequest) throws CharacterNotFoundException, GameNotFoundException{
         ResponseEntity<TaskResponse> response = checkCharacter(userDetails, taskRequest);
@@ -77,6 +81,7 @@ public class TaskController {
     }
 
 
+    @Operation(summary = "Update a task", description = "Update a task in the game, providing name, description, reward and character id")
     @PostMapping("/update/{id}")
     public ResponseEntity<TaskResponse> updateTask(@AuthenticationPrincipal UserDetails userDetails, @RequestBody TaskRequest taskRequest, @PathVariable Integer id) throws CharacterNotFoundException, GameNotFoundException {
         ResponseEntity<TaskResponse> response = checkCharacter(userDetails, taskRequest);
@@ -94,6 +99,7 @@ public class TaskController {
         return ResponseEntity.ok(new TaskResponse(null, task));
     }
 
+    @Operation(summary = "Delete a task", description = "Delete a task in the game by providing id")
     @PostMapping("/delete/{id}")
     public ResponseEntity<TaskResponse> deleteTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id) throws TaskNotFoundException {
         Task task;
@@ -111,6 +117,7 @@ public class TaskController {
         return ResponseEntity.ok(new TaskResponse(null, null));
     }
 
+    @Operation(summary = "Set task as complete", description = "Set task as complete in the game by providing id and reward")
     @PostMapping("/complete/{id}")
     public ResponseEntity<TaskResponse> completeTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id, @RequestParam Float reward) throws TaskNotFoundException {
         Task task;
@@ -130,6 +137,7 @@ public class TaskController {
         return ResponseEntity.ok(new TaskResponse(null, task));
     }
 
+    @Operation(summary = "Set task as incomplete", description = "Set task as incomplete in the game by providing id")
     @PostMapping("/incomplete/{id}")
     public ResponseEntity<TaskResponse> incompleteTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id) throws TaskNotFoundException {
         Task task;
@@ -148,6 +156,7 @@ public class TaskController {
         return ResponseEntity.ok(new TaskResponse(null, task));
     }
 
+    @Operation(summary = "Get task by id", description = "Get task by id")
     @GetMapping("/get/{id}")
     public ResponseEntity<TaskResponse> getTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id) throws TaskNotFoundException {
         Task task;
@@ -164,6 +173,7 @@ public class TaskController {
         return ResponseEntity.ok(new TaskResponse(null, task));
     }
 
+    @Operation(summary = "Assign task to character", description = "Assign task to character in the game by providing task id and character id")
     @PostMapping("/assign/{id}")
     public ResponseEntity<TaskResponse> assignTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id, @RequestParam Integer characterId) throws TaskNotFoundException, CharacterNotFoundException {
         Task task;
@@ -182,6 +192,7 @@ public class TaskController {
         return ResponseEntity.ok(new TaskResponse(null, task));
     }
 
+    @Operation(summary = "Unassign task from character", description = "Unassign task from character in the game by providing task id")
     @PostMapping("/unassign/{id}")
     public ResponseEntity<TaskResponse> unassignTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id) throws TaskNotFoundException {
         Task task;
@@ -200,6 +211,7 @@ public class TaskController {
         return ResponseEntity.ok(new TaskResponse(null, task));
     }
 
+    @Operation(summary = "Get all tasks assigned to character", description = "Get all tasks assigned to character in the game by providing character id")
     @GetMapping("/all/{characterId}")
     public ResponseEntity<List<Task>> getAllTasks(@PathVariable Integer characterId) throws CharacterNotFoundException, TaskNotFoundException {
         return ResponseEntity.ok(taskService.getAllTasksForCharacter(characterId));

@@ -17,6 +17,8 @@ import com.example.cyberlarpapi.game.model.character.Style;
 import com.example.cyberlarpapi.game.model.character.faction.Faction;
 import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.services.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
+@Tag(name = "Character Operations", description = "Operations on characters")
 @RestController
 @RequestMapping("/characters")
 public class CharacterController {
@@ -45,6 +48,7 @@ public class CharacterController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Get character by id")
     @GetMapping("/{id}")
     public ResponseEntity<CharacterResponse> getCharacterById(@PathVariable Integer id) {
         try {
@@ -54,6 +58,7 @@ public class CharacterController {
         }
     }
 
+    @Operation(summary = "Delete character by id and user id")
     @DeleteMapping("/{characterId}/{userId}")
     public ResponseEntity<CharacterResponse> deleteCharacter(@PathVariable Integer characterId, @PathVariable Integer userId) {
         try {
@@ -122,6 +127,7 @@ public class CharacterController {
         return characterService.save(character);
     }
 
+    @Operation(summary = "Add new character to game", description = "Add new character to game by providing character details and game id")
     @PostMapping("/game/{gameId}")
     public ResponseEntity<CharacterResponse> addCharacterToGame(@RequestBody CharacterRequest request, @PathVariable Integer gameId) {
         try {
@@ -136,6 +142,7 @@ public class CharacterController {
         }
     }
 
+    @Operation(summary = "Update character", description = "Update character by providing character details and character id")
     @PostMapping("/{id}")
     public ResponseEntity<CharacterResponse> updateCharacter(@PathVariable Integer id, @RequestBody CharacterRequest request) {
         try {
@@ -252,6 +259,7 @@ public class CharacterController {
 
     // ====================== Banking ========================== //
 
+    @Operation(summary = "Transfer money between characters", description = "Transfer money between characters by providing sender and receiver account numbers and amount")
     @PostMapping("/transfer")
     public ResponseEntity<CharacterController.BankingResponse> create(@RequestBody CharacterController.BankingRequest request) {
         try {

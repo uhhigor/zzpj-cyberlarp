@@ -9,6 +9,8 @@ import com.example.cyberlarpapi.game.model.chat.DTO.GroupChatRequest;
 import com.example.cyberlarpapi.game.model.chat.DTO.InviteUserRequest;
 import com.example.cyberlarpapi.game.model.chat.GroupChat;
 import com.example.cyberlarpapi.game.services.GroupChatService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Tag(name = "Chat Operations", description = "Operations related to group chat in specific game")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/groupChat")
@@ -32,6 +35,7 @@ public class ChatController {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @Operation(summary = "Create a new group chat", description = "Create a new group chat in the game")
     @PostMapping
     public ResponseEntity<GroupChat> createGroupChat(@RequestBody GroupChatRequest chatRequest) {
         try {
@@ -42,6 +46,7 @@ public class ChatController {
         }
     }
 
+    @Operation(summary = "Invite user to group chat", description = "Invite user to group chat in the game by providing group id and character id")
     @PostMapping("/{groupId}/invite")
     public ResponseEntity<ErrorResponse> inviteUserToGroupChat(@PathVariable Integer groupId, @RequestBody InviteUserRequest inviteUserRequest) {
         try {
@@ -54,6 +59,7 @@ public class ChatController {
         }
     }
 
+    @Operation(summary = "Accept invitation to group chat", description = "Accept invitation to group chat in the game by providing group id and character id")
     @PostMapping("/{groupId}/accept")
     public ResponseEntity<Void> acceptInvitationToGroupChat(@PathVariable Integer groupId, @RequestBody AcceptInvitationRequest acceptInvitationRequest) {
         try {
@@ -64,6 +70,7 @@ public class ChatController {
         }
     }
 
+    @Operation(summary = "Send message to group chat", description = "Send message to group chat in the game by providing group id and message content")
     @PostMapping("/{groupId}/message")
     public ResponseEntity<Void> addMessageToGroupChat(@PathVariable Integer groupId, @RequestBody ChatMessageDTO messageDTO) {
         try {
@@ -74,6 +81,7 @@ public class ChatController {
         }
     }
 
+    @Operation(summary = "Get messages from group chat", description = "Get messages from group chat in the game by providing group id")
     @GetMapping("/{groupId}/messages")
     public ResponseEntity<List<Map<String, String>>> getMessagesFromGroupChat(@PathVariable Integer groupId) throws NotFoundException {
         List<ChatMessageDTO> messages = groupChatService.getMessagesFromGroupChat(groupId);
@@ -92,12 +100,14 @@ public class ChatController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "Remove old messages", description = "Remove old messages from group chat in the game by providing group id")
     @DeleteMapping("/{groupId}/messages")
-    public ResponseEntity<Void> removeOldMessages(@PathVariable Integer groupId) throws NotFoundException {
+    public ResponseEntity<Void> removeOldMessages(@PathVariable Integer groupId) {
         groupChatService.removeOldMessages();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Operation(summary = "Check if user has access to group chat", description = "Check if user has access to group chat in the game by providing group id and character id")
     @GetMapping("/{groupId}/access")
     public ResponseEntity<Boolean> hasAccess(@PathVariable Integer groupId, @RequestParam Integer characterId) {
         try {
@@ -107,6 +117,7 @@ public class ChatController {
         }
     }
 
+    @Operation(summary = "Check if user is owner of group chat", description = "Check if user is owner of group chat in the game by providing group id and character id")
     @GetMapping("/{groupId}/owner")
     public ResponseEntity<Boolean> isOwner(@PathVariable Integer groupId, @RequestParam Integer characterId) {
         try {
@@ -116,6 +127,7 @@ public class ChatController {
         }
     }
 
+    @Operation(summary = "Get group chat", description = "Get group chat in the game by providing group id")
     @GetMapping("/{groupId}")
     public ResponseEntity<GroupChat> getGroupChat(@PathVariable Integer groupId) {
         try {
