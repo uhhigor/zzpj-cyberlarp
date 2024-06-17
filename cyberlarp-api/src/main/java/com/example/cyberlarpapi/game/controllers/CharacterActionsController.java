@@ -56,15 +56,13 @@ public class CharacterActionsController {
     }
 
     @Operation(summary = "Attribute check roll", description = "Roll an attribute check for a character")
-    @PostMapping("/roll")
-    public ResponseEntity<RollAttributeResponse> roll(@RequestBody RollAttributeRequest request, @PathVariable Integer gameId) {
+    @PostMapping("/roll/{attribute}")
+    public ResponseEntity<RollAttributeResponse> roll(@PathVariable Integer gameId, @PathVariable String attribute) {
 
         Game game;
-        Character character;
         try {
             game = gameService.getById(gameId);
-            character = characterService.getById(request.characterId);
-        } catch (GameNotFoundException | CharacterNotFoundException e) {
+        } catch (GameNotFoundException e) {
             return ResponseEntity.badRequest().body(new RollAttributeResponse(e.getMessage(), null));
         }
         _User user;
@@ -74,48 +72,57 @@ public class CharacterActionsController {
             return ResponseEntity.badRequest().body(new RollAttributeResponse(e.getMessage(), null));
         }
 
-        if(!Objects.equals(user.getId(), character.getUser().getId())) {
-            return ResponseEntity.badRequest().body(new RollAttributeResponse("You are not the owner of this character", null));
-        }
-
-        Attribute attribute;
+        Character character;
         try {
-            attribute = Attribute.valueOf(request.attribute.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new RollAttributeResponse("Invalid attribute value", null));
+            character = game.getUserCharacter(user);
+        } catch (CharacterNotFoundException e) {
+            return ResponseEntity.badRequest().body(new RollAttributeResponse(e.getMessage(), null));
         }
 
-        return ResponseEntity.ok(new RollAttributeResponse(null, character.rollAttributeCheck(attribute)));
+        Attribute attributeEnum;
+        try {
+            attributeEnum = Attribute.valueOf(attribute.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new RollAttributeResponse("Invalid attribute value: " + attribute, null));
+        }
+
+        return ResponseEntity.ok(new RollAttributeResponse(null, character.rollAttributeCheck(attributeEnum)));
     }
 
     // ====================== Banking ========================== //
 
     @Operation(summary = "Transfer money between characters", description = "Transfer money between characters by providing sender and receiver account numbers and amount")
-    @PostMapping("/moneytransfer")
+    @PostMapping("/balance/transfer")
     public ResponseEntity<BankingResponse> create(@RequestBody BankingRequest request, @PathVariable Integer gameId) {
         try {
             Game game = gameService.getById(gameId);
+            _User user = userService.getCurrentUser();
+            Character sender = game.getUserCharacter(user);
+            if(!Objects.equals(sender.getAccountNumber(), request.senderBankAccount)) {
+                return ResponseEntity.badRequest().body(new BankingResponse("Not authorized to transfer money from this account"));
+            }
+
             Transaction transaction = moneyService.transferMoney(request.senderBankAccount, request.receiverBankAccount, request.amount, game);
             return ResponseEntity.ok(new BankingResponse(transaction));
-        } catch (BankingServiceException | GameServiceException e) {
+        } catch (BankingServiceException | GameServiceException | UserServiceException e) {
             return ResponseEntity.badRequest().body(new BankingResponse(e.getMessage()));
         } catch (GameNotFoundException | CharacterNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
     @Operation(summary = "Get money transfers of character", description = "Get money transfers of character by providing bank account number")
-    @PostMapping("/moneytransfer/list")
-    public ResponseEntity<List<Transaction>> getTransactionsOfGame(@PathVariable Integer gameId, @RequestBody TransferListRequest request) {
+    @GetMapping("/balance/transfers/{bankAccount}")
+    public ResponseEntity<?> getTransactionsOfGame(@PathVariable Integer gameId, @PathVariable String bankAccount) {
         try {
             Game game = gameService.getById(gameId);
-            Character sender = characterService.getById(request.characterId);
-            String bankAccount = request.bankAccount;
+            _User user = userService.getCurrentUser();
+            Character sender = game.getUserCharacter(user);
             List<Transaction> transactions = moneyService.getTransactions(game, sender, bankAccount);
             return ResponseEntity.ok(transactions);
-        } catch (GameNotFoundException | CharacterNotFoundException e) {
+        } catch (GameNotFoundException | CharacterNotFoundException | UserServiceException e) {
             return ResponseEntity.notFound().build();
         } catch (MoneyServiceException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -126,13 +133,6 @@ public class CharacterActionsController {
         private String senderBankAccount;
         private String receiverBankAccount;
         private int amount;
-    }
-
-    @Getter
-    @NoArgsConstructor
-    public static class TransferListRequest {
-        private Integer characterId;
-        private String bankAccount;
     }
 
     @Getter
@@ -165,8 +165,8 @@ public class CharacterActionsController {
 
             public TransactionData(Transaction transaction) {
                 this.id = transaction.getId();
-                this.senderAccountNumber = transaction.getSender().getAccountNumber();
-                this.receiverAccountNumber = transaction.getReceiver().getAccountNumber();
+                this.senderAccountNumber = transaction.getSenderAccount();
+                this.receiverAccountNumber = transaction.getReceiverAccount();
                 this.amount = transaction.getAmount();
                 this.timestamp = transaction.getTimestamp();
             }

@@ -18,10 +18,6 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @ManyToOne
-    @Setter
-    private Character character;
-
     @Setter
     private String name;
 
@@ -40,14 +36,9 @@ public class Task {
     @Setter
     private Float reward;
 
+    @ManyToOne
     @Setter
-    private LocalDate deadline;
-
-    @Setter
-    private LocalDate completionDate;
-
-    @Setter
-    private LocalTime completionTime;
+    private Character assignedCharacter;
 
     public Task() {
     }
@@ -59,11 +50,6 @@ public class Task {
 
     public static class TaskBuilder {
         private final Task task = new Task();
-
-        public TaskBuilder withCharacter(Character character) {
-            task.setCharacter(character);
-            return this;
-        }
 
         public TaskBuilder withName(String name) {
             task.setName(name);
@@ -95,25 +81,7 @@ public class Task {
             return this;
         }
 
-        public TaskBuilder withDeadline(LocalDate deadline) {
-            task.setDeadline(deadline);
-            return this;
-        }
-
-        public TaskBuilder withCompletionDate(LocalDate completionDate) {
-            task.setCompletionDate(completionDate);
-            return this;
-        }
-
-        public TaskBuilder withCompletionTime(LocalTime completionTime) {
-            task.setCompletionTime(completionTime);
-            return this;
-        }
-
         public Task build() throws TaskException {
-            if (task.getCharacter() == null) {
-                throw new TaskException("Character must be set");
-            }
             return task;
         }
     }

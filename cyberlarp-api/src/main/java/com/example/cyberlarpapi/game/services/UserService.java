@@ -63,6 +63,7 @@ public class UserService {
                 if (existingUser.isEmpty()) {
                     _User user = new _User();
                     user.setEmail(email);
+                    user.setUsername(email.split("@")[0]);
                     userRepository.save(user);
                 }
             }

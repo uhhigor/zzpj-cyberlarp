@@ -1,38 +1,28 @@
 package com.example.cyberlarpapi.game.controllers;
 
-import java.util.List;
-import java.util.Optional;
-import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
-import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterServiceException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
-import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.services.CharacterService;
+import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.example.cyberlarpapi.game.model.user._User;
+
+import java.util.Optional;
 @Tag(name = "User Operations", description = "Operations related to users")
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
-    private final CharacterService characterService;
-
-    public UserController(UserService userService, CharacterService characterService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.characterService = characterService;
     }
 
     @Operation(summary = "Create a new user", description = "Create a new user in the system, providing username and email")

@@ -1,11 +1,13 @@
 package com.example.cyberlarpapi.game.model.game;
 
+import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.model.task.Task;
 import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.DefaultGameData;
 import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
 import jakarta.persistence.*;
+import javassist.NotFoundException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,6 +41,18 @@ public class Game {
 
     public void removeCharacter(Character character) {
         characters.remove(character);
+    }
+
+    public Character getUserCharacter(_User user) throws CharacterNotFoundException {
+        for(Character character : characters) {
+            if(character.getUser() == null) {
+                continue;
+            }
+            if(character.getUser().getId().equals(user.getId())) {
+                return character;
+            }
+        }
+        throw new CharacterNotFoundException("Character not found");
     }
 
     public static GameBuilder builder() {

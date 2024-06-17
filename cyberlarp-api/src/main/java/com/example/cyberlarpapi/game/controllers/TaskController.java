@@ -9,6 +9,7 @@ import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceExcepti
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.game.Game;
+import com.example.cyberlarpapi.game.model.task.Completed;
 import com.example.cyberlarpapi.game.model.task.DTO.TaskRequest;
 import com.example.cyberlarpapi.game.model.task.Task;
 import com.example.cyberlarpapi.game.model.user._User;
@@ -21,12 +22,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
-import java.util.Objects;
 
 @Tag(name = "Task Operations", description = "Operations related to tasks in specific game")
 @RestController
@@ -42,31 +42,6 @@ public class TaskController {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record TaskResponse(String message, Task task){
-    }
-
-    private ResponseEntity<TaskResponse> checkCharacter(@AuthenticationPrincipal UserDetails userDetails, TaskRequest taskRequest) {
-        if (userDetails == null) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Not logged in", null));
-        }
-        if (taskRequest.getCharacterId() == null) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Character ID is required", null));
-        }
-        Character character;
-        try {
-            character = characterService.getById(taskRequest.getCharacterId());
-        } catch (CharacterNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (!Objects.equals(character.getUser().getUsername(), userDetails.getUsername())) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Not your character", null));
-        }
-
-        if (character.getCharacterClass() != CharacterClass.FIXER) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Only Fixers can create or update tasks", null));
-        }
-
-        return null;
     }
 
     @Operation(summary = "Create new task [FIXER]", description = "Create a new task in the game, providing name, description, reward and character id")
@@ -85,38 +60,24 @@ public class TaskController {
         } catch (UserServiceException e) {
             return ResponseEntity.badRequest().body(new TaskResponse("Not logged in", null));
         }
-
-        Character character;
+        Character sender;
         try {
-            character = characterService.getById(taskRequest.getCharacterId());
+            sender = game.getUserCharacter(user);
         } catch (CharacterNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body(new TaskResponse(e.getMessage(), null));
         }
 
-        if(!game.getCharacters().contains(character)) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Character not in game", null));
-        }
-
-        if(!character.getUser().equals(user)) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Not your character", null));
-        }
-
-        if(character.getCharacterClass() != CharacterClass.FIXER) {
+        if(sender.getCharacterClass() != CharacterClass.FIXER) {
             return ResponseEntity.badRequest().body(new TaskResponse("Only Fixers can create tasks", null));
         }
 
         try {
             Task task = new Task.TaskBuilder()
-                    .withCharacter(character)
                     .withName(taskRequest.getName())
                     .withDescription(taskRequest.getDescription())
-                    .withStatus(taskRequest.getStatus())
                     .withType(taskRequest.getType())
                     .withLocation(taskRequest.getLocation())
                     .withReward(taskRequest.getReward())
-                    .withDeadline(taskRequest.getDeadline())
-                    .withCompletionDate(taskRequest.getCompletionDate())
-                    .withCompletionTime(taskRequest.getCompletionTime())
                     .build();
             task = taskService.save(task);
             game.getTasks().add(task);
@@ -144,9 +105,6 @@ public class TaskController {
         if (taskRequest.getDescription() != null) {
             task.setDescription(taskRequest.getDescription());
         }
-        if (taskRequest.getStatus() != null) {
-            task.setStatus(taskRequest.getStatus());
-        }
         if (taskRequest.getType() != null) {
             task.setType(taskRequest.getType());
         }
@@ -155,15 +113,6 @@ public class TaskController {
         }
         if (taskRequest.getReward() != null) {
             task.setReward(taskRequest.getReward());
-        }
-        if (taskRequest.getDeadline() != null) {
-            task.setDeadline(taskRequest.getDeadline());
-        }
-        if (taskRequest.getCompletionDate() != null) {
-            task.setCompletionDate(taskRequest.getCompletionDate());
-        }
-        if (taskRequest.getCompletionTime() != null) {
-            task.setCompletionTime(taskRequest.getCompletionTime());
         }
 
         task = taskService.save(task);
@@ -191,9 +140,9 @@ public class TaskController {
         return ResponseEntity.ok(new TaskResponse("Task deleted successfully", null));
     }
 
-    @Operation(summary = "Set task as complete", description = "Set task as complete in the game by providing id and reward")
-    @PostMapping("/complete/{id}")
-    public ResponseEntity<TaskResponse> completeTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id, @RequestParam Float reward) throws TaskNotFoundException {
+    @Operation(summary = "Set task status [FIXER]", description = "Set task status in the game by providing id and status")
+    @PostMapping("/{id}/status/{status}")
+    public ResponseEntity<TaskResponse> setTaskStatus(@PathVariable Integer id, @PathVariable String status, @PathVariable String gameId) {
         Task task;
 
         try {
@@ -201,38 +150,38 @@ public class TaskController {
         } catch (TaskNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-
-        if (!Objects.equals(task.getCharacter().getUser().getUsername(), userDetails.getUsername())) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Not your task", null));
-        }
-
-        taskService.completeTask(id, reward);
-
-        return ResponseEntity.ok(new TaskResponse(null, task));
-    }
-
-    @Operation(summary = "Set task as incomplete", description = "Set task as incomplete in the game by providing id")
-    @PostMapping("/incomplete/{id}")
-    public ResponseEntity<TaskResponse> incompleteTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id) throws TaskNotFoundException {
-        Task task;
+        Completed completedStatus;
 
         try {
-            task = taskService.getById(id);
-        } catch (TaskNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-        if (!Objects.equals(task.getCharacter().getUser().getUsername(), userDetails.getUsername())) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Not your task", null));
+            completedStatus = Completed.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new TaskResponse("Invalid status", null));
         }
 
-        taskService.incompleteTask(id);
+        if(completedStatus == Completed.SUCCESS) {
+            taskService.completeTask(task, task.getAssignedCharacter());
+        } else {
+            taskService.setTaskStatus(task, completedStatus);
+        }
 
         return ResponseEntity.ok(new TaskResponse(null, task));
     }
 
     @Operation(summary = "Get task by id", description = "Get task by id")
-    @GetMapping("/get/{id}")
-    public ResponseEntity<TaskResponse> getTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id) throws TaskNotFoundException {
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskResponse> getTask(@PathVariable Integer id, @PathVariable String gameId) {
+        Task task;
+        try {
+            task = taskService.getById(id);
+        } catch (TaskNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(new TaskResponse(null, task));
+    }
+
+    @Operation(summary = "Assign task to character [FIXER]", description = "Assign task to character in the game by providing task id and character id")
+    @PostMapping("/{id}/assignCharacter/{characterId}")
+    public ResponseEntity<TaskResponse> assignTask(@PathVariable Integer id, @PathVariable Integer characterId, @PathVariable String gameId) throws TaskNotFoundException, CharacterNotFoundException {
         Task task;
 
         try {
@@ -240,54 +189,44 @@ public class TaskController {
         } catch (TaskNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        if (!Objects.equals(task.getCharacter().getUser().getUsername(), userDetails.getUsername())) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Not your task", null));
+
+        Character character;
+        try {
+            character = characterService.getById(characterId);
+        } catch (CharacterNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
 
+        taskService.assignTask(task, character);
         return ResponseEntity.ok(new TaskResponse(null, task));
     }
 
-    @Operation(summary = "Assign task to character", description = "Assign task to character in the game by providing task id and character id")
-    @PostMapping("/assign/{id}")
-    public ResponseEntity<TaskResponse> assignTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id, @RequestParam Integer characterId) throws TaskNotFoundException, CharacterNotFoundException {
+    @Operation(summary = "Deassign task [FIXER]", description = "Deassign task in the game by providing task id")
+    @PostMapping("/{id}/deassignCharacter")
+    public ResponseEntity<TaskResponse> deassignTask(@PathVariable Integer id, @PathVariable String gameId) {
         Task task;
-
         try {
             task = taskService.getById(id);
         } catch (TaskNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        if (!Objects.equals(task.getCharacter().getUser().getUsername(), userDetails.getUsername())) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Not your task", null));
-        }
 
-        taskService.assignTask(id, characterId);
-
+        taskService.deassignTask(task, task.getAssignedCharacter());
         return ResponseEntity.ok(new TaskResponse(null, task));
     }
 
-    @Operation(summary = "Unassign task from character", description = "Unassign task from character in the game by providing task id")
-    @PostMapping("/unassign/{id}")
-    public ResponseEntity<TaskResponse> unassignTask(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Integer id) throws TaskNotFoundException {
-        Task task;
-
-        try {
-            task = taskService.getById(id);
-        } catch (TaskNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-        if (!Objects.equals(task.getCharacter().getUser().getUsername(), userDetails.getUsername())) {
-            return ResponseEntity.badRequest().body(new TaskResponse("Not your task", null));
-        }
-
-        taskService.unassignTask(id);
-
-        return ResponseEntity.ok(new TaskResponse(null, task));
-    }
 
     @Operation(summary = "Get all tasks assigned to character", description = "Get all tasks assigned to character in the game by providing character id")
-    @GetMapping("/all/{characterId}")
-    public ResponseEntity<List<Task>> getAllTasks(@PathVariable Integer characterId) throws CharacterNotFoundException, TaskNotFoundException {
-        return ResponseEntity.ok(taskService.getAllTasksForCharacter(characterId));
+    @GetMapping("/character/{characterId}")
+    public ResponseEntity<List<Task>> getAllTasks(@PathVariable Integer characterId, @PathVariable String gameId) {
+        Character character;
+        try {
+            character = characterService.getById(characterId);
+        } catch (CharacterNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Task> tasks = character.getTasks();
+        return ResponseEntity.ok(tasks);
     }
 }

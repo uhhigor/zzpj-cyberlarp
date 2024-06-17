@@ -2,7 +2,7 @@ package com.example.cyberlarpapi.game.model.character;
 
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterException;
 import com.example.cyberlarpapi.game.model.Transaction;
-import com.example.cyberlarpapi.game.model.game.Game;
+import com.example.cyberlarpapi.game.model.task.Task;
 import com.example.cyberlarpapi.game.model.user._User;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -56,10 +56,7 @@ public class Character {
     @Setter
     private Float balance;
     @Getter
-    String accountNumber = "#" + RandomStringUtils.randomNumeric(6);
-
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Transaction> transactions;
+    String accountNumber = RandomStringUtils.randomNumeric(6);
 
     // ATTRIBUTES
 
@@ -81,6 +78,10 @@ public class Character {
     private int currentHp;
     @Getter
     private int armor;
+
+    // TASKS
+    @OneToMany(mappedBy = "assignedCharacter")
+    private List<Task> tasks;
 
     public int rollAttributeCheck(Attribute attribute) {
         return new Random().nextInt(20) + getAttribute(attribute);

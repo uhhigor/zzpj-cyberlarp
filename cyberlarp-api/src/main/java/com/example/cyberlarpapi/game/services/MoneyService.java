@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,14 +38,14 @@ public class MoneyService {
             throw new BankingServiceException("Not enough money on sender's bank account.");
         }
 
+        Transaction newTransaction = new Transaction(senderAccountNumber, receiverAccountNumber, amount, LocalDateTime.now());
+        newTransaction = transactionRepository.save(newTransaction);
+
         sender.setBalance(sender.getBalance() - amount);
         receiver.setBalance(receiver.getBalance() + amount);
 
         characterService.save(sender);
         characterService.save(receiver);
-
-        Transaction newTransaction = new Transaction(sender, receiver, amount, LocalDateTime.now());
-        transactionRepository.save(newTransaction);
         return newTransaction;
     }
 
@@ -56,15 +57,16 @@ public class MoneyService {
 
     // ====================== Banking ========================== //
 
-    public void addTransaction(Transaction transaction, Character character) throws GameServiceException {
-        character.getTransactions().add(transaction);
-        characterService.save(character);
-    }
-
     public List<Transaction> getTransactions(Game game, Character sender, String characterBankNumber) throws CharacterNotFoundException, MoneyServiceException {
         Character character = getCharacterByBankAccountNumber(game, characterBankNumber);
         if (character.getCharacterClass() == CharacterClass.NETRUNNER || character.getId().equals(sender.getId())) {
-            return character.getTransactions();
+            List<Transaction> result = new ArrayList<>();
+            for (Transaction transaction : transactionRepository.findAll()) {
+                if (transaction.getSenderAccount().equals(characterBankNumber) || transaction.getReceiverAccount().equals(characterBankNumber)) {
+                    result.add(transaction);
+                }
+            }
+            return result;
         } else {
             throw new MoneyServiceException("You are not allowed to see transactions of this character.");
         }

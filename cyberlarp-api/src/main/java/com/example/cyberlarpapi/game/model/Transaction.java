@@ -13,19 +13,17 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @ManyToOne
-    private Character sender;
+    private String senderAccount;
 
-    @ManyToOne
-    private Character receiver;
+    private String receiverAccount;
 
     private int amount;
 
     private LocalDateTime timestamp;
 
-    public Transaction(Character sender, Character receiver, int amount, LocalDateTime timestamp) {
-        this.sender = sender;
-        this.receiver = receiver;
+    public Transaction(String senderAccount, String receiverAccount, int amount, LocalDateTime timestamp) {
+        this.senderAccount = senderAccount;
+        this.receiverAccount = receiverAccount;
         this.amount = amount;
         this.timestamp = timestamp;
     }
