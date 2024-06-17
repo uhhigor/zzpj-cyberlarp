@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
-@Controller
+@RestController
 @RequestMapping("/characters")
 public class CharacterController {
 

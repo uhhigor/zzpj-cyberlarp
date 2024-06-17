@@ -19,7 +19,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.example.cyberlarpapi.game.model.user._User;
-@Controller
+@RestController
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;

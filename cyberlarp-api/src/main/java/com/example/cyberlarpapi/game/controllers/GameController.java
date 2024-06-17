@@ -20,7 +20,7 @@ import com.example.cyberlarpapi.game.model.character.Character;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/game")
 public class GameController {
     private final GameService gameService;
