@@ -4,7 +4,6 @@ import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceExcepti
 import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,16 +24,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Create a new user", description = "Create a new user in the system, providing username and email")
-    @PostMapping
-    public ResponseEntity<Object> createUser(@RequestBody UserRequest request) {
-            _User user = new _User();
-            user.setUsername(request.username);
-            user.setEmail(request.email);
-            return ResponseEntity.ok(userService.save(user));
-    }
-
-    @Operation(summary = "Get current user info", description = "Get current user")
+    @Operation(summary = "Get current user", description = "Get current user info or create a new user if not exists")
     @GetMapping("/user")
     public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal OidcUser oidcUser) {
         if (oidcUser == null) {
@@ -64,15 +54,6 @@ public class UserController {
         } catch (UserServiceException e) {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @Schema(hidden = true)
-    public static class UserRequest {
-        private String username;
-
-        private String email;
     }
 
     @Getter

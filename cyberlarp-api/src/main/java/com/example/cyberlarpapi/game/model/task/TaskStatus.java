@@ -1,6 +1,6 @@
 package com.example.cyberlarpapi.game.model.task;
 
-public enum Completed {
+public enum TaskStatus {
     SUCCESS,
     FAILURE,
     IN_PROGRESS,

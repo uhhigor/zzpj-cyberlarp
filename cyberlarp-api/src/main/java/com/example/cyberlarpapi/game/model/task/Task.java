@@ -2,13 +2,9 @@ package com.example.cyberlarpapi.game.model.task;
 
 import com.example.cyberlarpapi.game.exceptions.TaskException.TaskException;
 import com.example.cyberlarpapi.game.model.character.Character;
-import com.example.cyberlarpapi.game.model.game.Game;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -25,7 +21,7 @@ public class Task {
     private String description;
 
     @Setter
-    private Completed status;
+    private TaskStatus status = TaskStatus.IN_PROGRESS;
 
     @Setter
     private String type;
@@ -58,11 +54,6 @@ public class Task {
 
         public TaskBuilder withDescription(String description) {
             task.setDescription(description);
-            return this;
-        }
-
-        public TaskBuilder withStatus(Completed status) {
-            task.setStatus(status);
             return this;
         }
 

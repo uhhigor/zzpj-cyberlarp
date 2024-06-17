@@ -9,7 +9,7 @@ import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceExcepti
 import com.example.cyberlarpapi.game.model.character.Character;
 import com.example.cyberlarpapi.game.model.character.CharacterClass;
 import com.example.cyberlarpapi.game.model.game.Game;
-import com.example.cyberlarpapi.game.model.task.Completed;
+import com.example.cyberlarpapi.game.model.task.TaskStatus;
 import com.example.cyberlarpapi.game.model.task.DTO.TaskRequest;
 import com.example.cyberlarpapi.game.model.task.Task;
 import com.example.cyberlarpapi.game.model.user._User;
@@ -24,8 +24,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Tag(name = "Task Operations", description = "Operations related to tasks in specific game")
@@ -150,18 +148,18 @@ public class TaskController {
         } catch (TaskNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        Completed completedStatus;
+        TaskStatus taskStatusStatus;
 
         try {
-            completedStatus = Completed.valueOf(status.toUpperCase());
+            taskStatusStatus = TaskStatus.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new TaskResponse("Invalid status", null));
         }
 
-        if(completedStatus == Completed.SUCCESS) {
+        if(taskStatusStatus == TaskStatus.SUCCESS) {
             taskService.completeTask(task, task.getAssignedCharacter());
         } else {
-            taskService.setTaskStatus(task, completedStatus);
+            taskService.setTaskStatus(task, taskStatusStatus);
         }
 
         return ResponseEntity.ok(new TaskResponse(null, task));
@@ -216,17 +214,39 @@ public class TaskController {
     }
 
 
-    @Operation(summary = "Get all tasks assigned to character", description = "Get all tasks assigned to character in the game by providing character id")
-    @GetMapping("/character/{characterId}")
-    public ResponseEntity<List<Task>> getAllTasks(@PathVariable Integer characterId, @PathVariable String gameId) {
+    @Operation(summary = "Get all tasks assigned to character", description = "Get all tasks assigned to your character in the game")
+    @GetMapping("/")
+    public ResponseEntity<List<Task>> getCharacterTasks(@PathVariable Integer gameId) {
+        _User user;
+        try {
+            user = userService.getCurrentUser();
+        } catch (UserServiceException e) {
+            return ResponseEntity.badRequest().build();
+        }
+        Game game;
+        try {
+            game = gameService.getById(gameId);
+        } catch (GameNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
         Character character;
         try {
-            character = characterService.getById(characterId);
+            character = game.getUserCharacter(user);
         } catch (CharacterNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(character.getTasks());
+    }
 
-        List<Task> tasks = character.getTasks();
-        return ResponseEntity.ok(tasks);
+    @Operation(summary = "Get all tasks in the game", description = "Get all tasks in the game")
+    @GetMapping("/all")
+    public ResponseEntity<List<Task>> getAllTasks(@PathVariable Integer gameId) {
+        Game game;
+        try {
+            game = gameService.getById(gameId);
+        } catch (GameNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(game.getTasks());
     }
 }
