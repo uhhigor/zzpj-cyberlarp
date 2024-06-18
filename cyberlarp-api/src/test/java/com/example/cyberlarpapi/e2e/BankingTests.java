@@ -1,6 +1,7 @@
 package com.example.cyberlarpapi.e2e;
 
 
+import com.example.cyberlarpapi.e2e.secutity.CustomSecurityPostProcessor;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,10 +10,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.io.UnsupportedEncodingException;
 
@@ -28,6 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BankingTests {
     @Autowired
+    private WebApplicationContext context;
+
+    @Autowired
     private MockMvc mockMvc;
     MvcResult character1;
     MvcResult character2;
@@ -35,6 +43,12 @@ public class BankingTests {
 
     @BeforeEach
     public void setup() {
+            mockMvc = MockMvcBuilders
+                    .webAppContextSetup(context)
+                    .apply(SecurityMockMvcConfigurers.springSecurity())
+                    .defaultRequest(MockMvcRequestBuilders.get("/").with(CustomSecurityPostProcessor.applySecurity()))
+                    .build();
+
         String userRequest = """
                 {
                 "username": "user1"
