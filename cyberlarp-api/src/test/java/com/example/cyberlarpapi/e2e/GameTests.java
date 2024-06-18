@@ -1,4 +1,4 @@
-package com.example.cyberlarpapi;
+package com.example.cyberlarpapi.e2e;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

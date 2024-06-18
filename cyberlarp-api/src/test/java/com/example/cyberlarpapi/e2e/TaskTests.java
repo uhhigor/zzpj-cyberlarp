@@ -1,6 +1,5 @@
-package com.example.cyberlarpapi;
+package com.example.cyberlarpapi.e2e;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -100,29 +98,29 @@ class TaskTests {
                 .andExpect(jsonPath("$.character.id").exists());
     }
 
-    private void createTask() throws Exception {
-        String taskRequest = """
-                {
-                "characterId": 1,
-                "name": "Task 1",
-                "description": "This is an example task",
-                "status": "IN_PROGRESS",
-                "type": "DELIVERY",
-                "location": "Location 1",
-                "reward": 100.0,
-                "deadline": "2022-12-31",
-                "completionDate": "2022-12-31",
-                "completionTime": "12:00"
-                }
-                """;
+    private void createTask(int characterId) throws Exception {
+        String taskRequest = String.format("""
+            {
+            "characterId": %d,
+            "name": "Task 1",
+            "description": "This is an example task",
+            "status": "IN_PROGRESS",
+            "type": "DELIVERY",
+            "location": "Location 1",
+            "reward": 100.0,
+            "deadline": "2022-12-31",
+            "completionDate": "2022-12-31",
+            "completionTime": "12:00"
+            }
+            """, characterId);
 
-         mockMvc.perform(post("/task/create")
+        mockMvc.perform(post("/task/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(taskRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.task.id").exists())
-                .andReturn();
+                .andExpect(jsonPath("$.task.id").exists());
     }
+
 
 
 
@@ -265,7 +263,7 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void updateTask_Success() throws Exception {
-        createTask();
+        createTask(1);
         String taskRequest = """
                 {
                 "characterId": 1,
@@ -337,7 +335,7 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void getTask_Success() throws Exception {
-        createTask();
+        createTask(1);
 
         try {
             mockMvc.perform(get("/task/get/1"))
@@ -376,7 +374,7 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void deleteTask_Success() throws Exception {
-        createTask();
+        createTask(1);
 
         try {
             mockMvc.perform(post("/task/delete/1"))
@@ -404,7 +402,7 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void completeTask_Success() throws Exception {
-        createTask();
+        createTask(1);
 
         try {
             mockMvc.perform(post("/task/complete/1?reward=100"))
@@ -430,7 +428,7 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void incompleteTask_Success() throws Exception {
-        createTask();
+        createTask(1);
 
         try {
             mockMvc.perform(post("/task/incomplete/1"))
@@ -456,7 +454,7 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void assignTask_Success() throws Exception {
-        createTask();
+        createTask(1);
 
         try {
             mockMvc.perform(post("/task/assign/1?characterId=2"))
@@ -478,5 +476,35 @@ class TaskTests {
         }
     }
 
+    @Test
+    @WithMockUser(username = "user1")
+    void unassignTaskSuccessfully() throws Exception {
+        createTask(1);
+
+        try {
+            mockMvc.perform(post("/task/unassign/1"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.task.id").exists())
+                    .andExpect(jsonPath("$.task.name").value("Task 1"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+    }
+
+    @Test
+    @WithMockUser(username = "user1")
+    void getTasksForCharacter() throws Exception {
+        createTask(1);
+        createTask(1);
+
+        mockMvc.perform(get("/task/all/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].character.id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Task 1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].character").value(1));
+    }
 
 }
