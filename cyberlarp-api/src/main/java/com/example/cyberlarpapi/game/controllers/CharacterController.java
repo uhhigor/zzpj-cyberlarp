@@ -57,7 +57,21 @@ public class CharacterController {
         } catch (GameNotFoundException | UserServiceException e) {
             return ResponseEntity.badRequest().body(new CharacterResponse(e.getMessage()));
         }
-        return ResponseEntity.badRequest().body(new CharacterResponse("Character not found"));
+        return ResponseEntity.badRequest().body(new CharacterResponse("You are not allowed to view this character"));
+    }
+
+    @Operation(summary = "Get current character [Player]", description = "Get current character by providing game id")
+    @GetMapping("/")
+    public ResponseEntity<CharacterResponse> getCharacterById(@PathVariable Integer gameId) {
+        try {
+            Game game = gameService.getById(gameId);
+            _User sender = userService.getCurrentUser();
+            return ResponseEntity.ok(new CharacterResponse(game.getUserCharacter(sender)));
+        } catch (CharacterNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (GameNotFoundException | UserServiceException e) {
+            return ResponseEntity.badRequest().body(new CharacterResponse(e.getMessage()));
+        }
     }
 
     @Operation(summary = "Delete character by id [GM]", description = "Delete character by id by providing character id and game id")
