@@ -83,30 +83,34 @@ public class CharacterTests {
                 .andExpect(status().isOk());
     }
 
-    private void createCharacter(Integer userId, Integer gameId, String characterName) throws Exception {
+    private void createCharacter(Integer gameId, String characterName) throws Exception {
         String characterRequest = String.format("""
-                {
-                "userId": %d,
-                "gameId": %d,
-                "name": "%s",
-                "description": "This is an example character",
-                "characterClass": "PUNK",
-                "factionId": null,
-                "style": "KITSCH",
-                "strength": 10,
-                "agility": 2,
-                "presence": 2,
-                "toughness": 2,
-                "knowledge": 4,
-                "maxHp": 10,
-                "currentHp": 10,
-                "balance": 10
-                }
-                """, userId, gameId, characterName);
+           {
+           "name": "%s",
+           "description": "This is an example character",
+           "characterClass": "PUNK",
+           "faction": "GOVERNMENT",
+           "style": "KITSCH",
+           "strength": 10,
+           "agility": 2,
+           "presence": 2,
+           "toughness": 2,
+           "knowledge": 4,
+           "maxHp": 10,
+           "currentHp": 10,
+           "balance": 1000
+           }
+            """, characterName);
 
-        mockMvc.perform(post("/characters/game/" + gameId)
+        mockMvc.perform(post("/game/" + gameId + "/character/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(characterRequest))
+                .andExpect(status().isOk());
+    }
+
+    private void assignCharacterToUser(Integer gameId, Integer userId, Integer characterId) throws Exception {
+        mockMvc.perform(post("/game/" + gameId + "/character/"+ characterId+"/assignUser/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -115,7 +119,7 @@ public class CharacterTests {
         try {
             Integer userId = createUser("user1");
             createGame(userId, "Game 1");
-            createCharacter(userId, 1, "Character 1");
+            createCharacter( 1, "Character 1");
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -129,25 +133,23 @@ public class CharacterTests {
             createGame(userId, "Game 1");
 
             String characterRequest = """
-                    {
-                    "userId": %d,
-                    "gameId": 1,
-                    "description": "This is an example character",
-                    "characterClass": "PUNK",
-                    "factionId": null,
-                    "style": "KITSCH",
-                    "strength": 10,
-                    "agility": 2,
-                    "presence": 2,
-                    "toughness": 2,
-                    "knowledge": 4,
-                    "maxHp": 10,
-                    "currentHp": 10,
-                    "balance": 10
-                    }
-                    """.formatted(userId);
+           {
+           "description": "This is an example character",
+           "characterClass": "PUNK",
+           "faction": "GOVERNMENT",
+           "style": "KITSCH",
+           "strength": 10,
+           "agility": 2,
+           "presence": 2,
+           "toughness": 2,
+           "knowledge": 4,
+           "maxHp": 10,
+           "currentHp": 10,
+           "balance": 1000
+           }
+            """;
 
-            mockMvc.perform(post("/characters/game/1")
+            mockMvc.perform(post("/game/1/character/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(characterRequest))
                     .andExpect(status().isBadRequest())
@@ -155,12 +157,10 @@ public class CharacterTests {
 
             characterRequest = """
                     {
-                    "userId": %d,
-                    "gameId": 1,
                     "name": "Character 1",
                     "description": "This is an example character",
                     "characterClass": "PUNK",
-                    "factionId": null,
+                    "faction": "GOVERNMENT",
                     "style": "KITSCH",
                     "strength": 10,
                     "agility": 2,
@@ -171,9 +171,9 @@ public class CharacterTests {
                     "currentHp": 10,
                     "balance": 10
                     }
-                    """.formatted(userId);
+                    """;
 
-            mockMvc.perform(post("/characters/game/1")
+            mockMvc.perform(post("/game/1/character/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(characterRequest))
                     .andExpect(status().isBadRequest())
@@ -181,12 +181,10 @@ public class CharacterTests {
 
             characterRequest = """
                     {
-                    "userId": %d,
-                    "gameId": 1,
                     "name": "Character 1",
                     "description": "This is an example character",
                     "characterClass": "INVALID",
-                    "factionId": null,
+                    "faction": "GOVERNMENT",
                     "style": "KITSCH",
                     "strength": 10,
                     "agility": 2,
@@ -197,9 +195,9 @@ public class CharacterTests {
                     "currentHp": 10,
                     "balance": 10
                     }
-                    """.formatted(userId);
+                    """;
 
-            mockMvc.perform(post("/characters/game/1")
+            mockMvc.perform(post("/game/1/character/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(characterRequest))
                     .andExpect(status().isBadRequest())
@@ -207,12 +205,10 @@ public class CharacterTests {
 
             characterRequest = """
                     {
-                    "userId": %d,
-                    "gameId": 1,
                     "name": "Character 1",
                     "description": "This is an example character",
                     "characterClass": "PUNK",
-                    "factionId": null,
+                    "faction": "GOVERNMENT",
                     "style": "INVALID",
                     "strength": 10,
                     "agility": 2,
@@ -223,9 +219,9 @@ public class CharacterTests {
                     "currentHp": 10,
                     "balance": 10
                     }
-                    """.formatted(userId);
+                    """;
 
-            mockMvc.perform(post("/characters/game/1")
+            mockMvc.perform(post("/game/1/character/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(characterRequest))
                     .andExpect(status().isBadRequest())
@@ -233,12 +229,10 @@ public class CharacterTests {
 
             characterRequest = """
                     {
-                    "userId": %d,
-                    "gameId": 1,
                     "name": "Character 1",
                     "description": "This is an example character",
                     "characterClass": "PUNK",
-                    "factionId": 99,
+                    "faction": "INVALID",
                     "style": "KITSCH",
                     "strength": 10,
                     "agility": 2,
@@ -249,9 +243,9 @@ public class CharacterTests {
                     "currentHp": 10,
                     "balance": 10
                     }
-                    """.formatted(userId);
+                    """;
 
-            mockMvc.perform(post("/characters/game/1")
+            mockMvc.perform(post("/game/1/character/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(characterRequest))
                     .andExpect(status().isBadRequest())
@@ -267,28 +261,14 @@ public class CharacterTests {
         try {
             Integer userId = createUser("user1");
             createGame(userId, "Game 1");
-            createCharacter(userId, 1, "Character 1");
-
-            String factionRequest = """
-                    {
-                    "name": "Faction 1",
-                    "description": "This is an example faction"
-                    }
-                    """;
-
-            mockMvc.perform(post("/factions")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(factionRequest))
-                    .andExpect(status().is(201));
+            createCharacter( 1, "Character 1");
 
             String characterRequest = """
                     {
-                    "userId": %d,
-                    "gameId": 1,
                     "name": "Changed 1",
                     "description": "This is an example changed",
                     "characterClass": "PUNK",
-                    "factionId": 1,
+                    "faction": "GOVERNMENT",
                     "style": "KITSCH",
                     "strength": 10,
                     "agility": 2,
@@ -299,13 +279,13 @@ public class CharacterTests {
                     "currentHp": 10,
                     "balance": 10
                     }
-                    """.formatted(userId);
+                    """;
 
-            mockMvc.perform(post("/characters/1")
+            mockMvc.perform(post("/game/1/character/4")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(characterRequest))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.message").value("Character 1 updated successfully"))
+                    .andExpect(jsonPath("$.message").value("Character 4 updated successfully"))
                     .andExpect(jsonPath("$.character.name").value("Changed 1"))
                     .andExpect(jsonPath("$.character.description").value("This is an example changed"));
         } catch (Exception e) {
@@ -319,9 +299,9 @@ public class CharacterTests {
         try {
             Integer userId = createUser("user1");
             createGame(userId, "Game 1");
-            createCharacter(userId, 1, "Character 1");
+            createCharacter( 1, "Character 1");
 
-            mockMvc.perform(delete("/characters/1/1"))
+            mockMvc.perform(delete("/game/1/character/4"))
                     .andExpect(status().isOk());
         } catch (Exception e) {
             e.printStackTrace();
@@ -334,15 +314,11 @@ public class CharacterTests {
     public void rollAttributeForCharacter() {
         try {
             createGame(1, "Game 1");
-            createCharacter(1, 1, "Character 1");
+            createCharacter( 1, "Character 1");
+            assignCharacterToUser(1, 1, 4);
 
-            mockMvc.perform(post("/action/roll/strength")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-                                    {
-                                    "characterId": 1
-                                    }
-                                    """))
+            mockMvc.perform(post("/game/1/action/roll/strength")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").isNumber());
         } catch (Exception e) {
@@ -353,19 +329,15 @@ public class CharacterTests {
 
     @Test
     @WithMockUser(username = "user1")
-    public void rollAttributeForCharacterWithInvalidData() {
+    public void rollAttributeForCharacterWithNoCharacterAssignedToUser() {
         try {
             createGame(1, "Game 1");
-            createCharacter(1, 1, "Character 1");
+            createCharacter( 1, "Character 1");
 
-            mockMvc.perform(post("/action/roll/strength")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-                                    {
-                                    }
-                                    """))
+            mockMvc.perform(post("/game/1/action/roll/strength")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Character ID is required"));
+                    .andExpect(jsonPath("$.message").value("Character not found"));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -377,17 +349,12 @@ public class CharacterTests {
     public void rollAttributeForCharacterWithInvalidAttribute() {
         try {
             createGame(1, "Game 1");
-            createCharacter(1, 1, "Character 1");
-
-            mockMvc.perform(post("/action/roll/invalid")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-                                    {
-                                    "characterId": 1
-                                    }
-                                    """))
+            createCharacter( 1, "Character 1");
+            assignCharacterToUser(1, 1, 4);
+            mockMvc.perform(post("/game/1/action/roll/invalid")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Invalid attribute"));
+                    .andExpect(jsonPath("$.message").value("Invalid attribute value: invalid"));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
