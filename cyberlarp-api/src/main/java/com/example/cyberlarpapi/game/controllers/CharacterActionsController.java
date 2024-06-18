@@ -104,9 +104,9 @@ public class CharacterActionsController {
 
             Transaction transaction = moneyService.transferMoney(request.senderBankAccount, request.receiverBankAccount, request.amount, game);
             return ResponseEntity.ok(new BankingResponse(transaction));
-        } catch (BankingServiceException | GameServiceException | UserServiceException e) {
+        } catch (BankingServiceException | GameServiceException | UserServiceException | CharacterNotFoundException e) {
             return ResponseEntity.badRequest().body(new BankingResponse(e.getMessage()));
-        } catch (GameNotFoundException | CharacterNotFoundException e) {
+        } catch (GameNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -119,9 +119,9 @@ public class CharacterActionsController {
             Character sender = game.getUserCharacter(user);
             List<Transaction> transactions = moneyService.getTransactions(game, sender, bankAccount);
             return ResponseEntity.ok(transactions);
-        } catch (GameNotFoundException | CharacterNotFoundException | UserServiceException e) {
+        } catch (GameNotFoundException | UserServiceException e) {
             return ResponseEntity.notFound().build();
-        } catch (MoneyServiceException e) {
+        } catch (MoneyServiceException | CharacterNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

@@ -129,8 +129,8 @@ public class CharacterController {
                 .balance(request.getBalance())
                 .build();
         Character savedCharacter = characterService.save(character);
-        game.addCharacter(savedCharacter);
-        gameService.save(game);
+//        game.addCharacter(savedCharacter);
+//        gameService.save(game);
         return savedCharacter;
     }
 
