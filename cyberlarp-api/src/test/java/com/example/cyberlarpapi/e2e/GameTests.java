@@ -13,6 +13,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -36,14 +37,14 @@ public class GameTests {
     @Autowired
     private MockMvc mockMvc;
 
-//    @BeforeEach
-//    public void setup() {
-//        mockMvc = MockMvcBuilders
-//                .webAppContextSetup(context)
-//                .apply(SecurityMockMvcConfigurers.springSecurity())
-//                .defaultRequest(CustomSecurityPostProcessor.applySecurity())
-//                .build();
-//    }
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .defaultRequest(MockMvcRequestBuilders.get("/").with(CustomSecurityPostProcessor.applySecurity()))
+                .build();
+    }
 
     // Scenario 1: Create a new game
     // 1. Create new user
@@ -58,7 +59,6 @@ public class GameTests {
 
         try {
             mockMvc.perform(get("/users/user")
-                            .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -78,7 +78,6 @@ public class GameTests {
 
         try {
             mockMvc.perform(post("/game")
-                            .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(gameRequest))
                     .andExpect(status().isOk())
@@ -103,7 +102,6 @@ public class GameTests {
 
         try {
             mockMvc.perform(get("/users/user")
-                            .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -170,7 +168,6 @@ public class GameTests {
 
         try {
             mockMvc.perform(get("/users/user")
-                            .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -207,7 +204,6 @@ public class GameTests {
 
         try {
             mockMvc.perform(get("/users/user")
-                            .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest2))
                     .andExpect(status().isOk())
@@ -270,7 +266,6 @@ public class GameTests {
 
         try {
             mockMvc.perform(get("/users/user")
-                            .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -349,7 +344,6 @@ public class GameTests {
 
         try {
             mockMvc.perform(get("/users/user")
-                            .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -420,8 +414,7 @@ public class GameTests {
 
             try {
                 mockMvc.perform(get("/users/user")
-                                .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
-                                .contentType(MediaType.APPLICATION_JSON)
+                                    .contentType(MediaType.APPLICATION_JSON)
                                 .content(userRequest))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id").exists());
@@ -457,8 +450,7 @@ public class GameTests {
 
             try {
                 mockMvc.perform(get("/users/user")
-                                .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
-                                .contentType(MediaType.APPLICATION_JSON)
+                                    .contentType(MediaType.APPLICATION_JSON)
                                 .content(userRequest2))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id").exists());
@@ -512,8 +504,7 @@ public class GameTests {
 
             try {
                 mockMvc.perform(get("/users/user")
-                                .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
-                                .contentType(MediaType.APPLICATION_JSON)
+                                    .contentType(MediaType.APPLICATION_JSON)
                                 .content(userRequest))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id").exists());
