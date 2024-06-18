@@ -69,11 +69,15 @@ public class GameService {
     }
 
     public void addMessageToGame(Integer gameId, Message message) {
-        for (Game game : this.gameRepository.findAll()) {
-            if (game.getId().equals(gameId)) {
-                game.addMessage(message);
-                gameRepository.save(game);
+        try {
+            for (Game game : this.gameRepository.findAll()) {
+                if (game.getId().equals(gameId)) {
+                    game.addMessage(message);
+                    gameRepository.save(game);
+                }
             }
+        } catch (Exception e) {
+            throw new InvalidFactionException("Invalid faction");
         }
     }
 

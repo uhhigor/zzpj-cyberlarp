@@ -5,9 +5,14 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 public class CustomSecurityPostProcessor {
-    public static RequestPostProcessor applySecurity() {
+    public static RequestPostProcessor applySecurityForUser1() {
         OidcLoginRequestPostProcessor oidcLogin = SecurityMockMvcRequestPostProcessors.oidcLogin()
                 .idToken(token -> token.claim("email", "user1@example.com"));
         return oidcLogin;
+    }
+
+    public static RequestPostProcessor applySecurityForUser2() {
+        return SecurityMockMvcRequestPostProcessors.oidcLogin()
+                .idToken(token -> token.claim("email", "user2@example.com"));
     }
 }

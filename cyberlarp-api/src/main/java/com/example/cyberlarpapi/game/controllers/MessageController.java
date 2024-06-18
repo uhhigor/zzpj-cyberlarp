@@ -42,6 +42,9 @@ public class MessageController {
             String content = messageRequest.content;
             SCOPE scope = messageRequest.scope;
             Message message = new Message(character, scope, content);
+            if (!messageRequest.scope.toString().equals(character.getFaction().toString())){
+                return ResponseEntity.badRequest().build();
+            }
             gameService.addMessageToGame(gameId, message);
             return ResponseEntity.ok("Message " + message.getContent() + " sent in game " + game.getName());
         } catch (GameNotFoundException | MessageNotFoundException | CharacterNotFoundException e) {
@@ -69,15 +72,6 @@ public class MessageController {
         } catch (InvalidFactionException | UserServiceException e) {
             return ResponseEntity.badRequest().build();
         }
-    }
-
-    public static class MessageResponse {
-        private final String message;
-
-        public MessageResponse(String message) {
-            this.message = message;
-        }
-
     }
 
 
