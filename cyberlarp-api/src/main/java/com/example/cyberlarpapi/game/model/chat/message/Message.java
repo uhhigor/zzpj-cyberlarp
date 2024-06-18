@@ -1,6 +1,7 @@
 package com.example.cyberlarpapi.game.model.chat.message;
 
 import com.example.cyberlarpapi.game.model.character.Character;
+import com.example.cyberlarpapi.game.model.chat.SCOPE;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BroadcastMessage {
+public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -22,12 +23,20 @@ public class BroadcastMessage {
     private Character sender;
 
     @Column(nullable = false)
-    private String scope;
+    private SCOPE scope;
 
     @Column(nullable = false)
     private String content;
 
-    public BroadcastMessage(Character sender, String scope, String content) {
+    public Message(Character sender, SCOPE scope, String content) {
+        this.timestamp = LocalDateTime.now();
+        this.sender = sender;
+        this.scope = scope;
+        this.content = content;
+    }
+
+    public Message(Integer id, Character sender, SCOPE scope, String content) {
+        this.id = id;
         this.timestamp = LocalDateTime.now();
         this.sender = sender;
         this.scope = scope;

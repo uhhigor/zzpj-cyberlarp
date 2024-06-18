@@ -1,20 +1,21 @@
 package com.example.cyberlarpapi.game.model.chat.DTO;
 
+import com.example.cyberlarpapi.game.model.chat.SCOPE;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class BroadcastMessageDTO {
+public class MessageDTO {
     private Integer id;
-    private String content;
     private Integer senderId;
-    private String scope;
+    private SCOPE scope;
+    private String content;
 
-    public BroadcastMessageDTO(Integer id, String content, Integer senderId, String scope) {
+    public MessageDTO(Integer id, Integer senderId, SCOPE scope, String content) {
         this.id = id;
-        this.content = content;
         this.senderId = senderId;
         this.scope = scope;
+        this.content = content;
     }
 }

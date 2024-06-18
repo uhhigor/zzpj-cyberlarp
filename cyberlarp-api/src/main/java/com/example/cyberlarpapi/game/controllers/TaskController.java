@@ -44,7 +44,7 @@ public class TaskController {
 
     @Operation(summary = "Create new task [FIXER]", description = "Create a new task in the game, providing name, description, reward and character id")
     @PostMapping("/")
-    public ResponseEntity<TaskResponse> createTask(@RequestBody TaskRequest taskRequest, @PathVariable Integer gameId) throws CharacterNotFoundException, UserServiceException {
+    public ResponseEntity<TaskResponse> createTask(@RequestBody TaskRequest taskRequest, @PathVariable Integer gameId) {
         Game game;
         try {
             game = gameService.getById(gameId);
