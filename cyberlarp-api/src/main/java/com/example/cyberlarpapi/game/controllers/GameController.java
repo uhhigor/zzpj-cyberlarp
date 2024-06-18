@@ -1,14 +1,11 @@
 package com.example.cyberlarpapi.game.controllers;
 
 import com.example.cyberlarpapi.game.DefaultGameData;
-import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
-import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameServiceException;
 import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
 import com.example.cyberlarpapi.game.exceptions.UserException.UserServiceException;
 import com.example.cyberlarpapi.game.model.game.Game;
-import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.services.CharacterService;
 import com.example.cyberlarpapi.game.services.GameService;
 import com.example.cyberlarpapi.game.services.UserService;
@@ -18,7 +15,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.example.cyberlarpapi.game.model.character.Character;
 
@@ -33,6 +29,7 @@ public class GameController {
     private final UserService userService;
 
     private final CharacterService characterService;
+
 
     public GameController(GameService gameService, UserService userService, CharacterService characterService) {
         this.gameService = gameService;

@@ -1,5 +1,8 @@
 package com.example.cyberlarpapi.game.services;
 
+import com.example.cyberlarpapi.game.exceptions.ChatExceptions.InvalidFactionException;
+import com.example.cyberlarpapi.game.model.chat.SCOPE;
+import com.example.cyberlarpapi.game.model.chat.message.Message;
 import com.example.cyberlarpapi.game.model.user._User;
 import com.example.cyberlarpapi.game.exceptions.BankingException.BankingServiceException;
 import com.example.cyberlarpapi.game.exceptions.GameException.GameNotFoundException;
@@ -63,6 +66,41 @@ public class GameService {
             }
         }
         return false;
+    }
+
+    public void addMessageToGame(Integer gameId, Message message) {
+        try {
+            for (Game game : this.gameRepository.findAll()) {
+                if (game.getId().equals(gameId)) {
+                    game.addMessage(message);
+                    gameRepository.save(game);
+                }
+            }
+        } catch (Exception e) {
+            throw new InvalidFactionException("Invalid faction");
+        }
+    }
+
+    public void deleteMessageFromGame(Integer gameId, Message message) {
+        for (Game game : this.gameRepository.findAll()) {
+            if (game.getId().equals(gameId)) {
+                game.deleteMessage(message);
+                gameRepository.save(game);
+            }
+        }
+    }
+
+    public List<Message> getMessagesFromGame(Integer gameId, Character character, SCOPE scope) {
+        try {
+            for (Game game : this.gameRepository.findAll()) {
+                if (game.getId().equals(gameId)) {
+                    return game.getMessages(character, scope);
+                }
+            }
+        } catch (Exception e) {
+            throw new InvalidFactionException("Invalid faction");
+        }
+        return null;
     }
 
     public boolean startGame() {

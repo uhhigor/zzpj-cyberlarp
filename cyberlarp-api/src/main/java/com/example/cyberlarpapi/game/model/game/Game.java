@@ -1,16 +1,17 @@
 package com.example.cyberlarpapi.game.model.game;
 
 import com.example.cyberlarpapi.game.exceptions.CharacterException.CharacterNotFoundException;
-import com.example.cyberlarpapi.game.model.chat.GroupChat;
+import com.example.cyberlarpapi.game.exceptions.ChatExceptions.InvalidFactionException;
+import com.example.cyberlarpapi.game.exceptions.ChatExceptions.MessageNotFoundException;
+import com.example.cyberlarpapi.game.model.chat.SCOPE;
+import com.example.cyberlarpapi.game.model.chat.message.Message;
 import com.example.cyberlarpapi.game.model.task.Task;
 import com.example.cyberlarpapi.game.model.user._User;
-import com.example.cyberlarpapi.game.DefaultGameData;
-import com.example.cyberlarpapi.game.model.Transaction;
 import com.example.cyberlarpapi.game.model.character.Character;
 import jakarta.persistence.*;
-import javassist.NotFoundException;
 import lombok.Getter;
 import lombok.Setter;
+import org.thymeleaf.standard.expression.MessageExpression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class Game {
     private List<Task> tasks = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<GroupChat> groupChats = new ArrayList<>();
+    private List<Message> messages = new ArrayList<>();
 
     @ManyToOne(cascade = CascadeType.ALL)
     private _User gameMaster;
@@ -58,6 +59,53 @@ public class Game {
         }
         throw new CharacterNotFoundException("Character not found");
     }
+
+    public void addMessage(Message message) {
+        messages.add(message);
+    }
+
+    public void deleteMessage(Message message) {
+        messages.remove(message);
+    }
+
+    public List<Message> getMessages(Character character, SCOPE scope) {
+        List<Message> publicMessages = new ArrayList<>();
+        List<Message> factionMessages = new ArrayList<>();
+
+        for (Message message : messages) {
+            if (message.getScope().equals(SCOPE.PUBLIC)) {
+                publicMessages.add(message);
+            }
+            if (isScopeValid(scope) && message.getScope().equals(scope) && character.getFaction().toString().equals(scope.toString())) {
+                factionMessages.add(message);
+            }
+        }
+
+        if (scope.equals(SCOPE.PUBLIC)) {
+            return publicMessages;
+        } else if (scope.equals(SCOPE.ALL)) {
+            List<Message> allMessages = new ArrayList<>(publicMessages);
+            allMessages.addAll(factionMessages);
+            return allMessages;
+        } else if (!scope.toString().equals(character.getFaction().toString())) {
+            throw new InvalidFactionException("Invalid faction");
+        } else if (isScopeValid(scope)) {
+            return factionMessages;
+        } else {
+            System.err.println("Invalid scope: " + scope);
+            return new ArrayList<>();
+        }
+    }
+
+    private boolean isScopeValid(SCOPE scope) {
+        try {
+            SCOPE.valueOf(scope.toString());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
 
     public static GameBuilder builder() {
         return new GameBuilder();
