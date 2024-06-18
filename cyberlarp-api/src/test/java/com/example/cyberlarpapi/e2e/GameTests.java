@@ -1,6 +1,6 @@
 package com.example.cyberlarpapi.e2e;
 
-import com.example.cyberlarpapi.e2e.security.CustomSecurityPostProcessor;
+import com.example.cyberlarpapi.e2e.secutity.CustomSecurityPostProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
