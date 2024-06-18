@@ -15,4 +15,9 @@ public class CustomSecurityPostProcessor {
         return SecurityMockMvcRequestPostProcessors.oidcLogin()
                 .idToken(token -> token.claim("email", "user2@example.com"));
     }
+
+    public static RequestPostProcessor applySecurity(String username) {
+        return SecurityMockMvcRequestPostProcessors.oidcLogin()
+                .idToken(token -> token.claim("email", username + "@example.com"));
+    }
 }

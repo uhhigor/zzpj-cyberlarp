@@ -1,6 +1,8 @@
 package com.example.cyberlarpapi.e2e;
 
 import com.example.cyberlarpapi.e2e.secutity.CustomSecurityPostProcessor;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +22,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,11 +56,13 @@ class TaskTests {
         createUser("user2");
         createGame();
         createCharacters();
+        assignCharactersToUsers();
     }
 
     private void createUser(String username) throws Exception {
         String userRequest = String.format("{\"username\": \"%s\"}", username);
         mockMvc.perform(get("/users/user")
+                        .with(CustomSecurityPostProcessor.applySecurity(username))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userRequest))
                 .andExpect(status().isOk())
@@ -82,19 +85,17 @@ class TaskTests {
     }
 
     private void createCharacters() throws Exception {
-        createCharacter(1, 1, "Character 1", "FIXER");
-        createCharacter(2, 1, "Character 2", "PUNK");
+        createCharacter("user1", 1, "Character 1", "FIXER");
+        createCharacter("user1", 1, "Character 2", "PUNK");
     }
 
-    private void createCharacter(int userId, int gameId, String name, String characterClass) throws Exception {
+    private void createCharacter(String username, int gameId, String name, String characterClass) throws Exception {
         String characterRequest = String.format("""
                 {
-                "userId": "%d",
-                "gameId": "%d",
                 "name": "%s",
                 "description": "This is an example character",
                 "characterClass": "%s",
-                "factionId": null,
+                "faction": "GOVERNMENT",
                 "style": "KITSCH",
                 "strength": 10,
                 "agility": 2,
@@ -105,15 +106,28 @@ class TaskTests {
                 "currentHp": 10,
                 "balance": 1000
                 }
-                """, userId, gameId, name, characterClass);
-        mockMvc.perform(post("/characters/game/" + gameId)
+                """, name, characterClass);
+        mockMvc.perform(post("/game/" + gameId + "/character/")
+                        .with(CustomSecurityPostProcessor.applySecurity(username))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(characterRequest))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.character.id").exists());
     }
+//TODO::POBIERAC ID TASKA!!!!!!!!!!!!!!!1
+    private void assignCharactersToUsers() throws Exception {
+        mockMvc.perform(post("/game/1/character/4/assignUser/1")
+                        .with(CustomSecurityPostProcessor.applySecurity("user1")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Character 4 assigned to user 1"));
 
-    private void createTask(int characterId) throws Exception {
+        mockMvc.perform(post("/game/1/character/5/assignUser/2")
+                        .with(CustomSecurityPostProcessor.applySecurity("user1")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Character 5 assigned to user 2"));
+    }
+
+    private Integer createTask(int characterId, String username) throws Exception {
         String taskRequest = String.format("""
             {
             "characterId": %d,
@@ -129,11 +143,20 @@ class TaskTests {
             }
             """, characterId);
 
-        mockMvc.perform(post("/task/create")
+
+         MvcResult response = mockMvc.perform(post("/game/1/task/")
+                        .with(CustomSecurityPostProcessor.applySecurity(username))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(taskRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.task.id").exists());
+                .andExpect(jsonPath("$.task.id").exists()).andReturn();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode responseJson = objectMapper.readTree(response.getResponse().getContentAsString());
+
+        return responseJson.get("task").get("id").asInt();
+
+
     }
 
 
@@ -145,21 +168,17 @@ class TaskTests {
     void createTask_Not_Fixer() {
         String taskRequest = """
             {
-            "characterId": 2,
             "name": "Task 1",
             "description": "This is an example task",
-            "status": "IN_PROGRESS",
             "type": "DELIVERY",
             "location": "Location 1",
             "reward": 100.0,
-            "deadline": "2022-12-31",
-            "completionDate": "2022-12-31",
-            "completionTime": "12:00"
             }
             """;
 
         try {
-            mockMvc.perform(post("/task/create")
+            mockMvc.perform(post("/game/1/task/")
+                            .with(CustomSecurityPostProcessor.applySecurity("user2"))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(taskRequest))
                     .andExpect(status().isBadRequest())
@@ -177,35 +196,27 @@ class TaskTests {
     void createTask_Success() {
         String taskRequest = """
                 {
-                "characterId": 1,
                 "name": "Task 1",
                 "description": "This is an example task",
-                "status": "IN_PROGRESS",
                 "type": "DELIVERY",
                 "location": "Location 1",
                 "reward": 100.0,
-                "deadline": "2022-12-31",
-                "completionDate": "2022-12-31",
-                "completionTime": "12:00"
                 }
                 """;
 
         try {
-            mockMvc.perform(post("/task/create")
+            mockMvc.perform(post("/game/1/task/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(taskRequest))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
-                    .andExpect(jsonPath("$.task.character.id").value(1))
                     .andExpect(jsonPath("$.task.name").value("Task 1"))
                     .andExpect(jsonPath("$.task.description").value("This is an example task"))
-                    .andExpect(jsonPath("$.task.status").value("IN_PROGRESS"))
+                    .andExpect(jsonPath("$.task.status").value("PENDING"))
                     .andExpect(jsonPath("$.task.type").value("DELIVERY"))
                     .andExpect(jsonPath("$.task.location").value("Location 1"))
                     .andExpect(jsonPath("$.task.reward").value(100.0))
-                    .andExpect(jsonPath("$.task.deadline").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionDate").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionTime").value("12:00:00"));
+                    .andExpect(jsonPath("$.task.assignedCharacter").value(null));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -218,7 +229,7 @@ class TaskTests {
     void createTask_Bad_Character() {
         String taskRequest = """
                 {
-                "characterId": 2,
+                "characterId": 5,
                 "name": "Task 1",
                 "description": "This is an example task",
                 "status": "IN_PROGRESS",
@@ -232,41 +243,11 @@ class TaskTests {
                 """;
 
         try {
-            mockMvc.perform(post("/task/create")
+            mockMvc.perform(post("/game/1/task/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(taskRequest))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Not your character"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Exception thrown", e);
-        }
-    }
-
-    // Create a task bad request
-    @Test
-    void createTask_No_Login() {
-        String taskRequest = """
-            {
-            "characterId": 1,
-            "name": "Task 1",
-            "description": "This is an example task",
-            "status": "IN_PROGRESS",
-            "type": "DELIVERY",
-            "location": "Location 1",
-            "reward": 100.0,
-            "deadline": "2022-12-31",
-            "completionDate": "2022-12-31",
-            "completionTime": "12:00"
-            }
-            """;
-
-        try {
-            mockMvc.perform(post("/task/create")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(taskRequest))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Not logged in"));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -278,10 +259,10 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void updateTask_Success() throws Exception {
-        createTask(1);
+        Integer taskId = createTask(4, "user1");
         String taskRequest = """
                 {
-                "characterId": 1,
+                "characterId": 4,
                 "name": "Task 3",
                 "description": "This is an example task",
                 "status": "IN_PROGRESS",
@@ -295,12 +276,12 @@ class TaskTests {
                 """;
 
         try {
-            mockMvc.perform(post("/task/update/1")
+            mockMvc.perform(put("/game/1/task/" + taskId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(taskRequest))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
-                    .andExpect(jsonPath("$.task.character.id").value(1))
+                    .andExpect(jsonPath("$.task.character.id").value(4))
                     .andExpect(jsonPath("$.task.name").value("Task 3"))
                     .andExpect(jsonPath("$.task.description").value("This is an example task"))
                     .andExpect(jsonPath("$.task.status").value("IN_PROGRESS"))
@@ -336,7 +317,7 @@ class TaskTests {
                 """;
 
         try {
-            mockMvc.perform(post("/task/update/1")
+            mockMvc.perform(put("/game/1/task/10")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(taskRequest))
                     .andExpect(status().isNotFound());
@@ -350,13 +331,13 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void getTask_Success() throws Exception {
-        createTask(1);
+        Integer taskId = createTask (4, "user1");
 
         try {
-            mockMvc.perform(get("/task/get/1"))
+            mockMvc.perform(get("/game/1/task/" + taskId))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
-                    .andExpect(jsonPath("$.task.character.id").value(1))
+                    .andExpect(jsonPath("$.task.character.id").value(4))
                     .andExpect(jsonPath("$.task.name").value("Task 1"))
                     .andExpect(jsonPath("$.task.description").value("This is an example task"))
                     .andExpect(jsonPath("$.task.status").value("IN_PROGRESS"))
@@ -377,7 +358,7 @@ class TaskTests {
     @WithMockUser(username = "user1")
     void getTask_Task_Not_Found() {
         try {
-            mockMvc.perform(get("/task/get/1"))
+            mockMvc.perform(get("/game/1/task/10"))
                     .andExpect(status().isNotFound());
         } catch (Exception e) {
             e.printStackTrace();
@@ -389,10 +370,10 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void deleteTask_Success() throws Exception {
-        createTask(1);
+        Integer taskId =  createTask(4, "user1");
 
         try {
-            mockMvc.perform(post("/task/delete/1"))
+            mockMvc.perform(post("/game/1/task/delete/" + taskId))
                     .andExpect(status().isOk());
         } catch (Exception e) {
             e.printStackTrace();
@@ -405,7 +386,7 @@ class TaskTests {
     @WithMockUser(username = "user1")
     void deleteTask_Task_Not_Found() {
         try {
-            mockMvc.perform(post("/task/delete/1"))
+            mockMvc.perform(post("/task/delete/10"))
                     .andExpect(status().isNotFound());
         } catch (Exception e) {
             e.printStackTrace();
@@ -417,7 +398,7 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void completeTask_Success() throws Exception {
-        createTask(1);
+        Integer taskId = createTask(4, "user1");
 
         try {
             mockMvc.perform(post("/task/complete/1?reward=100"))
@@ -443,10 +424,10 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void incompleteTask_Success() throws Exception {
-        createTask(1);
+        Integer taskId = createTask(4, "user1");
 
         try {
-            mockMvc.perform(post("/task/incomplete/1"))
+            mockMvc.perform(post("/task/incomplete/" + taskId))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
                     .andExpect(jsonPath("$.task.character.id").value(1))
@@ -469,10 +450,10 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void assignTask_Success() throws Exception {
-        createTask(1);
+        Integer taskId = createTask(4, "user1");
 
         try {
-            mockMvc.perform(post("/task/assign/1?characterId=2"))
+            mockMvc.perform(post("/game/1/task/"+ taskId+"/assignCharacter/5"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
                     .andExpect(jsonPath("$.task.character.id").value(2))
@@ -494,10 +475,10 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void unassignTaskSuccessfully() throws Exception {
-        createTask(1);
+        Integer taskId =  createTask(4, "user1");
 
         try {
-            mockMvc.perform(post("/task/unassign/1"))
+            mockMvc.perform(post("/game/1/task/"+taskId+"/deassignCharacter"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
                     .andExpect(jsonPath("$.task.name").value("Task 1"));
@@ -510,10 +491,10 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void getTasksForCharacter() throws Exception {
-        createTask(1);
-        createTask(1);
+        createTask(4, "user1");
+        createTask(4, "user1");
 
-        mockMvc.perform(get("/task/all/1"))
+        mockMvc.perform(get("/game/1/task/all"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].character.id").value(1))
