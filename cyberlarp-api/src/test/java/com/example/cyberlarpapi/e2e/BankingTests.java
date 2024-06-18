@@ -42,7 +42,7 @@ public class BankingTests {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
+            mockMvc.perform(get("/users/user")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -59,7 +59,7 @@ public class BankingTests {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
+            mockMvc.perform(get("/users/user")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -323,7 +323,7 @@ public class BankingTests {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
+            mockMvc.perform(get("/users/user")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())

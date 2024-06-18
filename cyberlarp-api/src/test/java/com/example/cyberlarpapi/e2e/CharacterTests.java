@@ -45,7 +45,7 @@ public class CharacterTests {
                 }
                 """, username);
 
-        String response = mockMvc.perform(post("/users")
+        String response = mockMvc.perform(get("/users/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userRequest))
                 .andExpect(status().isOk())

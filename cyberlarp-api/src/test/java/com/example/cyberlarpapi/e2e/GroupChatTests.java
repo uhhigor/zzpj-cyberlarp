@@ -44,7 +44,7 @@ class GroupChatTests {
 
     private void createUser(String username) throws Exception {
         String userRequest = String.format("{\"username\": \"%s\"}", username);
-        mockMvc.perform(post("/users")
+        mockMvc.perform(get("/users/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userRequest))
                 .andExpect(status().isOk())
