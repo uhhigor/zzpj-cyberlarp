@@ -17,7 +17,7 @@ import java.util.Random;
 @Entity
 @Getter
 @Setter
-@Table(name = "characters", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "game_id"})})
+@Table(name = "characters", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id"})})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Character {
 
