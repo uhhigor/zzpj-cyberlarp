@@ -1,17 +1,24 @@
-package com.example.cyberlarpapi;
+package com.example.cyberlarpapi.e2e;
 
+import com.example.cyberlarpapi.e2e.secutity.CustomSecurityPostProcessor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Fail.fail;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -20,12 +27,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class GameTests {
     @Autowired
+    private WebApplicationContext context;
+
+    @Autowired
     private MockMvc mockMvc;
+
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .defaultRequest(MockMvcRequestBuilders.get("/").with(CustomSecurityPostProcessor.applySecurityForUser1()))
+                .alwaysDo(print())
+                .build();
+    }
 
     // Scenario 1: Create a new game
     // 1. Create new user
@@ -39,7 +59,7 @@ public class GameTests {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
+            mockMvc.perform(get("/users/user")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -82,7 +102,7 @@ public class GameTests {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
+            mockMvc.perform(get("/users/user")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -104,13 +124,13 @@ public class GameTests {
             mockMvc.perform(post("/game")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(gameRequest))
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.message").value("Game created successfully"))
                     .andExpect(jsonPath("$.game.id").exists())
                     .andExpect(jsonPath("$.game.name").value("Game 1"))
                     .andExpect(jsonPath("$.game.description").value("This is an example game"))
-                    .andExpect(jsonPath("$.game.gameMasterId").value(1));
-
+                    .andExpect(jsonPath("$.game.gameMaster.id").value(1));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,7 +145,7 @@ public class GameTests {
                     .andExpect(jsonPath("$.game.id").exists())
                     .andExpect(jsonPath("$.game.name").value("Game 1"))
                     .andExpect(jsonPath("$.game.description").value("This is an example game"))
-                    .andExpect(jsonPath("$.game.gameMasterId").value(1));
+                    .andExpect(jsonPath("$.game.gameMaster.id").value(1));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -148,7 +168,7 @@ public class GameTests {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
+            mockMvc.perform(get("/users/user")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -184,7 +204,7 @@ public class GameTests {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
+            mockMvc.perform(get("/users/user")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest2))
                     .andExpect(status().isOk())
@@ -246,7 +266,7 @@ public class GameTests {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
+            mockMvc.perform(get("/users/user")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -302,7 +322,7 @@ public class GameTests {
                     .andExpect(jsonPath("$.game.id").exists())
                     .andExpect(jsonPath("$.game.name").value("Game 1 updated"))
                     .andExpect(jsonPath("$.game.description").value("This is an updated example game"))
-                    .andExpect(jsonPath("$.game.gameMasterId").value(1));
+                    .andExpect(jsonPath("$.game.gameMaster.id").value(1));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -324,7 +344,7 @@ public class GameTests {
                 """;
 
         try {
-            mockMvc.perform(post("/users")
+            mockMvc.perform(get("/users/user")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -394,8 +414,8 @@ public class GameTests {
                     """;
 
             try {
-                mockMvc.perform(post("/users")
-                                .contentType(MediaType.APPLICATION_JSON)
+                mockMvc.perform(get("/users/user")
+                                    .contentType(MediaType.APPLICATION_JSON)
                                 .content(userRequest))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id").exists());
@@ -430,8 +450,9 @@ public class GameTests {
                     """;
 
             try {
-                mockMvc.perform(post("/users")
-                                .contentType(MediaType.APPLICATION_JSON)
+                mockMvc.perform(get("/users/user")
+                                .with(CustomSecurityPostProcessor.applySecurityForUser2())
+                                    .contentType(MediaType.APPLICATION_JSON)
                                 .content(userRequest2))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id").exists());
@@ -449,6 +470,7 @@ public class GameTests {
 
             try {
                 mockMvc.perform(put("/game/1/gameMaster/2")
+                                .with(CustomSecurityPostProcessor.applySecurityForUser2())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(makeOwnerRequest))
                         .andExpect(status().isOk())
@@ -460,10 +482,11 @@ public class GameTests {
 
             try {
                 mockMvc.perform(get("/game/1")
+                                .with(CustomSecurityPostProcessor.applySecurityForUser2())
                                 .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.message").doesNotExist())
-                        .andExpect(jsonPath("$.game.gameMasterId").value(2));
+                        .andExpect(jsonPath("$.game.gameMaster.id").value(2));
             } catch (Exception e) {
                 e.printStackTrace();
                 fail("Exception thrown", e);
@@ -484,8 +507,8 @@ public class GameTests {
                     """;
 
             try {
-                mockMvc.perform(post("/users")
-                                .contentType(MediaType.APPLICATION_JSON)
+                mockMvc.perform(get("/users/user")
+                                    .contentType(MediaType.APPLICATION_JSON)
                                 .content(userRequest))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id").exists());
@@ -517,10 +540,9 @@ public class GameTests {
                 ResultActions resultActions = mockMvc.perform(get("/game/1")
                                 .contentType(MediaType.APPLICATION_JSON));
 
-                resultActions.andDo(print());
                 resultActions
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.game.availableCharacterIds").isEmpty()); //here
+                        .andExpect(jsonPath("$.game.characters", hasSize(3)));
             } catch (Exception e) {
                 e.printStackTrace();
                 fail("Exception thrown", e);

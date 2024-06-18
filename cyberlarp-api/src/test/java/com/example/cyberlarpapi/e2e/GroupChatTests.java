@@ -1,7 +1,8 @@
-package com.example.cyberlarpapi;
+package com.example.cyberlarpapi.e2e;
 
 
 
+import com.example.cyberlarpapi.e2e.secutity.CustomSecurityPostProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,17 +10,20 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 
 import static org.assertj.core.api.Fail.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,9 +37,17 @@ class GroupChatTests {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private WebApplicationContext context;
 
     @BeforeEach
     void setUp() throws Exception {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .defaultRequest(MockMvcRequestBuilders.get("/").with(CustomSecurityPostProcessor.applySecurityForUser1()))
+                .alwaysDo(print())
+                .build();
         createUser("user1");
         createUser("user2");
         createGame();
@@ -46,7 +58,7 @@ class GroupChatTests {
 
     private void createUser(String username) throws Exception {
         String userRequest = String.format("{\"username\": \"%s\"}", username);
-        mockMvc.perform(post("/users")
+        mockMvc.perform(get("/users/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userRequest))
                 .andExpect(status().isOk())
