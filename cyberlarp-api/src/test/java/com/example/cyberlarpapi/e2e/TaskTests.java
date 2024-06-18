@@ -39,11 +39,6 @@ class TaskTests {
     @Autowired
     private WebApplicationContext context;
 
-    private MvcResult character1;
-    private MvcResult character2;
-    private MvcResult game;
-
-
     @BeforeEach
     void setup() throws Exception {
         mockMvc = MockMvcBuilders
@@ -114,7 +109,6 @@ class TaskTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.character.id").exists());
     }
-//TODO::POBIERAC ID TASKA!!!!!!!!!!!!!!!1
     private void assignCharactersToUsers() throws Exception {
         mockMvc.perform(post("/game/1/character/4/assignUser/1")
                         .with(CustomSecurityPostProcessor.applySecurity("user1")))
@@ -127,21 +121,16 @@ class TaskTests {
                 .andExpect(jsonPath("$.message").value("Character 5 assigned to user 2"));
     }
 
-    private Integer createTask(int characterId, String username) throws Exception {
-        String taskRequest = String.format("""
+    private Integer createTask( String username) throws Exception {
+        String taskRequest = """
             {
-            "characterId": %d,
             "name": "Task 1",
             "description": "This is an example task",
-            "status": "IN_PROGRESS",
             "type": "DELIVERY",
             "location": "Location 1",
-            "reward": 100.0,
-            "deadline": "2022-12-31",
-            "completionDate": "2022-12-31",
-            "completionTime": "12:00"
+            "reward": 100.0
             }
-            """, characterId);
+            """;
 
 
          MvcResult response = mockMvc.perform(post("/game/1/task/")
@@ -156,10 +145,7 @@ class TaskTests {
 
         return responseJson.get("task").get("id").asInt();
 
-
     }
-
-
 
 
     // Create a task bad request
@@ -172,7 +158,7 @@ class TaskTests {
             "description": "This is an example task",
             "type": "DELIVERY",
             "location": "Location 1",
-            "reward": 100.0,
+            "reward": 100.0
             }
             """;
 
@@ -182,7 +168,7 @@ class TaskTests {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(taskRequest))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Only Fixers can create or update tasks"));
+                    .andExpect(jsonPath("$.message").value("Only Fixers can create tasks"));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -200,7 +186,7 @@ class TaskTests {
                 "description": "This is an example task",
                 "type": "DELIVERY",
                 "location": "Location 1",
-                "reward": 100.0,
+                "reward": 100.0
                 }
                 """;
 
@@ -215,8 +201,7 @@ class TaskTests {
                     .andExpect(jsonPath("$.task.status").value("PENDING"))
                     .andExpect(jsonPath("$.task.type").value("DELIVERY"))
                     .andExpect(jsonPath("$.task.location").value("Location 1"))
-                    .andExpect(jsonPath("$.task.reward").value(100.0))
-                    .andExpect(jsonPath("$.task.assignedCharacter").value(null));
+                    .andExpect(jsonPath("$.task.reward").value(100.0));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -226,28 +211,12 @@ class TaskTests {
     // Create a task bad request
     @Test
     @WithMockUser(username = "user1")
-    void createTask_Bad_Character() {
-        String taskRequest = """
-                {
-                "characterId": 5,
-                "name": "Task 1",
-                "description": "This is an example task",
-                "status": "IN_PROGRESS",
-                "type": "DELIVERY",
-                "location": "Location 1",
-                "reward": 100.0,
-                "deadline": "2022-12-31",
-                "completionDate": "2022-12-31",
-                "completionTime": "12:00"
-                }
-                """;
+    void assignTask_Bad_Character() throws Exception {
+        Integer taskId = createTask("user1");
 
         try {
-            mockMvc.perform(post("/game/1/task/")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(taskRequest))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Not your character"));
+            mockMvc.perform(post("/game/1/task/"+ taskId+"/assignCharacter/10"))
+                    .andExpect(status().isNotFound());
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -259,19 +228,14 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void updateTask_Success() throws Exception {
-        Integer taskId = createTask(4, "user1");
+        Integer taskId = createTask( "user1");
         String taskRequest = """
                 {
-                "characterId": 4,
                 "name": "Task 3",
                 "description": "This is an example task",
-                "status": "IN_PROGRESS",
                 "type": "DELIVERY",
                 "location": "Location 1",
-                "reward": 100.0,
-                "deadline": "2022-12-31",
-                "completionDate": "2022-12-31",
-                "completionTime": "13:00"
+                "reward": 100.0
                 }
                 """;
 
@@ -281,16 +245,12 @@ class TaskTests {
                             .content(taskRequest))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
-                    .andExpect(jsonPath("$.task.character.id").value(4))
                     .andExpect(jsonPath("$.task.name").value("Task 3"))
                     .andExpect(jsonPath("$.task.description").value("This is an example task"))
-                    .andExpect(jsonPath("$.task.status").value("IN_PROGRESS"))
+                    .andExpect(jsonPath("$.task.status").value("PENDING"))
                     .andExpect(jsonPath("$.task.type").value("DELIVERY"))
                     .andExpect(jsonPath("$.task.location").value("Location 1"))
-                    .andExpect(jsonPath("$.task.reward").value(100.0))
-                    .andExpect(jsonPath("$.task.deadline").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionDate").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionTime").value("13:00:00"));
+                    .andExpect(jsonPath("$.task.reward").value(100.0));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -303,16 +263,11 @@ class TaskTests {
     void updateTask_Task_Not_Found() {
         String taskRequest = """
                 {
-                "characterId": 1,
                 "name": "Task 3",
                 "description": "This is an example task",
-                "status": "IN_PROGRESS",
                 "type": "DELIVERY",
                 "location": "Location 1",
-                "reward": 100.0,
-                "deadline": "2022-12-31",
-                "completionDate": "2022-12-31",
-                "completionTime": "13:00"
+                "reward": 100.0
                 }
                 """;
 
@@ -331,22 +286,18 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void getTask_Success() throws Exception {
-        Integer taskId = createTask (4, "user1");
+        Integer taskId = createTask ("user1");
 
         try {
             mockMvc.perform(get("/game/1/task/" + taskId))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
-                    .andExpect(jsonPath("$.task.character.id").value(4))
                     .andExpect(jsonPath("$.task.name").value("Task 1"))
                     .andExpect(jsonPath("$.task.description").value("This is an example task"))
-                    .andExpect(jsonPath("$.task.status").value("IN_PROGRESS"))
+                    .andExpect(jsonPath("$.task.status").value("PENDING"))
                     .andExpect(jsonPath("$.task.type").value("DELIVERY"))
                     .andExpect(jsonPath("$.task.location").value("Location 1"))
-                    .andExpect(jsonPath("$.task.reward").value(100.0))
-                    .andExpect(jsonPath("$.task.deadline").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionDate").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionTime").value("12:00:00"));
+                    .andExpect(jsonPath("$.task.reward").value(100.0));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -370,11 +321,12 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void deleteTask_Success() throws Exception {
-        Integer taskId =  createTask(4, "user1");
+        Integer taskId =  createTask("user1");
 
         try {
             mockMvc.perform(post("/game/1/task/delete/" + taskId))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value("Task deleted successfully"));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -398,22 +350,34 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void completeTask_Success() throws Exception {
-        Integer taskId = createTask(4, "user1");
+        Integer taskId = createTask( "user1");
 
         try {
-            mockMvc.perform(post("/task/complete/1?reward=100"))
+            mockMvc.perform(post("/game/1/task/"+ taskId+"/assignCharacter/5"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
-                    .andExpect(jsonPath("$.task.character.id").value(1))
+                    .andExpect(jsonPath("$.task.name").value("Task 1"))
+                    .andExpect(jsonPath("$.task.description").value("This is an example task"))
+                    .andExpect(jsonPath("$.task.status").value("PENDING"))
+                    .andExpect(jsonPath("$.task.type").value("DELIVERY"))
+                    .andExpect(jsonPath("$.task.location").value("Location 1"))
+                    .andExpect(jsonPath("$.task.reward").value(100.0))
+                    .andExpect(jsonPath("$.task.assignedCharacter.id").value(5));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+
+        try {
+            mockMvc.perform(post("/game/1/task/"+taskId+"/status/SUCCESS"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.task.id").exists())
                     .andExpect(jsonPath("$.task.name").value("Task 1"))
                     .andExpect(jsonPath("$.task.description").value("This is an example task"))
                     .andExpect(jsonPath("$.task.status").value("SUCCESS"))
                     .andExpect(jsonPath("$.task.type").value("DELIVERY"))
                     .andExpect(jsonPath("$.task.location").value("Location 1"))
-                    .andExpect(jsonPath("$.task.reward").value(100.0))
-                    .andExpect(jsonPath("$.task.deadline").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionDate").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionTime").value("12:00:00"));
+                    .andExpect(jsonPath("$.task.reward").value(100.0));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -424,22 +388,18 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void incompleteTask_Success() throws Exception {
-        Integer taskId = createTask(4, "user1");
+        Integer taskId = createTask("user1");
 
         try {
-            mockMvc.perform(post("/task/incomplete/" + taskId))
+            mockMvc.perform(post("/game/1/task/"+ taskId +"/status/FAILURE"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
-                    .andExpect(jsonPath("$.task.character.id").value(1))
                     .andExpect(jsonPath("$.task.name").value("Task 1"))
                     .andExpect(jsonPath("$.task.description").value("This is an example task"))
                     .andExpect(jsonPath("$.task.status").value("FAILURE"))
                     .andExpect(jsonPath("$.task.type").value("DELIVERY"))
                     .andExpect(jsonPath("$.task.location").value("Location 1"))
-                    .andExpect(jsonPath("$.task.reward").value(100.0))
-                    .andExpect(jsonPath("$.task.deadline").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionDate").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionTime").value("12:00:00"));
+                    .andExpect(jsonPath("$.task.reward").value(100.0));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -450,22 +410,19 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void assignTask_Success() throws Exception {
-        Integer taskId = createTask(4, "user1");
+        Integer taskId = createTask("user1");
 
         try {
             mockMvc.perform(post("/game/1/task/"+ taskId+"/assignCharacter/5"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.task.id").exists())
-                    .andExpect(jsonPath("$.task.character.id").value(2))
                     .andExpect(jsonPath("$.task.name").value("Task 1"))
                     .andExpect(jsonPath("$.task.description").value("This is an example task"))
-                    .andExpect(jsonPath("$.task.status").value("IN_PROGRESS"))
+                    .andExpect(jsonPath("$.task.status").value("PENDING"))
                     .andExpect(jsonPath("$.task.type").value("DELIVERY"))
                     .andExpect(jsonPath("$.task.location").value("Location 1"))
                     .andExpect(jsonPath("$.task.reward").value(100.0))
-                    .andExpect(jsonPath("$.task.deadline").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionDate").value("2022-12-31"))
-                    .andExpect(jsonPath("$.task.completionTime").value("12:00:00"));
+                    .andExpect(jsonPath("$.task.assignedCharacter.id").value(5));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -475,7 +432,23 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void unassignTaskSuccessfully() throws Exception {
-        Integer taskId =  createTask(4, "user1");
+        Integer taskId =  createTask("user1");
+
+        try {
+            mockMvc.perform(post("/game/1/task/"+ taskId+"/assignCharacter/5"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.task.id").exists())
+                    .andExpect(jsonPath("$.task.name").value("Task 1"))
+                    .andExpect(jsonPath("$.task.description").value("This is an example task"))
+                    .andExpect(jsonPath("$.task.status").value("PENDING"))
+                    .andExpect(jsonPath("$.task.type").value("DELIVERY"))
+                    .andExpect(jsonPath("$.task.location").value("Location 1"))
+                    .andExpect(jsonPath("$.task.reward").value(100.0))
+                    .andExpect(jsonPath("$.task.assignedCharacter.id").value(5));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
 
         try {
             mockMvc.perform(post("/game/1/task/"+taskId+"/deassignCharacter"))
@@ -491,16 +464,14 @@ class TaskTests {
     @Test
     @WithMockUser(username = "user1")
     void getTasksForCharacter() throws Exception {
-        createTask(4, "user1");
-        createTask(4, "user1");
+        createTask( "user1");
+        createTask("user1");
 
         mockMvc.perform(get("/game/1/task/all"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].character.id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Task 1"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].character").value(1));
+                .andExpect(jsonPath("$[1].id").value(2));
     }
 
 }
