@@ -76,6 +76,7 @@ public class BankingTests {
 
         try {
             mockMvc.perform(get("/users/user")
+                            .with(CustomSecurityPostProcessor.applySecurityForUser2())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -107,12 +108,10 @@ public class BankingTests {
 
         String character1Request = """
            {
-           "userId": "1",
-           "gameId": "1",
            "name": "Character 1",
            "description": "This is an example character",
            "characterClass": "PUNK",
-           "factionId": null,
+           "faction": "ANARCHISTS",
            "style": "KITSCH",
            "strength": 10,
            "agility": 2,
@@ -127,12 +126,10 @@ public class BankingTests {
 
         String character2Request = """
            {
-           "userId": "2",
-           "gameId": "1",
-           "name": "Character 1",
+           "name": "Character 2",
            "description": "This is an example character",
            "characterClass": "PUNK",
-           "factionId": null,
+           "faction": "ANARCHISTS",
            "style": "KITSCH",
            "strength": 10,
            "agility": 2,
@@ -146,7 +143,7 @@ public class BankingTests {
             """;
 
         try {
-            character1 = mockMvc.perform(post("/characters/game/1")
+            character1 = mockMvc.perform(post("/game/1/character/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(character1Request))
                     .andExpect(status().isOk())
@@ -158,7 +155,7 @@ public class BankingTests {
         }
 
         try {
-            character2 = mockMvc.perform(post("/characters/game/1")
+            character2 = mockMvc.perform(post("/game/1/character/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(character2Request))
                     .andExpect(status().isOk())
@@ -168,6 +165,22 @@ public class BankingTests {
             e.printStackTrace();
             fail("Exception thrown", e);
         }
+        //assign one character to user 1 and 2nd to user2
+        try {
+            mockMvc.perform(post("/game/1/character/" + JsonPath.read(character1.getResponse().getContentAsString(), "$.character.id") + "/assignUser/1"))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+        try {
+            mockMvc.perform(post("/game/1/character/" + JsonPath.read(character2.getResponse().getContentAsString(), "$.character.id") + "/assignUser/2"))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
+
     }
 
 
@@ -182,13 +195,12 @@ public class BankingTests {
         ",
         "receiverBankAccount": \"""" + accountNumber2 + """
         ",
-        "amount": 100,
-        "gameId": 1
+        "amount": 100
         }
         """;
 
         try {
-            mockMvc.perform(post("/characters/transfer")
+            mockMvc.perform(post("/game/1/action/balance/transfer")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(transactionRequest))
                     .andExpect(status().isOk())
@@ -215,13 +227,12 @@ public class BankingTests {
         ",
         "receiverBankAccount": \"""" + accountNumber2 + """
         ",
-        "amount": 100,
-        "gameId": 1
+        "amount": 100
         }
         """;
 
         try {
-            mockMvc.perform(post("/characters/transfer")
+            mockMvc.perform(post("/game/1/action/balance/transfer")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(transactionRequest))
                     .andExpect(status().isOk())
@@ -233,7 +244,7 @@ public class BankingTests {
         }
 
         try {
-            mockMvc.perform(get("/characters/" + id1))
+            mockMvc.perform(get("/game/1/character/" + id1))
                             .andExpect(status().isOk())
                             .andExpect(jsonPath("$.character.balance").value(900));
         } catch (Exception e) {
@@ -242,7 +253,8 @@ public class BankingTests {
         }
 
         try {
-            mockMvc.perform(get("/characters/" + id2))
+            mockMvc.perform(get("/game/1/character/" + id2)
+                            .with(CustomSecurityPostProcessor.applySecurityForUser2()))
                             .andExpect(status().isOk())
                             .andExpect(jsonPath("$.character.balance").value(1100));
 
@@ -263,17 +275,16 @@ public class BankingTests {
         ",
         "receiverBankAccount": \"""" + accountNumber2 + """
         ",
-        "amount": 2000,
-        "gameId": 1
+        "amount": 2000
         }
         """;
 
         try {
-            mockMvc.perform(post("/characters/transfer")
+            mockMvc.perform(post("/game/1/action/balance/transfer")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(transactionRequest))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Not enough money on your bank account!"));
+                    .andExpect(jsonPath("$.message").value("Not enough money on sender's bank account."));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -291,8 +302,7 @@ public class BankingTests {
         2",
         "receiverBankAccount": \"""" + accountNumber2 + """
         ",
-        "amount": 100,
-        "gameId": 1
+        "amount": 100
         }
         """;
 
@@ -302,28 +312,27 @@ public class BankingTests {
         ",
         "receiverBankAccount": \"""" + accountNumber2 + """
         b",
-        "amount": 100,
-        "gameId": 1
+        "amount": 100
         }
         """;
 
         try {
-            mockMvc.perform(post("/characters/transfer")
+            mockMvc.perform(post("/game/1/action/balance/transfer")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(transactionRequest1))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("There is no character with given account number!"));
+                    .andExpect(jsonPath("$.message").value("Not authorized to transfer money from this account"));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
         }
 
         try {
-            mockMvc.perform(post("/characters/transfer")
+            mockMvc.perform(post("/game/1/action/balance/transfer")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(transactionRequest2))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("There is no character with given account number!"));
+                    .andExpect(jsonPath("$.message").value("Character with bank account number "+ accountNumber2+"b not found"));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
@@ -340,6 +349,7 @@ public class BankingTests {
 
         try {
             mockMvc.perform(get("/users/user")
+                            .with(CustomSecurityPostProcessor.applySecurityForUser2())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userRequest))
                     .andExpect(status().isOk())
@@ -359,6 +369,7 @@ public class BankingTests {
 
         try {
             mockMvc.perform(post("/game")
+                            .with(CustomSecurityPostProcessor.applySecurityForUser2())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(gameRequest))
                     .andExpect(status().isOk())
@@ -370,12 +381,10 @@ public class BankingTests {
 
         String character3Request = """
            {
-           "userId": 2,
-           "gameId": 2,
            "name": "Character 1",
            "description": "This is an example character",
            "characterClass": "PUNK",
-           "factionId": null,
+           "faction": "GOVERNMENT",
            "style": "KITSCH",
            "strength": 10,
            "agility": 2,
@@ -389,7 +398,8 @@ public class BankingTests {
             """;
         MvcResult character3 = null;
         try {
-            character3 = mockMvc.perform(post("/characters/game/2")
+            character3 = mockMvc.perform(post("/game/2/character/")
+                            .with(CustomSecurityPostProcessor.applySecurityForUser2())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(character3Request))
                     .andExpect(status().isOk())
@@ -410,23 +420,21 @@ public class BankingTests {
         ",
         "receiverBankAccount": \"""" + accountNumber3 + """
         ",
-        "amount": 100,
-        "gameId": 1
+        "amount": 100
         }
         """;
 
         try {
-            mockMvc.perform(post("/characters/transfer")
+            mockMvc.perform(post("/game/1/action/balance/transfer")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(transactionRequest1))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Characters are not in the same game!"));
+                    .andExpect(jsonPath("$.message").value("Character with bank account number "+ accountNumber3 +" not found"));
         } catch (Exception e) {
             e.printStackTrace();
             fail("Exception thrown", e);
         }
 
     }
-    
 }
 
