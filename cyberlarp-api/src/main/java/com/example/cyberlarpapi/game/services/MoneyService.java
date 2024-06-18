@@ -58,8 +58,7 @@ public class MoneyService {
     // ====================== Banking ========================== //
 
     public List<Transaction> getTransactions(Game game, Character sender, String characterBankNumber) throws CharacterNotFoundException, MoneyServiceException {
-        Character character = getCharacterByBankAccountNumber(game, characterBankNumber);
-        if (character.getCharacterClass() == CharacterClass.NETRUNNER || character.getId().equals(sender.getId())) {
+        if (sender.getCharacterClass() == CharacterClass.NETRUNNER || sender.getId().equals(game.getGameMaster().getId())) {
             List<Transaction> result = new ArrayList<>();
             for (Transaction transaction : transactionRepository.findAll()) {
                 if (transaction.getSenderAccount().equals(characterBankNumber) || transaction.getReceiverAccount().equals(characterBankNumber)) {
