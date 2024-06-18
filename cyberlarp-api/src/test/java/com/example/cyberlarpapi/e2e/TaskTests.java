@@ -1,6 +1,6 @@
-package com.example.cyberlarpapi;
+package com.example.cyberlarpapi.e2e;
 
-import org.junit.jupiter.api.BeforeAll;
+import com.example.cyberlarpapi.e2e.security.CustomSecurityPostProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,14 +9,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,6 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class TaskTests {
+    @Autowired
+    private WebApplicationContext context;
 
     @Autowired
     private MockMvc mockMvc;
@@ -38,19 +43,30 @@ class TaskTests {
 
     @BeforeEach
     void setup() throws Exception {
+//        mockMvc = MockMvcBuilders
+//                .webAppContextSetup(context)
+//                .apply(SecurityMockMvcConfigurers.springSecurity())
+//                .defaultRequest(CustomSecurityPostProcessor.applySecurity())
+//                .build();
+
         createUser("user1");
         createUser("user2");
         createGame();
         createCharacters();
     }
 
-    private void createUser(String username) throws Exception {
-        String userRequest = String.format("{\"username\": \"%s\"}", username);
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userRequest))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists());
+    private void createUser(String username) {
+        try {
+            mockMvc.perform(get("/users/user")
+                            .with(oidcLogin().idToken(token -> token.claim("email", "user1@example.com")))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(username))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").exists());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception thrown", e);
+        }
     }
 
     private void createGame() throws Exception {

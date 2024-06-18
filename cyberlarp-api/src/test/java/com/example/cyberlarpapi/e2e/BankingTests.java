@@ -1,4 +1,4 @@
-package com.example.cyberlarpapi;
+package com.example.cyberlarpapi.e2e;
 
 
 import com.jayway.jsonpath.JsonPath;
