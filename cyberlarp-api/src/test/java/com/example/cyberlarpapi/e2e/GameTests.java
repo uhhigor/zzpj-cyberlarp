@@ -43,6 +43,7 @@ public class GameTests {
                 .webAppContextSetup(context)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .defaultRequest(MockMvcRequestBuilders.get("/").with(CustomSecurityPostProcessor.applySecurity()))
+                .alwaysDo(print())
                 .build();
     }
 
@@ -123,13 +124,13 @@ public class GameTests {
             mockMvc.perform(post("/game")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(gameRequest))
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.message").value("Game created successfully"))
                     .andExpect(jsonPath("$.game.id").exists())
                     .andExpect(jsonPath("$.game.name").value("Game 1"))
                     .andExpect(jsonPath("$.game.description").value("This is an example game"))
                     .andExpect(jsonPath("$.game.gameMasterId").value(1));
-
 
         } catch (Exception e) {
             e.printStackTrace();
