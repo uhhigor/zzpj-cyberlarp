@@ -1,6 +1,6 @@
 package com.example.cyberlarpapi.e2e;
 
-import com.example.cyberlarpapi.e2e.security.CustomSecurityPostProcessor;
+import com.example.cyberlarpapi.e2e.secutity.CustomSecurityPostProcessor;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -217,6 +217,7 @@ public class MessageTests {
             fail("Exception thrown", e);
         }
 
+        assert messageResult != null;
         Integer messageId = JsonPath.read(messageResult.getResponse().getContentAsString(), "$.message.id");
 
         try {
