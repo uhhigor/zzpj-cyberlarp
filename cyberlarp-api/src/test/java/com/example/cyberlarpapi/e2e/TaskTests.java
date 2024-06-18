@@ -109,6 +109,7 @@ class TaskTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.character.id").exists());
     }
+
     private void assignCharactersToUsers() throws Exception {
         mockMvc.perform(post("/game/1/character/4/assignUser/1")
                         .with(CustomSecurityPostProcessor.applySecurity("user1")))

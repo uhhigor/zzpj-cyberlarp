@@ -29,7 +29,6 @@ import java.util.List;
 public class MessageController {
 
     private final GameService gameService;
-
     private final UserService userService;
 
     @Operation(summary = "Send message in game", description = "Send message in game by providing game id, content and scope")
@@ -41,16 +40,19 @@ public class MessageController {
             Character character = game.getUserCharacter(user);
             String content = messageRequest.content;
             SCOPE scope = messageRequest.scope;
-            Message message = new Message(character, scope, content);
-            if (!messageRequest.scope.toString().equals(character.getFaction().toString())){
+
+            // Sprawdź, czy scope jest prawidłowy
+            if (scope != SCOPE.PUBLIC && scope != SCOPE.ALL && !scope.toString().equals(character.getFaction().toString())) {
                 return ResponseEntity.badRequest().build();
             }
+
+            Message message = new Message(character, scope, content);
             gameService.addMessageToGame(gameId, message);
             return ResponseEntity.ok("Message " + message.getContent() + " sent in game " + game.getName());
         } catch (GameNotFoundException | MessageNotFoundException | CharacterNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (UserServiceException e) {
-           return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -61,6 +63,7 @@ public class MessageController {
             Game game = gameService.getById(gameId);
             _User user = userService.getCurrentUser();
             Character character = game.getUserCharacter(user);
+
             List<Message> messages = gameService.getMessagesFromGame(gameId, character, scope);
             List<String> messageContents = new ArrayList<>();
             for (Message message : messages) {
@@ -74,10 +77,8 @@ public class MessageController {
         }
     }
 
-
     public static class MessageRequest {
         public String content;
         public SCOPE scope;
-
     }
 }
