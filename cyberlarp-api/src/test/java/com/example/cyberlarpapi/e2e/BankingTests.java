@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -47,6 +48,7 @@ public class BankingTests {
                     .webAppContextSetup(context)
                     .apply(SecurityMockMvcConfigurers.springSecurity())
                     .defaultRequest(MockMvcRequestBuilders.get("/").with(CustomSecurityPostProcessor.applySecurity()))
+                    .alwaysDo(print())
                     .build();
 
         String userRequest = """
