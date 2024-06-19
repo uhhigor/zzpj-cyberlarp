@@ -120,7 +120,8 @@ public class BankingTests {
            "knowledge": 4,
            "maxHp": 10,
            "currentHp": 10,
-           "balance": 1000
+           "balance": 1000,
+           "armor": 0
            }
             """;
 
@@ -138,7 +139,8 @@ public class BankingTests {
            "knowledge": 4,
            "maxHp": 10,
            "currentHp": 10,
-           "balance": 1000
+           "balance": 1000,
+           "armor": 0
            }
             """;
 
@@ -393,7 +395,8 @@ public class BankingTests {
            "knowledge": 4,
            "maxHp": 10,
            "currentHp": 10,
-           "balance": 1000
+           "balance": 1000,
+           "armor": 0
            }
             """;
         MvcResult character3 = null;

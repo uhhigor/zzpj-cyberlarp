@@ -98,7 +98,8 @@ public class CharacterTests {
            "knowledge": 4,
            "maxHp": 10,
            "currentHp": 10,
-           "balance": 1000
+           "balance": 1000,
+           "armor": 0
            }
             """, characterName);
 
@@ -145,7 +146,8 @@ public class CharacterTests {
            "knowledge": 4,
            "maxHp": 10,
            "currentHp": 10,
-           "balance": 1000
+           "balance": 1000,
+           "armor": 0
            }
             """;
 
@@ -169,7 +171,8 @@ public class CharacterTests {
                     "knowledge": 4,
                     "maxHp": 10,
                     "currentHp": 10,
-                    "balance": 10
+                    "balance": 10,
+                    "armor": 0
                     }
                     """;
 
@@ -193,7 +196,8 @@ public class CharacterTests {
                     "knowledge": 4,
                     "maxHp": 10,
                     "currentHp": 10,
-                    "balance": 10
+                    "balance": 10,
+                    "armor": 0
                     }
                     """;
 
@@ -217,7 +221,8 @@ public class CharacterTests {
                     "knowledge": 4,
                     "maxHp": 10,
                     "currentHp": 10,
-                    "balance": 10
+                    "balance": 10,
+                    "armor": 0
                     }
                     """;
 
@@ -241,7 +246,8 @@ public class CharacterTests {
                     "knowledge": 4,
                     "maxHp": 10,
                     "currentHp": 10,
-                    "balance": 10
+                    "balance": 10,
+                    "armor": 0
                     }
                     """;
 
@@ -277,7 +283,8 @@ public class CharacterTests {
                     "knowledge": 4,
                     "maxHp": 10,
                     "currentHp": 10,
-                    "balance": 10
+                    "balance": 10,
+                    "armor": 0
                     }
                     """;
 

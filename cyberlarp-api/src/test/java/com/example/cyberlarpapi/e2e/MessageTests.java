@@ -101,7 +101,8 @@ public class MessageTests {
                 "knowledge": 4,
                 "maxHp": 10,
                 "currentHp": 10,
-                "balance": 1000
+                "balance": 1000,
+                "armor": 0
                 }
                 """, name, characterClass);
         mockMvc.perform(post("/game/" + 1 + "/character/")

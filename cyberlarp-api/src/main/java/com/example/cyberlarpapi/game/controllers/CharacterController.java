@@ -114,6 +114,7 @@ public class CharacterController {
             throw new CharacterException("Invalid character class");
         }
 
+
         Character character = Character.builder()
                 .name(request.getName())
                 .description(request.getDescription())
