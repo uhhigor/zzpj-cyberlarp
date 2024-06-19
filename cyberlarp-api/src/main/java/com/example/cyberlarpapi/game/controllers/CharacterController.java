@@ -94,7 +94,7 @@ public class CharacterController {
         }
     }
 
-    private Character createAndSaveCharacter(CharacterRequest request, Game game) throws CharacterException {
+    private Character createAndSaveCharacter(CharacterRequest request) throws CharacterException {
         Faction faction;
         try {
             faction = Faction.valueOf(request.getFaction());
@@ -127,10 +127,9 @@ public class CharacterController {
                 .knowledge(request.getKnowledge())
                 .maxHp(request.getMaxHp())
                 .balance(request.getBalance())
+                .armor(request.getArmor())
                 .build();
         Character savedCharacter = characterService.save(character);
-//        game.addCharacter(savedCharacter);
-//        gameService.save(game);
         return savedCharacter;
     }
 
@@ -143,7 +142,7 @@ public class CharacterController {
             if(!game.getGameMaster().getId().equals(sender.getId()))
                 return ResponseEntity.badRequest().body(new CharacterResponse("Only game master can add characters"));
 
-            Character character = createAndSaveCharacter(request, game);
+            Character character = createAndSaveCharacter(request);
             game.addCharacter(character);
             gameService.save(game);
             return ResponseEntity.ok(new CharacterResponse("Character " + character.getId() + " added to game " + game.getId(), characterService.save(character)));
@@ -208,6 +207,8 @@ public class CharacterController {
                 character.setAttribute(Attribute.KNOWLEDGE, request.getKnowledge());
             if(request.getMaxHp() != null)
                 character.setMaxHp(request.getMaxHp());
+            if(request.getArmor() != null)
+                character.setArmor(request.getArmor());
             return ResponseEntity.ok(new CharacterResponse("Character " + id + " updated successfully", characterService.save(character)));
         } catch (CharacterNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -231,7 +232,7 @@ public class CharacterController {
         private Integer toughness;
         private Integer knowledge;
         private Integer maxHp;
-        private Integer currentHp;
+        private Integer armor;
         private Float balance;
     }
 
