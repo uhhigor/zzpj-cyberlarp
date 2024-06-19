@@ -28,13 +28,26 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Tag(name = "Character Actions", description = "Actions that can be performed by a character")
 @RestController
 @RequestMapping("/game/{gameId}/action")
 public class CharacterActionsController {
+
+    public static Map<Character, LocalTime> lastAttackTime;
+    public static Map<Character, LocalTime> lastHealTime;
+    public static Map<Character, LocalTime> lastRollTime;
+
+    public static final int ROLL_COOLDOWN = 5; // seconds
+    public static final int ATTACK_COOLDOWN = 15; // seconds
+    public static final int HEAL_COOLDOWN = 60; // seconds
+
+
     private final CharacterService characterService;
     private final GameService gameService;
 
@@ -92,7 +105,15 @@ public class CharacterActionsController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new RollAttributeResponse("Invalid attribute value: " + attribute, null));
         }
-
+        if(lastRollTime.containsKey(character)) {
+            int timeLeft = (int) LocalTime.now().until(lastRollTime.get(character).plusSeconds(ROLL_COOLDOWN), ChronoUnit.SECONDS);
+            if (timeLeft > 0) {
+                return ResponseEntity.badRequest().body(new RollAttributeResponse("You need to wait " + timeLeft + " seconds before rolling again", null));
+            } else {
+                lastRollTime.remove(character);
+            }
+        }
+        lastRollTime.put(character, LocalTime.now());
         return ResponseEntity.ok(new RollAttributeResponse(null, character.rollAttributeCheck(attributeEnum)));
     }
 
@@ -126,15 +147,25 @@ public class CharacterActionsController {
             return ResponseEntity.badRequest().body(new AttackResponse(e.getMessage(), null, null, null, null));
         }
 
-        int damage = attacker.rollAttributeCheck(Attribute.STRENGTH) - defender.rollAttributeCheck(Attribute.TOUGHNESS) - defender.getArmor();
+        if(lastAttackTime.containsKey(attacker)) {
+            int timeLeft = (int) LocalTime.now().until(lastAttackTime.get(attacker).plusSeconds(ATTACK_COOLDOWN), ChronoUnit.SECONDS);
+            if (timeLeft > 0) {
+                return ResponseEntity.badRequest().body(new AttackResponse("You need to wait " + timeLeft + " seconds before attacking again", null, null, null, null));
+            } else {
+                lastAttackTime.remove(attacker);
+            }
+        }
 
-        if (damage <= 0) {
+        int rollResult = attacker.rollAttributeCheck(Attribute.STRENGTH) - Math.max(defender.rollAttributeCheck(Attribute.TOUGHNESS), defender.rollAttributeCheck(Attribute.AGILITY));
+
+        if(rollResult <= 0) {
             return ResponseEntity.ok(new AttackResponse("", attacker.getId(), defender.getId(), "Miss!", 0));
         }
-        defender.takeDamage(damage);
+        int damage = attacker.getAttribute(Attribute.STRENGTH);
+        int result = defender.takeDamage(damage);
         characterService.save(defender);
 
-        return ResponseEntity.ok(new AttackResponse("", attacker.getId(), defender.getId(), "Hit!", damage));
+        return ResponseEntity.ok(new AttackResponse("", attacker.getId(), defender.getId(), "Hit!", result));
     }
 
     @Operation(summary = "Heal another character", description = "Heal another character by providing character id")
@@ -165,6 +196,15 @@ public class CharacterActionsController {
             character = game.getCharacterById(characterId);
         } catch (CharacterNotFoundException e) {
             return ResponseEntity.badRequest().body(new HealResponse(e.getMessage(), null, null));
+        }
+
+        if(lastHealTime.containsKey(healer)) {
+            int timeLeft = (int) LocalTime.now().until(lastHealTime.get(healer).plusSeconds(HEAL_COOLDOWN), ChronoUnit.SECONDS);
+            if (timeLeft > 0) {
+                return ResponseEntity.badRequest().body(new HealResponse("You need to wait " + timeLeft + " seconds before healing again", null, null));
+            } else {
+                lastHealTime.remove(healer);
+            }
         }
 
         int roll = healer.rollAttributeCheck(Attribute.KNOWLEDGE);

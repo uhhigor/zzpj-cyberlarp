@@ -88,7 +88,7 @@ public class Character {
     }
 
     public int takeDamage(int damage) {
-        return currentHp = Math.max(0, currentHp - Math.max(0, damage));
+        return currentHp = Math.max(0, currentHp - Math.max(0, damage - armor));
     }
 
     public int heal(int amount) {
