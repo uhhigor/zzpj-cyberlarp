@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -39,9 +40,9 @@ import java.util.Objects;
 @RequestMapping("/game/{gameId}/action")
 public class CharacterActionsController {
 
-    public static Map<Character, LocalTime> lastAttackTime;
-    public static Map<Character, LocalTime> lastHealTime;
-    public static Map<Character, LocalTime> lastRollTime;
+    public static Map<Integer, LocalTime> lastAttackTime = new HashMap<>();
+    public static Map<Integer, LocalTime> lastHealTime = new HashMap<>();
+    public static Map<Integer, LocalTime> lastRollTime = new HashMap<>();
 
     public static final int ROLL_COOLDOWN = 5; // seconds
     public static final int ATTACK_COOLDOWN = 15; // seconds
@@ -105,15 +106,16 @@ public class CharacterActionsController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new RollAttributeResponse("Invalid attribute value: " + attribute, null));
         }
-        if(lastRollTime.containsKey(character)) {
-            int timeLeft = (int) LocalTime.now().until(lastRollTime.get(character).plusSeconds(ROLL_COOLDOWN), ChronoUnit.SECONDS);
+        System.out.println(lastRollTime);
+        if(lastRollTime.containsKey(character.getId())) {
+            int timeLeft = (int) LocalTime.now().until(lastRollTime.get(character.getId()).plusSeconds(ROLL_COOLDOWN), ChronoUnit.SECONDS);
             if (timeLeft > 0) {
                 return ResponseEntity.badRequest().body(new RollAttributeResponse("You need to wait " + timeLeft + " seconds before rolling again", null));
             } else {
-                lastRollTime.remove(character);
+                lastRollTime.remove(character.getId());
             }
         }
-        lastRollTime.put(character, LocalTime.now());
+        lastRollTime.put(character.getId(), LocalTime.now());
         return ResponseEntity.ok(new RollAttributeResponse(null, character.rollAttributeCheck(attributeEnum)));
     }
 
@@ -147,12 +149,12 @@ public class CharacterActionsController {
             return ResponseEntity.badRequest().body(new AttackResponse(e.getMessage(), null, null, null, null));
         }
 
-        if(lastAttackTime.containsKey(attacker)) {
-            int timeLeft = (int) LocalTime.now().until(lastAttackTime.get(attacker).plusSeconds(ATTACK_COOLDOWN), ChronoUnit.SECONDS);
+        if(lastAttackTime.containsKey(attacker.getId())) {
+            int timeLeft = (int) LocalTime.now().until(lastAttackTime.get(attacker.getId()).plusSeconds(ATTACK_COOLDOWN), ChronoUnit.SECONDS);
             if (timeLeft > 0) {
                 return ResponseEntity.badRequest().body(new AttackResponse("You need to wait " + timeLeft + " seconds before attacking again", null, null, null, null));
             } else {
-                lastAttackTime.remove(attacker);
+                lastAttackTime.remove(attacker.getId());
             }
         }
 
@@ -165,6 +167,7 @@ public class CharacterActionsController {
         int result = defender.takeDamage(damage);
         characterService.save(defender);
 
+        lastAttackTime.put(attacker.getId(), LocalTime.now());
         return ResponseEntity.ok(new AttackResponse("", attacker.getId(), defender.getId(), "Hit!", result));
     }
 
@@ -198,12 +201,12 @@ public class CharacterActionsController {
             return ResponseEntity.badRequest().body(new HealResponse(e.getMessage(), null, null));
         }
 
-        if(lastHealTime.containsKey(healer)) {
-            int timeLeft = (int) LocalTime.now().until(lastHealTime.get(healer).plusSeconds(HEAL_COOLDOWN), ChronoUnit.SECONDS);
+        if(lastHealTime.containsKey(healer.getId())) {
+            int timeLeft = (int) LocalTime.now().until(lastHealTime.get(healer.getId()).plusSeconds(HEAL_COOLDOWN), ChronoUnit.SECONDS);
             if (timeLeft > 0) {
                 return ResponseEntity.badRequest().body(new HealResponse("You need to wait " + timeLeft + " seconds before healing again", null, null));
             } else {
-                lastHealTime.remove(healer);
+                lastHealTime.remove(healer.getId());
             }
         }
 
@@ -219,6 +222,7 @@ public class CharacterActionsController {
         character.heal(amount);
         characterService.save(character);
 
+        lastHealTime.put(healer.getId(), LocalTime.now());
         return ResponseEntity.ok(new HealResponse("", character.getId(), amount));
     }
 
