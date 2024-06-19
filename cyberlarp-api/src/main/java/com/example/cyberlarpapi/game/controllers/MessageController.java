@@ -41,7 +41,6 @@ public class MessageController {
             String content = messageRequest.content;
             SCOPE scope = messageRequest.scope;
 
-            // Sprawdź, czy scope jest prawidłowy
             if (scope != SCOPE.PUBLIC && scope != SCOPE.ALL && !scope.toString().equals(character.getFaction().toString())) {
                 return ResponseEntity.badRequest().build();
             }
