@@ -84,11 +84,11 @@ public class Character {
     private List<Task> tasks;
 
     public int rollAttributeCheck(Attribute attribute) {
-        return new Random().nextInt(20) + getAttribute(attribute);
+        return new Random().nextInt(20) + 1 + getAttribute(attribute);
     }
 
     public int takeDamage(int damage) {
-        return currentHp -= (damage - armor);
+        return currentHp = Math.max(0, currentHp - Math.max(0, damage));
     }
 
     public int heal(int amount) {

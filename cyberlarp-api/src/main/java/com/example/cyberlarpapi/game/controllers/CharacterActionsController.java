@@ -49,11 +49,18 @@ public class CharacterActionsController {
         this.moneyService = moneyService;
     }
 
-    public record RollAttributeRequest(Integer characterId, String attribute) {}
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record RollAttributeResponse(String message, Integer result) {
     }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record AttackResponse(String message, Integer attackerId, Integer defenderId, String result, Integer damage) {
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record HealResponse(String message, Integer characterId, Integer amount) {
+    }
+
 
     @Operation(summary = "Attribute check roll", description = "Roll an attribute check for a character")
     @PostMapping("/roll/{attribute}")
@@ -88,6 +95,93 @@ public class CharacterActionsController {
 
         return ResponseEntity.ok(new RollAttributeResponse(null, character.rollAttributeCheck(attributeEnum)));
     }
+
+    @Operation(summary = "Attack another character", description = "Attack another character by providing defender character id")
+    @PostMapping("/attack/{defenderId}")
+    public ResponseEntity<AttackResponse> attack(@PathVariable Integer gameId, @PathVariable Integer defenderId) {
+        Game game;
+        try {
+            game = gameService.getById(gameId);
+        } catch (GameNotFoundException e) {
+            return ResponseEntity.badRequest().body(new AttackResponse(e.getMessage(), null, null, null, null));
+        }
+        _User user;
+        try {
+            user = userService.getCurrentUser();
+        } catch (UserServiceException e) {
+            return ResponseEntity.badRequest().body(new AttackResponse(e.getMessage(), null, null, null, null));
+        }
+
+        Character attacker;
+        try {
+            attacker = game.getUserCharacter(user);
+        } catch (CharacterNotFoundException e) {
+            return ResponseEntity.badRequest().body(new AttackResponse(e.getMessage(), null, null, null, null));
+        }
+
+        Character defender;
+        try {
+            defender = game.getCharacterById(defenderId);
+        } catch (CharacterNotFoundException e) {
+            return ResponseEntity.badRequest().body(new AttackResponse(e.getMessage(), null, null, null, null));
+        }
+
+        int damage = attacker.rollAttributeCheck(Attribute.STRENGTH) - defender.rollAttributeCheck(Attribute.TOUGHNESS) - defender.getArmor();
+
+        if (damage <= 0) {
+            return ResponseEntity.ok(new AttackResponse("", attacker.getId(), defender.getId(), "Miss!", 0));
+        }
+        defender.takeDamage(damage);
+        characterService.save(defender);
+
+        return ResponseEntity.ok(new AttackResponse("", attacker.getId(), defender.getId(), "Hit!", damage));
+    }
+
+    @Operation(summary = "Heal another character", description = "Heal another character by providing character id")
+    @PostMapping("/heal/{characterId}")
+    public ResponseEntity<HealResponse> heal(@PathVariable Integer gameId, @PathVariable Integer characterId) {
+        Game game;
+        try {
+            game = gameService.getById(gameId);
+        } catch (GameNotFoundException e) {
+            return ResponseEntity.badRequest().body(new HealResponse(e.getMessage(), null, null));
+        }
+        _User user;
+        try {
+            user = userService.getCurrentUser();
+        } catch (UserServiceException e) {
+            return ResponseEntity.badRequest().body(new HealResponse(e.getMessage(), null, null));
+        }
+
+        Character healer;
+        try {
+            healer = game.getUserCharacter(user);
+        } catch (CharacterNotFoundException e) {
+            return ResponseEntity.badRequest().body(new HealResponse(e.getMessage(), null, null));
+        }
+
+        Character character;
+        try {
+            character = game.getCharacterById(characterId);
+        } catch (CharacterNotFoundException e) {
+            return ResponseEntity.badRequest().body(new HealResponse(e.getMessage(), null, null));
+        }
+
+        int roll = healer.rollAttributeCheck(Attribute.KNOWLEDGE);
+        int amount;
+        if (roll < 10) {
+            amount = 1;
+        } else if (roll < 15) {
+            amount = 2;
+        } else {
+            amount = 3;
+        }
+        character.heal(amount);
+        characterService.save(character);
+
+        return ResponseEntity.ok(new HealResponse("", character.getId(), amount));
+    }
+
 
     // ====================== Banking ========================== //
 

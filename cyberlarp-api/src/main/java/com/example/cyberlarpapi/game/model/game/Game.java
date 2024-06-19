@@ -60,6 +60,15 @@ public class Game {
         throw new CharacterNotFoundException("Character not found");
     }
 
+    public Character getCharacterById(Integer id) throws CharacterNotFoundException {
+        for(Character character : characters) {
+            if(character.getId().equals(id)) {
+                return character;
+            }
+        }
+        throw new CharacterNotFoundException("Character not found");
+    }
+
     public void addMessage(Message message) {
         messages.add(message);
     }
