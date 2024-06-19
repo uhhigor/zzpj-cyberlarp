@@ -76,7 +76,7 @@ public class CharacterActionsController {
     }
 
 
-    @Operation(summary = "Attribute check roll", description = "Roll an attribute check for a character")
+    @Operation(summary = "Attribute check roll [CHARACTER]", description = "Roll an attribute check for a character")
     @PostMapping("/roll/{attribute}")
     public ResponseEntity<RollAttributeResponse> roll(@PathVariable Integer gameId, @PathVariable String attribute) {
 
@@ -119,7 +119,7 @@ public class CharacterActionsController {
         return ResponseEntity.ok(new RollAttributeResponse(null, character.rollAttributeCheck(attributeEnum)));
     }
 
-    @Operation(summary = "Attack another character", description = "Attack another character by providing defender character id")
+    @Operation(summary = "Attack another character [CHARACTER]", description = "Attack another character by providing defender character id")
     @PostMapping("/attack/{defenderId}")
     public ResponseEntity<AttackResponse> attack(@PathVariable Integer gameId, @PathVariable Integer defenderId) {
         Game game;
@@ -171,7 +171,7 @@ public class CharacterActionsController {
         return ResponseEntity.ok(new AttackResponse("", attacker.getId(), defender.getId(), "Hit!", result));
     }
 
-    @Operation(summary = "Heal another character", description = "Heal another character by providing character id")
+    @Operation(summary = "Heal another character [CHARACTER]", description = "Heal another character by providing character id")
     @PostMapping("/heal/{characterId}")
     public ResponseEntity<HealResponse> heal(@PathVariable Integer gameId, @PathVariable Integer characterId) {
         Game game;
@@ -248,7 +248,7 @@ public class CharacterActionsController {
             return ResponseEntity.notFound().build();
         }
     }
-    @Operation(summary = "Get money transfers of character", description = "Get money transfers of character by providing bank account number")
+    @Operation(summary = "Get money transfers of character [CHARACTER]", description = "Get money transfers of character by providing bank account number")
     @GetMapping("/balance/transfers/{bankAccount}")
     public ResponseEntity<?> getTransactionsOfGame(@PathVariable Integer gameId, @PathVariable String bankAccount) {
         try {

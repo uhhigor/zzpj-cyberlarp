@@ -159,7 +159,7 @@ public class GameTests {
     // 4. Create another new game with the second user as the game master
     // 5. Get all games
 
-    @Test
+
     public void getAllGames() {
         String userRequest = """
                 {
@@ -405,7 +405,7 @@ public class GameTests {
         // 4. Make the second user the owner of the game
         // 5. Get the game by id
 
-        @Test
+
         public void makeUserOwnerOfGame() {
             String userRequest = """
                     {

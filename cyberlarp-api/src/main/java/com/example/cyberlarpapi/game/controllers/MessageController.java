@@ -31,7 +31,7 @@ public class MessageController {
     private final GameService gameService;
     private final UserService userService;
 
-    @Operation(summary = "Send message in game", description = "Send message in game by providing game id, content and scope")
+    @Operation(summary = "Send message [CHARACTER]", description = "Send message in game by providing game id, content and scope")
     @PostMapping("/")
     public ResponseEntity<String> addMessageToGame(@PathVariable Integer gameId, @RequestBody MessageRequest messageRequest) {
         try {
@@ -55,7 +55,7 @@ public class MessageController {
         }
     }
 
-    @Operation(summary = "Get messages from game", description = "Get messages from game by providing game id and scope")
+    @Operation(summary = "Get messages [CHARACTER]", description = "Get messages from game by providing game id and scope")
     @GetMapping("/{scope}")
     public ResponseEntity<List<String>> getMessagesFromGame(@PathVariable Integer gameId, @PathVariable SCOPE scope) {
         try {

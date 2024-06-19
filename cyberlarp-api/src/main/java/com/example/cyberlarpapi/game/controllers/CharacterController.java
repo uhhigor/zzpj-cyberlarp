@@ -60,7 +60,7 @@ public class CharacterController {
         return ResponseEntity.badRequest().body(new CharacterResponse("You are not allowed to view this character"));
     }
 
-    @Operation(summary = "Get current character [Player]", description = "Get current character by providing game id")
+    @Operation(summary = "Get current character [PLAYER]", description = "Get current character by providing game id")
     @GetMapping("/")
     public ResponseEntity<CharacterResponse> getCharacterById(@PathVariable Integer gameId) {
         try {
@@ -74,7 +74,7 @@ public class CharacterController {
         }
     }
 
-    @Operation(summary = "Delete character by id [GM]", description = "Delete character by id by providing character id and game id")
+    @Operation(summary = "Delete character [GM]", description = "Delete character by id by providing character id and game id")
     @DeleteMapping("/{characterId}")
     public ResponseEntity<CharacterResponse> deleteCharacter(@PathVariable Integer characterId, @PathVariable Integer gameId) {
         try {
