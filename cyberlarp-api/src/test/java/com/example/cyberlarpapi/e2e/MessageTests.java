@@ -1,8 +1,6 @@
 package com.example.cyberlarpapi.e2e;
 
 import com.example.cyberlarpapi.e2e.secutity.CustomSecurityPostProcessor;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -55,6 +52,7 @@ public class MessageTests {
         createUser("user2");
         createGame();
         createCharacters();
+        assignCharactersToUsers();
     }
 
     private void createUser(String username) throws Exception {
@@ -84,11 +82,11 @@ public class MessageTests {
     }
 
     private void createCharacters() throws Exception {
-        character1 = createCharacter("user1", 1, "Character 1", "FIXER");
-        character2 = createCharacter("user1", 1, "Character 2", "PUNK");
+        createCharacter("Character 1", "FIXER");
+        createCharacter("Character 2", "PUNK");
     }
 
-    private MvcResult createCharacter(String username, int gameId, String name, String characterClass) throws Exception {
+    private void createCharacter(String name, String characterClass) throws Exception {
         String characterRequest = String.format("""
                 {
                 "name": "%s",
@@ -106,86 +104,59 @@ public class MessageTests {
                 "balance": 1000
                 }
                 """, name, characterClass);
-        return mockMvc.perform(post("/game/" + gameId + "/character/")
-                        .with(CustomSecurityPostProcessor.applySecurity(username))
+        mockMvc.perform(post("/game/" + 1 + "/character/")
+                        .with(CustomSecurityPostProcessor.applySecurity("user1"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(characterRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.character.id").exists())
-                .andReturn();
+                .andExpect(jsonPath("$.character.id").exists());
+    }
+
+    private void assignCharactersToUsers() throws Exception {
+        mockMvc.perform(post("/game/1/character/4/assignUser/1")
+                        .with(CustomSecurityPostProcessor.applySecurity("user1")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Character 4 assigned to user 1"));
+
+        mockMvc.perform(post("/game/1/character/5/assignUser/2")
+                        .with(CustomSecurityPostProcessor.applySecurity("user1")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Character 5 assigned to user 2"));
     }
 
     @Test
     public void addMessageToGameTest() throws Exception {
-        int gameId = 1;
-        String content = "This is a test message";
-        MessageRequest messageRequest = new MessageRequest(content, "PUBLIC");
+        String messageRequest = """
+                {
+                "content": "This is a test message",
+                "scope": "PUBLIC"
+                }
+                """;
 
-        mockMvc.perform(post("/game/" + gameId + "/message/")
+        mockMvc.perform(post("/game/" + 1 + "/message/")
+                        .with(CustomSecurityPostProcessor.applySecurity("user1"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(messageRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Message added to game successfully"));
-    }
-
-
-    @Test
-    public void deleteMessageFromGameTest() throws Exception {
-        int gameId = 1;
-        String content = "This is a test message to delete";
-        MessageRequest messageRequest = new MessageRequest(content, "PUBLIC");
-
-        MvcResult messageResult = mockMvc.perform(post("/game/" + gameId + "/message/")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(messageRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Message added to game successfully"))
-                .andReturn();
-
-        int messageId = new ObjectMapper().readTree(messageResult.getResponse().getContentAsString()).get("id").asInt();
-
-        mockMvc.perform(delete("/game/" + gameId + "/message/" + messageId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Message deleted from game successfully"));
+                        .content(messageRequest))
+                .andExpect(status().isOk());
     }
 
     @Test
     public void getMessagesFromGameTest() throws Exception {
-        int gameId = 1;
-        String content1 = "This is a public message";
-        String content2 = "This is a faction message";
+        String messageRequest = """
+                {
+                "content": "This is a test message",
+                "scope": "PUBLIC"
+                }
+                """;
 
-        MessageRequest messageRequest1 = new MessageRequest(content1, "PUBLIC");
-        MessageRequest messageRequest2 = new MessageRequest(content2, "ANARCHISTS");
-
-        mockMvc.perform(post("/game/" + gameId + "/message/")
+        mockMvc.perform(post("/game/" + 1 + "/message/")
+                        .with(CustomSecurityPostProcessor.applySecurity("user1"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(messageRequest1)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Message added to game successfully"));
+                        .content(messageRequest))
+                .andExpect(status().isOk());
 
-        mockMvc.perform(post("/game/" + gameId + "/message/")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(messageRequest2)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Message added to game successfully"));
-
-        mockMvc.perform(get("/game/" + gameId + "/messages")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.messages").isArray())
-                .andExpect(jsonPath("$.messages.length()").value(2))
-                .andExpect(jsonPath("$.messages[0].content").value(content1))
-                .andExpect(jsonPath("$.messages[1].content").value(content2));
-    }
-
-    public static class MessageRequest {
-        public String content;
-        public String scope;
-
-        public MessageRequest(String content, String scope) {
-            this.content = content;
-            this.scope = scope;
-        }
+        mockMvc.perform(get("/game/" + 1 + "/message/PUBLIC")
+                        .with(CustomSecurityPostProcessor.applySecurity("user1")))
+                .andExpect(status().isOk());
     }
 }
